@@ -25,16 +25,12 @@ function AppContent() {
 
   if (fluxo === 'register') {
     return (
-      <Register
-        onVoltarLogin={() => setFluxo('login')}
-      />
+      <Register onVoltarLogin={() => setFluxo('login')} />
     );
   }
 
   return (
-    <Login
-      onIrParaRegister={() => setFluxo('register')}
-    />
+    <Login onIrParaRegister={() => setFluxo('register')} />
   );
 }
 
