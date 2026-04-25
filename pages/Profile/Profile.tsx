@@ -13,6 +13,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { styles } from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { FooterButton, Footer } from '../../components/Footer/Footer';
 
 export function Profile({ onVoltar }: { onVoltar: () => void }) {
   const { user, logout } = useAuth();
@@ -186,11 +187,20 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
       </ScrollView>
 
       {/* FOOTER */}
-      <View style={styles.footer}>
-        <View style={styles.icon} />
-        <View style={styles.icon} />
-        <View style={[styles.icon, styles.active]} />
-      </View>
+      <Footer>
+        <FooterButton
+          type='1'
+          onPress={onVoltar} // 'onVoltar' é temporário. substituir quando a tela home for feita.
+        />
+        <FooterButton
+          type='2'
+          onPress={onVoltar} // substituir 'onVoltar' quando a tela do meio for feita.
+        />
+        <FooterButton
+          active
+          type='3'
+        />
+      </Footer>
     </View>
   );
 }

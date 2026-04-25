@@ -74,25 +74,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  footer: {
-    height: 70,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTopWidth: 1,
-  },
-
-  icon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#ccc',
-  },
-
-  active: {
-    backgroundColor: '#5FA777',
-  },
-
   logoutBtn: {
   marginTop: 30,
   padding: 12,
