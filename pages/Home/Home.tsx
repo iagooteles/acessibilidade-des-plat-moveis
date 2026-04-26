@@ -32,6 +32,8 @@ export function Home() {
         variant="secondary"
         onPress={logout}
       />
+
+      
     </View>
   );
 }
