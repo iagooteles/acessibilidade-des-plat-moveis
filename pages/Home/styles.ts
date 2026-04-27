@@ -4,28 +4,110 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+
+  header: {
+    backgroundColor: '#5FA777',
+    height: 110,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
   },
-  titulo: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  email: {
+
+  headerText: {
+    color: '#fff',
     fontSize: 16,
-    color: '#374151',
-    marginBottom: 12,
   },
-  dica: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 28,
+
+  filterText: {
+    color: '#E6F4EA',
+    fontSize: 16,
   },
-  botao: {
-    minWidth: 160,
+  filtroCard: {
+  position: 'absolute',
+  top: 80,
+  right: 20,
+  width: 220,
+  backgroundColor: '#fff',
+  borderRadius: 15,
+  padding: 15,
+  zIndex: 10,
+  elevation: 10, 
+  shadowColor: '#000',
+  shadowOpacity: 0.2,
+  shadowOffset: { width: 0, height: 2 },
+},
+
+  title: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+
+  mapContainer: {
+    flex: 1,
+  },
+
+  searchInput: {
+    position: 'absolute',
+    top: 20,
+    alignSelf: 'center',
+    width: '90%',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 25,
+    zIndex: 1,
+  },
+
+  mapImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#5FA777',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  fabText: {
+    color: '#fff',
+    fontSize: 30,
+  },
+
+  footer: {
+    height: 70,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderTopWidth: 1,
+  },
+
+  icon: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  backgroundColor: '#ccc',
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflow: 'hidden',
+},
+
+  iconImage: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
+},
+
+  active: {
+    backgroundColor: '#5FA777',
   },
 });
