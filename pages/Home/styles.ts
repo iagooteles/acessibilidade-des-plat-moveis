@@ -8,17 +8,25 @@ export const styles = StyleSheet.create({
 
   header: {
     backgroundColor: '#5FA777',
-    height: 110,
-    paddingTop: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
 
-  headerText: {
-    color: '#fff',
-    fontSize: 16,
+  headerSide: {
+    flex: 1,
+  },
+
+  headerSideRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+
+  headerTitleWrap: {
+    flexShrink: 0,
   },
 
   filterText: {

@@ -1,18 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { View, Text, TextInput, Image, Pressable } from 'react-native';
+import { useAuth } from '../../components/AuthProvider';
+import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
 import { styles } from './styles';
-import { View, Text, TextInput, Image, Pressable } from 'react-native';
 
-export function Home() {
+type HomeProps = {
+  onPrecisaLogin: () => void;
+};
+
+export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
+  const { user } = useAuth();
   const [verProfile, setVerProfile] = useState(false);
+  const [verAvaliation, setVerAvaliation] = useState(false);
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [rampa, setRampa] = useState(false);
   const [piso, setPiso] = useState(true);
   const [estacionamento, setEstacionamento] = useState(false);
   const [sinalizacao, setSinalizacao] = useState(false);
 
+  useEffect(() => {
+    if (!user && verProfile) {
+      setVerProfile(false);
+    }
+  }, [user, verProfile]);
+
   if (verProfile) {
     return <Profile onVoltar={() => setVerProfile(false)} />;
+  }
+
+  if (verAvaliation) {
+    return <Avaliation onVoltar={() => setVerAvaliation(false)} />;
   }
 
   return (
@@ -20,13 +38,19 @@ export function Home() {
 
       {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.headerText}></Text>
-
-        <Text style={styles.title}>Mapa</Text>
-
-        <Pressable onPress={() => setMostrarFiltro(!mostrarFiltro)}>
-          <Text style={styles.filterText}>Filtrar</Text>
-        </Pressable>
+        <View style={styles.headerSide} />
+        <View style={styles.headerTitleWrap}>
+          <Text style={styles.title}>Mapa</Text>
+        </View>
+        <View style={styles.headerSideRight}>
+          <Pressable
+            onPress={() => setMostrarFiltro(!mostrarFiltro)}
+            accessibilityRole="button"
+            accessibilityLabel="Filtrar mapa"
+          >
+            <Text style={styles.filterText}>Filtrar</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* MAPA */}
@@ -65,7 +89,12 @@ export function Home() {
         />
 
         {/* BOTÃO + */}
-        <Pressable style={styles.fab}>
+        <Pressable
+          style={styles.fab}
+          onPress={() => setVerAvaliation(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Nova avaliação"
+        >
           <Text style={styles.fabText}>+</Text>
         </Pressable>
 
@@ -89,11 +118,22 @@ export function Home() {
           </View>
         </Pressable>
 
-        <Pressable onPress={() => setVerProfile(true)}>
+        <Pressable
+          onPress={() => {
+            if (user) {
+              setVerProfile(true);
+            } else {
+              onPrecisaLogin();
+            }
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={user ? 'Abrir perfil' : 'Entrar para ver o perfil'}
+        >
           <View style={styles.icon}>
-            <Image 
-              source={require('../../components/Imagens/usuario.png')} 
-              style={styles.iconImage}/>
+            <Image
+              source={require('../../assets/avatar.png')}
+              style={styles.iconImage}
+            />
           </View>
         </Pressable>
       </View>

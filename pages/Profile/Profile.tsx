@@ -193,11 +193,38 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
         </Pressable>
       </ScrollView>
 
-      {/* FOOTER */}
+      {/* FOOTER — mesmo padrão da Home: mapa volta ao mapa (home) */}
       <View style={styles.footer}>
-        <View style={styles.icon} />
-        <View style={styles.icon} />
-        <View style={[styles.icon, styles.active]} />
+        <Pressable
+          onPress={onVoltar}
+          accessibilityRole="button"
+          accessibilityLabel="Ir para o mapa"
+        >
+          <View style={styles.icon}>
+            <Image
+              source={require('../../components/Imagens/icon-map.png')}
+              style={styles.iconImage}
+            />
+          </View>
+        </Pressable>
+
+        <Pressable accessibilityRole="button" accessibilityLabel="Anotações">
+          <View style={styles.icon}>
+            <Image
+              source={require('../../components/Imagens/lapis.png')}
+              style={styles.iconImage}
+            />
+          </View>
+        </Pressable>
+
+        <Pressable accessibilityRole="button" accessibilityLabel="Perfil, tela atual">
+          <View style={[styles.icon, styles.active]}>
+            <Image
+              source={require('../../assets/avatar.png')}
+              style={styles.iconImage}
+            />
+          </View>
+        </Pressable>
       </View>
     </View>
   );
