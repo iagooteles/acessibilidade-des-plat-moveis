@@ -83,7 +83,7 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.5,
-      base64: true, // 🔥 ESSENCIAL
+      base64: true, 
     });
 
     if (!result.canceled && result.assets[0].base64) {
