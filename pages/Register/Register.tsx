@@ -14,9 +14,10 @@ import { styles } from './styles';
 
 type Props = {
   onVoltarLogin: () => void;
+  onVoltar?: () => void;
 };
 
-export function Register({ onVoltarLogin }: Props) {
+export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
   const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -53,7 +54,24 @@ export function Register({ onVoltarLogin }: Props) {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      {onVoltar ? (
+        <View style={styles.topBar}>
+          <View style={styles.topBarInner}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Voltar ao mapa"
+              onPress={onVoltar}
+              style={styles.voltarPressable}
+              hitSlop={12}
+            >
+              <Text style={styles.voltarText}>← Voltar ao mapa</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+
       <ScrollView
+        style={styles.scrollArea}
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >

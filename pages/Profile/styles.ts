@@ -88,6 +88,15 @@ export const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+
+  iconImage: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
   },
 
   active: {

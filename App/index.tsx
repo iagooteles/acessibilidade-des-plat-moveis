@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from '../components/AuthProvider';
 import { Home } from '../pages/Home/Home';
@@ -10,6 +10,14 @@ import { styles } from './styles';
 function AppContent() {
   const { user, initializing } = useAuth();
   const [fluxo, setFluxo] = useState<'login' | 'register'>('login');
+  const [mostrarAuth, setMostrarAuth] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setMostrarAuth(false);
+      setFluxo('login');
+    }
+  }, [user]);
 
   if (initializing) {
     return (
@@ -19,19 +27,31 @@ function AppContent() {
     );
   }
 
-  if (user) {
-    return <Home />;
-  }
+  if (mostrarAuth && !user) {
+    if (fluxo === 'register') {
+      return (
+        <Register
+          onVoltarLogin={() => setFluxo('login')}
+          onVoltar={() => {
+            setMostrarAuth(false);
+            setFluxo('login');
+          }}
+        />
+      );
+    }
 
-  if (fluxo === 'register') {
     return (
-      <Register onVoltarLogin={() => setFluxo('login')} />
+      <Login
+        onIrParaRegister={() => setFluxo('register')}
+        onVoltar={() => {
+          setMostrarAuth(false);
+          setFluxo('login');
+        }}
+      />
     );
   }
 
-  return (
-    <Login onIrParaRegister={() => setFluxo('register')} />
-  );
+  return <Home onPrecisaLogin={() => setMostrarAuth(true)} />;
 }
 
 export default function App() {

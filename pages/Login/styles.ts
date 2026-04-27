@@ -3,6 +3,28 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   flex: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  topBar: {
+    alignItems: 'center',
+    paddingTop: 48,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  topBarInner: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 420,
+    alignItems: 'center',
+  },
+  voltarPressable: {
+    paddingVertical: 8,
+    alignSelf: 'baseline',
+  },
+  scrollArea: {
+    flex: 1,
   },
   scroll: {
     flexGrow: 1,
@@ -13,6 +35,11 @@ export const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
+  },
+  voltarText: {
+    fontSize: 16,
+    color: '#374151',
+    fontWeight: '600',
   },
   titulo: {
     fontSize: 28,
