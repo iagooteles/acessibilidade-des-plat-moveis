@@ -7,14 +7,14 @@ export const styles = StyleSheet.create({
   },
 
   header: {
-  backgroundColor: '#5FA777',
-  height: 110,
-  paddingTop: 20,
-  paddingHorizontal: 20,
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-},
+    backgroundColor: '#5FA777',
+    height: 90,
+    paddingTop: 10,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
   headerText: {
     color: '#fff',
@@ -33,9 +33,10 @@ export const styles = StyleSheet.create({
   },
 
   avatarWrapper: {
-  marginTop: -40,
-  marginBottom: 10,
-},
+    marginTop: -20, // 🔥 ajuste fino
+    marginBottom: 10,
+    alignItems: 'center',
+  },
 
   avatar: {
     width: 100,
@@ -94,15 +95,14 @@ export const styles = StyleSheet.create({
   },
 
   logoutBtn: {
-  marginTop: 30,
-  padding: 12,
-  borderRadius: 8,
-  alignItems: 'center',
-},
+    marginTop: 30,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
 
-logoutText: {
-  color: 'red',
-  fontWeight: 'bold',
-},
-
+  logoutText: {
+    color: 'red',
+    fontWeight: 'bold',
+  },
 });

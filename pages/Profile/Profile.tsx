@@ -23,28 +23,33 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
   const [birth, setBirth] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
 
-  // 🔹 Carregar dados salvos
+  //CARREGAR DADOS
   useEffect(() => {
     async function loadData() {
-      const savedName = await AsyncStorage.getItem('name');
-      const savedBio = await AsyncStorage.getItem('bio');
-      const savedBirth = await AsyncStorage.getItem('birth');
-      const savedPhoto = await AsyncStorage.getItem('photo');
+      if (!user) return;
 
-      if (savedName) setName(savedName);
-      if (savedBio) setBio(savedBio);
-      if (savedBirth) setBirth(savedBirth);
-      if (savedPhoto) setPhoto(savedPhoto);
+      try {
+        const savedName = await AsyncStorage.getItem(`name_${user.uid}`);
+        const savedBio = await AsyncStorage.getItem(`bio_${user.uid}`);
+        const savedBirth = await AsyncStorage.getItem(`birth_${user.uid}`);
+        const savedPhoto = await AsyncStorage.getItem(`photo_${user.uid}`);
+
+        if (savedName !== null) setName(savedName);
+        if (savedBio !== null) setBio(savedBio);
+        if (savedBirth !== null) setBirth(savedBirth);
+        if (savedPhoto !== null) setPhoto(savedPhoto);
+      } catch (error) {
+        console.log('Erro ao carregar:', error);
+      }
     }
 
     loadData();
-  }, []);
+  }, [user]);
 
   function handleEdit() {
     setEditing(true);
   }
 
-  // 🔹 Máscara de data (dd/mm/aaaa)
   function formatBirth(text: string) {
     const cleaned = text.replace(/\D/g, '');
 
@@ -65,47 +70,50 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
     return formatted;
   }
 
-  // 🔹 Abrir galeria
+  //ESCOLHER FOTO
   async function pickImage() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
-      Alert.alert('Permissão negada', 'Precisa liberar acesso à galeria');
+      Alert.alert('Permissão negada', 'Libere acesso à galeria');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
+      quality: 0.5,
+      base64: true, // 🔥 ESSENCIAL
     });
 
-    if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+    if (!result.canceled && result.assets[0].base64) {
+      const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      setPhoto(base64Image);
     }
   }
 
-  // 🔹 Salvar perfil
+  //SALVAR
   async function handleSave() {
+    if (!user) return;
+
     try {
-      await AsyncStorage.setItem('name', name);
-      await AsyncStorage.setItem('bio', bio);
-      await AsyncStorage.setItem('birth', birth);
+      await AsyncStorage.setItem(`name_${user.uid}`, name);
+      await AsyncStorage.setItem(`bio_${user.uid}`, bio);
+      await AsyncStorage.setItem(`birth_${user.uid}`, birth);
 
       if (photo) {
-        await AsyncStorage.setItem('photo', photo);
+        await AsyncStorage.setItem(`photo_${user.uid}`, photo);
       }
 
       setEditing(false);
     } catch (error) {
-      console.log('Erro ao salvar perfil:', error);
-      Alert.alert('Erro', 'Não foi possível salvar o perfil');
+      console.log('Erro ao salvar:', error);
+      Alert.alert('Erro', 'Não foi possível salvar');
     }
   }
 
-  // 🔹 Logout
+  //LOGOUT 
   async function handleLogout() {
-    await AsyncStorage.clear();
     await logout();
   }
 
@@ -165,7 +173,7 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
         <Text style={styles.label}>Email</Text>
         <Text>{user?.email ?? ''}</Text>
 
-        {/* DATA NASC */}
+        {/* DATA */}
         <Text style={styles.label}>Data de Nascimento</Text>
         {editing ? (
           <TextInput
