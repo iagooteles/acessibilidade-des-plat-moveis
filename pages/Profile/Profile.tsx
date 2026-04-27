@@ -13,6 +13,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { styles } from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { Detalhes } from '../Detalhes/Detalhes';
 
 export function Profile({ onVoltar }: { onVoltar: () => void }) {
   const { user, logout } = useAuth();
@@ -83,7 +84,7 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.5,
-      base64: true, 
+      base64: true,
     });
 
     if (!result.canceled && result.assets[0].base64) {
@@ -115,6 +116,12 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
   //LOGOUT 
   async function handleLogout() {
     await logout();
+  }
+
+  const [verDetalhes, setVerDetalhes] = useState(false);
+
+  if (verDetalhes) {
+    return <Detalhes onVoltar={() => setVerDetalhes(false)} />
   }
 
   return (
@@ -208,8 +215,9 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
           </View>
         </Pressable>
 
-        <Pressable accessibilityRole="button" accessibilityLabel="Anotações">
-          <View style={styles.icon}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Anotações" 
+          onPress={() => {setVerDetalhes(true)}}>
+          <View style={styles.icon} >
             <Image
               source={require('../../components/Imagens/lapis.png')}
               style={styles.iconImage}

@@ -3,6 +3,7 @@ import { View, Text, TextInput, Image, Pressable } from 'react-native';
 import { useAuth } from '../../components/AuthProvider';
 import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
+import { Detalhes } from '../Detalhes/Detalhes';
 import { styles } from './styles';
 
 type HomeProps = {
@@ -13,6 +14,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const { user } = useAuth();
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
+  const [verDetalhes, setVerDetalhes] = useState(false);
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [rampa, setRampa] = useState(false);
   const [piso, setPiso] = useState(true);
@@ -31,6 +33,10 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
   if (verAvaliation) {
     return <Avaliation onVoltar={() => setVerAvaliation(false)} />;
+  }
+
+  if (verDetalhes) {
+    return <Detalhes onVoltar={() => setVerDetalhes(false)} />
   }
 
   return (
@@ -68,12 +74,12 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
             <Pressable onPress={() => setEstacionamento(!estacionamento)}>
               <Text>{estacionamento ? '☑' : '☐'} Estacionamento prioritário</Text>
             </Pressable>
-            
+
             <Pressable onPress={() => setSinalizacao(!sinalizacao)}>
               <Text>{sinalizacao ? '☑' : '☐'} Sinalização adequada</Text>
             </Pressable>
-            </View>
-          )}
+          </View>
+        )}
 
         {/* BUSCA */}
         <TextInput
@@ -104,17 +110,19 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
       <View style={styles.footer}>
         <Pressable>
           <View style={[styles.icon, styles.active]}>
-            <Image 
-              source={require('../../components/Imagens/icon-map.png')} 
-              style={styles.iconImage}/>
+            <Image
+              source={require('../../components/Imagens/icon-map.png')}
+              style={styles.iconImage} />
           </View>
         </Pressable>
-        
-        <Pressable>
+
+        <Pressable
+          onPress={() => {setVerDetalhes(true)}}
+        >
           <View style={styles.icon}>
-            <Image 
-              source={require('../../components/Imagens/lapis.png')} 
-              style={styles.iconImage}/>
+            <Image
+              source={require('../../components/Imagens/lapis.png')}
+              style={styles.iconImage} />
           </View>
         </Pressable>
 
