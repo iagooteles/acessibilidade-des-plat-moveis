@@ -14,7 +14,11 @@ import {
 import {styles} from './styles';
 import { Ionicons } from "@expo/vector-icons";
 
-export default function AddLocationPage() {
+type AvaliationProps = {
+  onVoltar?: () => void;
+};
+
+export default function AddLocationPage({ onVoltar }: Readonly<AvaliationProps>) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [annotations, setAnnotations] = useState([
@@ -45,7 +49,13 @@ export default function AddLocationPage() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.back}>Voltar</Text>
+        {onVoltar ? (
+          <TouchableOpacity onPress={onVoltar} accessibilityRole="button" accessibilityLabel="Voltar">
+            <Text style={styles.back}>Voltar</Text>
+          </TouchableOpacity>
+        ) : (
+          <Text style={styles.back}>Voltar</Text>
+        )}
         <Text style={styles.title}>Adicionar</Text>
       </View>
 
