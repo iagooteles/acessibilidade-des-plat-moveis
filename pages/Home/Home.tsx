@@ -90,7 +90,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
         {/* IMAGEM DO MAPA */}
         <Image
-          source={require('../../components/Imagens/mapa.png')}
+          source={require('../../assets/mapa.png')}
           style={styles.mapImage}
           resizeMode="cover"
         />
