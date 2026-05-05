@@ -14,6 +14,7 @@ import { styles } from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Detalhes } from '../Detalhes/Detalhes';
+import { Footer, FooterButton } from '../../components/Footer/Footer';
 
 export function Profile({ onVoltar }: { onVoltar: () => void }) {
   const { user, logout } = useAuth();
@@ -200,40 +201,22 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
         </Pressable>
       </ScrollView>
 
-      {/* FOOTER — mesmo padrão da Home: mapa volta ao mapa (home) */}
-      <View style={styles.footer}>
-        <Pressable
-          onPress={onVoltar}
-          accessibilityRole="button"
-          accessibilityLabel="Ir para o mapa"
-        >
-          <View style={styles.icon}>
-            <Image
-              source={require('../../components/Imagens/icon-map.png')}
-              style={styles.iconImage}
-            />
-          </View>
-        </Pressable>
-
-        <Pressable accessibilityRole="button" accessibilityLabel="Anotações" 
-          onPress={() => {setVerDetalhes(true)}}>
-          <View style={styles.icon} >
-            <Image
-              source={require('../../components/Imagens/lapis.png')}
-              style={styles.iconImage}
-            />
-          </View>
-        </Pressable>
-
-        <Pressable accessibilityRole="button" accessibilityLabel="Perfil, tela atual">
-          <View style={[styles.icon, styles.active]}>
-            <Image
-              source={require('../../assets/avatar.png')}
-              style={styles.iconImage}
-            />
-          </View>
-        </Pressable>
-      </View>
+            {/* FOOTER */}
+      
+      <Footer>
+        <FooterButton
+        type='1'
+        onPress={onVoltar}
+        />
+        <FooterButton
+        type='2'
+                onPress={() => {setVerDetalhes(true)}}
+        />
+        <FooterButton
+        active
+        type='3'
+        />
+      </Footer>
     </View>
   );
 }

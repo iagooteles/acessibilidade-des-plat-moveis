@@ -25,6 +25,7 @@ import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
 import { Detalhes } from '../Detalhes/Detalhes';
 import { styles } from './styles';
+import { Footer, FooterButton } from '../../components/Footer/Footer';
 
 type HomeProps = {
   onPrecisaLogin: () => void;
@@ -287,26 +288,18 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
       </Modal>
 
       {/* FOOTER */}
-      <View style={styles.footer}>
-        <Pressable>
-          <View style={[styles.icon, styles.active]}>
-            <Image
-              source={require('../../components/Imagens/icon-map.png')}
-              style={styles.iconImage} />
-          </View>
-        </Pressable>
 
-        <Pressable
+<Footer>
+  <FooterButton
+  active
+  type='1'
+  />
+  <FooterButton
+  type='2'
           onPress={() => {setVerDetalhes(true)}}
-        >
-          <View style={styles.icon}>
-            <Image
-              source={require('../../components/Imagens/lapis.png')}
-              style={styles.iconImage} />
-          </View>
-        </Pressable>
-
-        <Pressable
+  />
+  <FooterButton
+  type='3'
           onPress={() => {
             if (user) {
               setVerProfile(true);
@@ -316,15 +309,8 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           }}
           accessibilityRole="button"
           accessibilityLabel={user ? 'Abrir perfil' : 'Entrar para ver o perfil'}
-        >
-          <View style={styles.icon}>
-            <Image
-              source={require('../../assets/avatar.png')}
-              style={styles.iconImage}
-            />
-          </View>
-        </Pressable>
-      </View>
+  />
+</Footer>
     </View>
   );
 }
