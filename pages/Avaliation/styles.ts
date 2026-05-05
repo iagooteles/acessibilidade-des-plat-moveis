@@ -7,7 +7,26 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 15,
   },
-
+  keyboardWrap: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+  },
+  fieldLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+  },
+  coordsText: {
+    fontSize: 15,
+    color: "#666",
+    marginBottom: 20,
+  },
+  scrollSpacer: {
+    height: 24,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -76,15 +95,20 @@ export const styles = StyleSheet.create({
   },
 
   button: {
-    marginTop: "auto",
     alignSelf: "center",
     backgroundColor: "#59B36B",
-    width: 180,
+    width: "100%",
+    maxWidth: 320,
     height: 58,
     borderRadius: 32,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 28,
+    marginTop: 8,
+  },
+
+  buttonDisabled: {
+    opacity: 0.65,
   },
 
   buttonText: {
