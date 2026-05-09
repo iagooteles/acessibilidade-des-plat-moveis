@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: '#5FA777',
+    backgroundColor: '#5db075',
     paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
@@ -86,7 +86,7 @@ export const styles = StyleSheet.create({
   },
 
   searchButton: {
-    backgroundColor: '#5FA777',
+    backgroundColor: '#5db075',
     paddingHorizontal: 14,
     height: 44,
     justifyContent: 'center',
@@ -135,7 +135,7 @@ export const styles = StyleSheet.create({
   marcacaoCancelText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#5FA777',
+    color: '#5db075',
   },
 
   fab: {
@@ -145,7 +145,7 @@ export const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#5FA777',
+    backgroundColor: '#5db075',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100,
@@ -182,7 +182,7 @@ export const styles = StyleSheet.create({
 },
 
   active: {
-    backgroundColor: '#5FA777',
+    backgroundColor: '#5db075',
   },
 
   loginMapaOverlay: {
@@ -241,7 +241,7 @@ export const styles = StyleSheet.create({
   },
 
   loginMapaBtnPrimario: {
-    backgroundColor: '#5FA777',
+    backgroundColor: '#5db075',
   },
 
   loginMapaBtnPrimarioTexto: {
