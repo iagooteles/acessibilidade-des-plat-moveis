@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Detalhes } from '../Detalhes/Detalhes';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
+import { Header, HeaderElement } from '../../components/Header/Header';
 
 export function Profile({ onVoltar }: { onVoltar: () => void }) {
   const { user, logout } = useAuth();
@@ -128,23 +129,33 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
   return (
     <View style={styles.container}>
       {/* HEADER */}
-      <View style={styles.header}>
-        <Pressable onPress={onVoltar}>
-          <Text style={styles.headerText}>Voltar</Text>
-        </Pressable>
-
-        <Text style={styles.title}>Perfil</Text>
-
-        {editing ? (
-          <Pressable onPress={handleSave}>
-            <Text style={styles.headerText}>Concluir</Text>
-          </Pressable>
-        ) : (
-          <Pressable onPress={handleEdit}>
-            <Text style={styles.headerText}>Editar</Text>
-          </Pressable>
-        )}
-      </View>
+      <Header themed>
+        <HeaderElement
+          themed
+          type='1'
+          text='Voltar'
+          onPress={onVoltar}
+        />
+        <HeaderElement
+          themed
+          type='2'
+          text='Perfil'
+        />
+        {editing ?
+          <HeaderElement
+            themed
+            type='3'
+            text='Concluir'
+            onPress={handleSave}
+          />
+          :
+          <HeaderElement
+            themed
+            type='3'
+            text='Editar'
+            onPress={handleEdit}
+          />}
+      </Header>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* FOTO */}
@@ -201,20 +212,20 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
         </Pressable>
       </ScrollView>
 
-            {/* FOOTER */}
-      
+      {/* FOOTER */}
+
       <Footer>
         <FooterButton
-        type='1'
-        onPress={onVoltar}
+          type='1'
+          onPress={onVoltar}
         />
         <FooterButton
-        type='2'
-                onPress={() => {setVerDetalhes(true)}}
+          type='2'
+          onPress={() => { setVerDetalhes(true) }}
         />
         <FooterButton
-        active
-        type='3'
+          active
+          type='3'
         />
       </Footer>
     </View>
