@@ -32,21 +32,20 @@ export const styles = StyleSheet.create({
 
   pressableRight: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 22,
     right: 0,
     fontSize: 20,
     fontWeight: '500',
     color: '#8abe94',
   },
   pressableLeft: {
-    bottom: 20,
+    bottom: 22,
     left: 0,
     fontSize: 20,
     fontWeight: '500',
     color: '#8abe94',
   },
   pressableTheme: {
-    fontWeight: 'regular',
     color: 'white',
   },
 })
