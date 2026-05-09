@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Keyboard,
   Modal,
   Pressable,
@@ -27,6 +26,7 @@ import { Detalhes } from '../Detalhes/Detalhes';
 import { styles } from './styles';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { HeaderElement, Header } from '../../components/Header/Header';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type HomeProps = {
   onPrecisaLogin: () => void;
@@ -136,10 +136,6 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
       {/* HEADER */}
       <Header >
-        {/* <HeaderElement themed
-          type='1'
-          text='Voltar'
-        /> */}
         <HeaderElement 
           type='2'
           text='Mapa'
@@ -241,7 +237,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           accessibilityRole="button"
           accessibilityLabel="Adicionar local no mapa"
         >
-          <Text style={styles.fabText}>+</Text>
+          <Icon name='plus' size={48} color='white' />
         </Pressable>
 
       </View>

@@ -140,49 +140,16 @@ export const styles = StyleSheet.create({
 
   fab: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: 28,
+    right: 28,
+    width: 64,
+    height: 64,
+    borderRadius: 999,
     backgroundColor: '#5db075',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100,
     elevation: 12,
-  },
-
-  fabText: {
-    color: '#fff',
-    fontSize: 30,
-  },
-
-  footer: {
-    height: 70,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTopWidth: 1,
-  },
-
-  icon: {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  backgroundColor: '#ccc',
-  justifyContent: 'center',
-  alignItems: 'center',
-  overflow: 'hidden',
-},
-
-  iconImage: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-},
-
-  active: {
-    backgroundColor: '#5db075',
   },
 
   loginMapaOverlay: {
