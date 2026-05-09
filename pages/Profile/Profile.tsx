@@ -158,6 +158,7 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
       </Header>
 
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={{height:50}}/> {/* gambiarra */}
         {/* FOTO */}
         <Pressable
           onPress={editing ? pickImage : undefined}
