@@ -18,7 +18,7 @@ type Props = {
 };
 
 export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
-  const { login } = useAuth();
+  const { login, resetPassword } = useAuth();     
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -37,6 +37,26 @@ export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
       setErro(e instanceof Error ? e.message : 'Erro ao entrar.');
     } finally {
       setCarregando(false);
+    }
+  }
+
+  async function handleResetPassword() {
+
+    if (!email.trim()) {
+      setErro('Digite seu e-mail.');
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+
+      setErro('E-mail de recuperação enviado!');
+    } catch (e) {
+      setErro(
+        e instanceof Error
+          ? e.message
+          : 'Erro ao enviar e-mail.'
+      );
     }
   }
 
@@ -116,6 +136,15 @@ export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
             style={styles.linkWrap}
           >
             <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleResetPassword}
+            style={styles.linkWrapPassword}
+          >
+            <Text style={styles.password}>
+              Esqueci minha senha
+            </Text>
           </Pressable>
         </View>
       </ScrollView>

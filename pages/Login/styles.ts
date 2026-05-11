@@ -67,4 +67,15 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
+  password: {
+    
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#808080',
+    textDecorationLine: 'underline'
+  },
+  linkWrapPassword: {
+    alignSelf: 'center',
+    padding: 5,
+  },
 });
