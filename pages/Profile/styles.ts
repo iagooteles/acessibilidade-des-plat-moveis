@@ -6,112 +6,140 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 
-  header: {
-    backgroundColor: '#5FA777',
-    height: 90,
-    paddingTop: 10,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  headerText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-
-  title: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-
   content: {
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 24,
+    paddingTop: 30,
+    paddingBottom: 140,
   },
 
   avatarWrapper: {
-    marginTop: -20, // 🔥 ajuste fino
-    marginBottom: 10,
+    marginBottom: 16,
     alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
 
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#ccc',
   },
 
+  cameraButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#5FA777',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+
   name: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
+    marginTop: 12,
+    color: '#222',
+  },
+
+  levelCard: {
+    width: '100%',
+    backgroundColor: '#F7F7F7',
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+
+  levelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+
+  levelTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+
+  levelXp: {
+    fontSize: 14,
+    color: '#666',
+  },
+
+  progressBarBackground: {
+    width: '100%',
+    height: 12,
+    backgroundColor: '#DDD',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#5FA777',
+    borderRadius: 999,
+  },
+
+  completeText: {
+    textAlign: 'center',
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#5FA777',
   },
 
   label: {
-    marginTop: 20,
+    marginTop: 22,
+    marginBottom: 6,
     fontWeight: 'bold',
+    fontSize: 15,
+    color: '#444',
     alignSelf: 'flex-start',
+    width: '100%',
   },
 
   input: {
     borderWidth: 1,
+    borderColor: '#DDD',
+    backgroundColor: '#F8F8F8',
     width: '100%',
-    padding: 10,
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: 12,
+    fontSize: 16,
   },
 
-  saveBtn: {
-    backgroundColor: '#5FA777',
-    marginTop: 20,
-    padding: 10,
-    borderRadius: 8,
+  bioInput: {
+    minHeight: 90,
+    textAlignVertical: 'top',
   },
 
-  saveText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-
-  footer: {
-    height: 70,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTopWidth: 1,
-  },
-
-  icon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-
-  iconImage: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-  },
-
-  active: {
-    backgroundColor: '#5FA777',
+  infoText: {
+    width: '100%',
+    fontSize: 16,
+    color: '#333',
   },
 
   logoutBtn: {
-    marginTop: 30,
-    padding: 12,
-    borderRadius: 8,
+    marginTop: 40,
+    marginBottom: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 12,
+    backgroundColor: '#FFF1F1',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 
   logoutText: {
-    color: 'red',
+    color: '#E53935',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
