@@ -3,7 +3,7 @@ import {
   Pressable,
   type PressableProps,
 } from 'react-native';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { styles } from './styles';
 
 type Props = PressableProps & {
@@ -19,10 +19,10 @@ export function FooterButton({
 }: Props) {
   const isActive = active ? styles.active : ''
   const icon = {
-    1: 'map-outline',
-    2: 'pencil',
-    3: 'account',
-  };
+  1: 'map-outline',
+  2: 'pencil',
+  3: 'account',
+} as const;
   const iconColor = active ? 'white' : 'black'
 
   return (
