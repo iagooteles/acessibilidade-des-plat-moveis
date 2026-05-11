@@ -22,6 +22,7 @@ import {
   type AnotacaoLocal,
 } from '../../services/locaisFirebase';
 import { styles } from './styles';
+import { useFadeIn } from '../../components/Animations/animations';
 
 export type CoordenadasLocal = { lat: number; long: number };
 
@@ -32,6 +33,7 @@ type AvaliationProps = {
 };
 
 export default function Avaliation({
+  
   coordenadas,
   onVoltar,
   onSalvo,
@@ -42,6 +44,8 @@ export default function Avaliation({
   const [fotoUri, setFotoUri] = useState<string | null>(null);
   const [annotations, setAnnotations] = useState<AnotacaoLocal[]>([]);
   const [salvando, setSalvando] = useState(false);
+  const { animatedStyle } = useFadeIn();
+
 
   const options = [
     'Rampa de acesso',
@@ -121,7 +125,7 @@ export default function Avaliation({
   const textoCoordenadas = `${coordenadas.lat.toFixed(5)}, ${coordenadas.long.toFixed(5)}`;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, animatedStyle]}>
       <KeyboardAvoidingView
         style={styles.keyboardWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

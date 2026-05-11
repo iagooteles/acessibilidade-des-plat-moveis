@@ -16,8 +16,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { Detalhes } from '../Detalhes/Detalhes';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { Header, HeaderElement } from '../../components/Header/Header';
+import { useFadeIn } from '../../components/Animations/animations';
 
 export function Profile({ onVoltar }: { onVoltar: () => void }) {
+  const { animatedStyle } = useFadeIn();
   const { user, logout } = useAuth();
 
   const [editing, setEditing] = useState(false);
@@ -127,7 +129,7 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, animatedStyle]}>
       {/* HEADER */}
       <Header themed>
         <HeaderElement

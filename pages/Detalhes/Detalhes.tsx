@@ -8,10 +8,13 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { styles } from './styles'
+import { useFadeIn } from '../../components/Animations/animations';
 
 export function Detalhes({ onVoltar }: { onVoltar: () => void }) {
+  const { animatedStyle } = useFadeIn();
+
   return (
-    <View>
+    <View style={animatedStyle}>
       <View style={styles.header}>
         <Pressable onPress={onVoltar}>
           <Text style={styles.titleVoltar}>Voltar</Text>

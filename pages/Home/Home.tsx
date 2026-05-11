@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Animated ,
   View,
 } from 'react-native';
 import {
