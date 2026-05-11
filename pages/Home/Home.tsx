@@ -28,6 +28,7 @@ import { styles } from './styles';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { HeaderElement, Header } from '../../components/Header/Header';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useFadeIn } from '../../components/Animations/animations';
 
 type HomeProps = {
   onPrecisaLogin: () => void;
@@ -53,6 +54,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   } | null>(null);
   const [locaisMapa, setLocaisMapa] = useState<PontoMapa[]>([]);
   const [avisarLoginParaMapa, setAvisarLoginParaMapa] = useState(false);
+  const { animatedStyle } = useFadeIn();
 
   const refetchLocais = useCallback(async () => {
     try {
@@ -133,7 +135,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, animatedStyle]}>
 
       {/* HEADER */}
       <Header >

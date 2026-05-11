@@ -11,6 +11,7 @@ import { Button } from '../../components/Button/Button';
 import { Input } from '../../components/Input/Input';
 import { useAuth } from '../../components/AuthProvider';
 import { styles } from './styles';
+import { useFadeIn } from '../../components/Animations/animations';
 
 type Props = {
   onVoltarLogin: () => void;
@@ -24,6 +25,7 @@ export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
   const [confirmar, setConfirmar] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
+  const { animatedStyle } = useFadeIn();
 
   async function handleCadastrar() {
     setErro(null);
@@ -51,7 +53,7 @@ export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, animatedStyle]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {onVoltar ? (
