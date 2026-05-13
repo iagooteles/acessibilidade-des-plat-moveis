@@ -5,11 +5,15 @@ import {
   ScrollView,
   Image,
 } from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
 import { styles } from './styles'
 
-export function Detalhes({ onVoltar }: { onVoltar: () => void }) {
+type DetalhesProps = {
+  onVoltar: () => void;
+};
+
+export function Detalhes({ onVoltar }: Readonly<DetalhesProps>) {
   return (
     <View style={styles.base}>
       <View style={styles.header}>
@@ -96,7 +100,7 @@ function Comment({
   name,
   date,
   comment,
-}: CommentProps) {
+}: Readonly<CommentProps>) {
   return (
     <View>
       <View style={styles.commentTop}>

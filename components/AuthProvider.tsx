@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   type User,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import {
   createContext,
@@ -23,6 +24,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -85,9 +87,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    try{
+      await sendPasswordResetEmail(auth, email.trim());
+    } catch (error: unknown) {
+      throw new Error(mapAuthError(getAuthErrorCode(error)));
+    }
+  }, []);
+
   const value = useMemo(
-    () => ({ user, initializing, login, register, logout }),
-    [user, initializing, login, register, logout],
+    () => ({ user, initializing, login, register, logout, resetPassword }),
+    [user, initializing, login, register, logout, resetPassword],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

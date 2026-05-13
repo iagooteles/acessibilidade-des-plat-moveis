@@ -26,6 +26,8 @@ import { Detalhes } from '../Detalhes/Detalhes';
 import Locais from '../Locais/Locais';
 import { styles } from './styles';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
+import { HeaderElement, Header } from '../../components/Header/Header';
+import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
 type HomeProps = {
   onPrecisaLogin: () => void;
@@ -139,21 +141,19 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
     <View style={styles.container}>
 
       {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.headerSide} />
-        <View style={styles.headerTitleWrap}>
-          <Text style={styles.title}>Mapa</Text>
-        </View>
-        <View style={styles.headerSideRight}>
-          <Pressable
-            onPress={() => setMostrarFiltro(!mostrarFiltro)}
-            accessibilityRole="button"
-            accessibilityLabel="Filtrar mapa"
-          >
-            <Text style={styles.filterText}>Filtrar</Text>
-          </Pressable>
-        </View>
-      </View>
+      <Header >
+        <HeaderElement 
+          type='2'
+          text='Mapa'
+        />
+        <HeaderElement 
+          type='3'
+          text='Filtrar'
+          onPress={() => setMostrarFiltro(!mostrarFiltro)}
+          accessibilityRole="button"
+          accessibilityLabel="Filtrar mapa"
+        />
+      </Header>
 
       {/* MAPA */}
       <View style={styles.mapContainer}>
@@ -190,7 +190,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           />
           {buscando ? (
             <View style={styles.searchSpinner} accessibilityLabel="Buscando">
-              <ActivityIndicator color="#5FA777" />
+              <ActivityIndicator color="#5db075" />
             </View>
           ) : (
             <Pressable
@@ -243,7 +243,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           accessibilityRole="button"
           accessibilityLabel="Adicionar local no mapa"
         >
-          <Text style={styles.fabText}>+</Text>
+          <Icon name='plus' size={48} color='white' />
         </Pressable>
 
       </View>
@@ -294,23 +294,23 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
       {/* FOOTER */}
 
-<Footer>
-  <FooterButton
-  active
-  type='1'
-  />
-  <FooterButton
-  type='2'
-          onPress={() => {setVerDetalhes(true)}}
-  />
-  <FooterButton
-  type='4'
+      <Footer>
+        <FooterButton
+          active
+          type='1'
+        />
+        <FooterButton
+          type='2'
+          onPress={() => { setVerDetalhes(true) }}
+        />
+        <FooterButton
+          type='4'
           onPress={() => setVerLocais(true)}
           accessibilityRole="button"
           accessibilityLabel="Gerenciar locais"
-  />
-  <FooterButton
-  type='3'
+        />
+        <FooterButton
+          type='3'
           onPress={() => {
             if (user) {
               setVerProfile(true);
@@ -320,8 +320,8 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           }}
           accessibilityRole="button"
           accessibilityLabel={user ? 'Abrir perfil' : 'Entrar para ver o perfil'}
-  />
-</Footer>
+        />
+      </Footer>
     </View>
   );
 }

@@ -72,28 +72,45 @@ export default function Avaliation({
   const ehDetalhe = Boolean(local);
   const usuarioCriador = Boolean(local?.criadoPor && user?.uid === local.criadoPor);
   const podeAlterar = !ehDetalhe || (usuarioCriador && editando);
+  const [search, setSearch] = useState('');
+  const [otherModalVisible, setOtherModalVisible] = useState(false);
+  const [customAnnotation, setCustomAnnotation] = useState('');
 
-  const options = [
+  const [options, setOptions] = useState<string[]>([
     'Rampa de acesso',
     'Piso tátil',
     'Estacionamento prioritário',
     'Sinalização correta',
     'Trajetória adequada',
-    'Exemplo de outro',
-  ];
+
+  ]);
+
+  const filteredOptions = options.filter((item) =>
+    item.toLowerCase().includes(search.toLowerCase())
+  );
 
   const addAnnotation = (text: string, positive: boolean) => {
     if (!podeAlterar) {
       return;
     }
 
-    setAnnotations((prev) => [
-      ...prev,
-      {
-        text: positive ? `Possui ${text}` : `Não possui ${text}`,
-        type: positive ? 'positive' : 'negative',
-      },
-    ]);
+    setAnnotations((prev) => {
+      const filtered = prev.filter(
+        (item) =>
+          item.text !== `Possui ${text}` &&
+          item.text !== `Não possui ${text}`
+      );
+
+      return [
+        ...filtered,
+        {
+          text: positive
+            ? `Possui ${text}`
+            : `Não possui ${text}`,
+          type: positive ? 'positive' : 'negative',
+        },
+      ];
+    });
     setModalVisible(false);
   };
 
@@ -355,10 +372,15 @@ export default function Avaliation({
       <Modal transparent visible={modalVisible} animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.modal}>
-            <TextInput placeholder="Buscar" style={styles.search} />
+            <TextInput
+              placeholder="Buscar"
+              style={styles.search}
+              value={search}
+              onChangeText={setSearch}
+            />
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              {options.map((item, index) => (
+              {filteredOptions.map((item, index) => (
                 <View key={index} style={styles.optionRow}>
                   <Text style={styles.optionText}>{item}</Text>
 
@@ -378,9 +400,19 @@ export default function Avaliation({
                 </View>
               ))}
 
-              <View style={{ marginTop: 12 }}>
-                <Text style={styles.other}>Outro: Digite aqui…</Text>
-              </View>
+              <TouchableOpacity
+                style={{ marginTop: 12, flexDirection: 'row' }}
+                onPress={() => {
+                  setModalVisible(false);
+
+                  setTimeout(() => {
+                    setOtherModalVisible(true);
+                  }, 200);
+                }}
+              >
+                <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                <Text style={styles.other}>Adicionar anotação</Text>
+              </TouchableOpacity>
             </ScrollView>
 
             <TouchableOpacity
@@ -389,6 +421,73 @@ export default function Avaliation({
             >
               <Text style={styles.okText}>OK</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        transparent
+        visible={otherModalVisible}
+        animationType="fade"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modal2}>
+
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                marginBottom: 16,
+              }}
+            >
+              Adicionar anotação
+            </Text>
+
+            <TextInput
+              placeholder="Digite a anotação..."
+              style={styles.search}
+              value={customAnnotation}
+              onChangeText={setCustomAnnotation}
+              autoFocus
+            />
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 20,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setOtherModalVisible(false);
+                  setCustomAnnotation('');
+                }}
+              >
+                <Text style={{ color: '#FF3B30', fontSize: 16 }}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  if (customAnnotation.trim().length > 0) {
+                    setOptions((prev) => [
+                      ...prev,
+                      customAnnotation,
+                    ])
+
+                    addAnnotation(customAnnotation, true);
+
+                    setCustomAnnotation('');
+                    setOtherModalVisible(false);
+                  }
+                }}
+              >
+                <Text style={{ color: '#35C759', fontSize: 16 }}>
+                  Adicionar
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

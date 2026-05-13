@@ -19,11 +19,13 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
     marginBottom: 8,
+    paddingHorizontal: 12,
   },
   coordsText: {
     fontSize: 15,
     color: "#666",
     marginBottom: 20,
+    paddingHorizontal: 12,
   },
   scrollSpacer: {
     height: 24,
@@ -71,6 +73,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 18,
     marginBottom: 35,
+    paddingHorizontal: 12,
   },
 
   image: {
@@ -99,6 +102,7 @@ export const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     marginBottom: 20,
+    paddingHorizontal: 12,
   },
 
   noteRow: {
@@ -106,6 +110,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     marginBottom: 16,
+    paddingHorizontal: 12,
   },
 
   noteText: {
@@ -183,6 +188,15 @@ export const styles = StyleSheet.create({
     padding: 22,
   },
 
+  modal2: {
+    width: "88%",
+    marginBottom: 50,
+    backgroundColor: "#fff",
+    borderRadius: 32,
+    padding: 22,
+  },
+
+  
   search: {
     backgroundColor: "#F3F3F3",
     height: 50,
