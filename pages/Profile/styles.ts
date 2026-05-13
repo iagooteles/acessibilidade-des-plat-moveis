@@ -12,8 +12,9 @@ export const styles = StyleSheet.create({
     paddingTop: 10,
     paddingHorizontal: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
 
   headerText: {
@@ -25,6 +26,20 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
+  },
+
+  headerLeftAction: {
+    position: 'absolute',
+    left: 20,
+    paddingVertical: 8,
+    paddingRight: 16,
+  },
+
+  headerRightAction: {
+    position: 'absolute',
+    right: 20,
+    paddingVertical: 8,
+    paddingLeft: 16,
   },
 
   content: {

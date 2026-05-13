@@ -8,7 +8,7 @@ import { styles } from './styles';
 
 type Props = PressableProps & {
   active?: boolean;
-  type: '1' | '2' | '3';
+  type: '1' | '2' | '3' | '4';
 };
 
 export function FooterButton({
@@ -22,6 +22,7 @@ export function FooterButton({
     1: 'map-outline',
     2: 'pencil',
     3: 'account',
+    4: 'map-marker-multiple',
   };
   const iconColor = active ? 'white' : 'black'
 

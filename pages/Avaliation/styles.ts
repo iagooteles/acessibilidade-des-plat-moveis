@@ -4,14 +4,15 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 24,
-    paddingTop: 15,
   },
   keyboardWrap: {
     flex: 1,
   },
   scroll: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
   },
   fieldLabel: {
     fontSize: 16,
@@ -28,21 +29,33 @@ export const styles = StyleSheet.create({
     height: 24,
   },
   header: {
+    height: 100,
+    paddingTop: 20,
+    paddingHorizontal: 32,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 25,
+    justifyContent: "center",
+    position: "relative",
   },
 
   back: {
-    color: "#62C17A",
+    color: "#59B36B",
     fontSize: 20,
-    marginRight: 35,
+    fontWeight: "700",
+  },
+
+  voltarButton: {
+    position: "absolute",
+    left: 32,
+    paddingVertical: 8,
+    paddingRight: 16,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "700",
-    color: "#000",
+    color: "#111",
+    textAlign: "center",
   },
 
   input: {
@@ -64,6 +77,12 @@ export const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 28,
+  },
+
+  semFoto: {
+    color: "#777",
+    fontSize: 16,
+    alignSelf: "center",
   },
 
   addImageBox: {
@@ -115,6 +134,38 @@ export const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 22,
     fontWeight: "700",
+  },
+
+  actionsRow: {
+    flexDirection: "row",
+    alignSelf: "center",
+    columnGap: 12,
+    marginBottom: 28,
+    marginTop: 8,
+    width: "100%",
+    maxWidth: 320,
+  },
+
+  actionButton: {
+    flex: 1,
+    height: 58,
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  buttonSecondary: {
+    backgroundColor: "#F2F2F2",
+  },
+
+  buttonSecondaryText: {
+    color: "#333",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+
+  buttonDanger: {
+    backgroundColor: "#E04F4F",
   },
 
   overlay: {

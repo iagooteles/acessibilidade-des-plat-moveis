@@ -129,18 +129,18 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.header}>
-        <Pressable onPress={onVoltar}>
+        <Pressable style={styles.headerLeftAction} onPress={onVoltar}>
           <Text style={styles.headerText}>Voltar</Text>
         </Pressable>
 
         <Text style={styles.title}>Perfil</Text>
 
         {editing ? (
-          <Pressable onPress={handleSave}>
+          <Pressable style={styles.headerRightAction} onPress={handleSave}>
             <Text style={styles.headerText}>Concluir</Text>
           </Pressable>
         ) : (
-          <Pressable onPress={handleEdit}>
+          <Pressable style={styles.headerRightAction} onPress={handleEdit}>
             <Text style={styles.headerText}>Editar</Text>
           </Pressable>
         )}

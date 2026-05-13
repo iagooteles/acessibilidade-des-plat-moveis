@@ -11,13 +11,12 @@ import { styles } from './styles'
 
 export function Detalhes({ onVoltar }: { onVoltar: () => void }) {
   return (
-    <View>
+    <View style={styles.base}>
       <View style={styles.header}>
-        <Pressable onPress={onVoltar}>
+        <Pressable style={styles.voltarButton} onPress={onVoltar}>
           <Text style={styles.titleVoltar}>Voltar</Text>
         </Pressable>
         <Text style={styles.title}>Local</Text>
-        <Text style={styles.titleGhost}>Voltar</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.contentScrollView}>
