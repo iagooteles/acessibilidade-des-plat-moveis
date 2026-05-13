@@ -9,7 +9,11 @@ import {
   Text,
   TextInput,
   View,
+  Animated,
 } from 'react-native';
+import {screenSlideAnimation,fadeInAnimation,
+} from '../../components/Animations/animations';
+
 import {
   OsmLeafletMap,
   type OsmLeafletMapHandle,
@@ -52,6 +56,16 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   } | null>(null);
   const [locaisMapa, setLocaisMapa] = useState<PontoMapa[]>([]);
   const [avisarLoginParaMapa, setAvisarLoginParaMapa] = useState(false);
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {translateX.setValue(-400);opacity.setValue(0);
+
+  screenSlideAnimation(translateX,'left').start();
+
+  fadeInAnimation(opacity).start();},
+   [verProfile, verAvaliation, verDetalhes]);
 
   const refetchLocais = useCallback(async () => {
     try {
@@ -132,7 +146,8 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container,
+    {opacity,transform: [{ translateX }],},]}>
 
       {/* HEADER */}
       <Header >
@@ -310,6 +325,6 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           accessibilityLabel={user ? 'Abrir perfil' : 'Entrar para ver o perfil'}
         />
       </Footer>
-    </View>
+    </Animated.View>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef  } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,10 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  Animated,
 } from 'react-native';
+import {screenSlideAnimation,fadeInAnimation,
+} from '../../components/Animations/animations';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -40,8 +43,14 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
   const [email, setEmail] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
   // CARREGAR DADOS
   useEffect(() => {
+    screenSlideAnimation(translateX,'right').start();
+    fadeInAnimation(opacity).start();
+
     async function loadData() {
       if (!user) return;
 
@@ -220,7 +229,7 @@ async function handleSave() {
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container,{opacity,transform: [{ translateX }],},]}>
       {/* HEADER */}
       <Header themed>
         <HeaderElement
@@ -417,6 +426,6 @@ async function handleSave() {
           type='3'
         />
       </Footer>
-    </View>
+    </Animated.View>
   );
 }

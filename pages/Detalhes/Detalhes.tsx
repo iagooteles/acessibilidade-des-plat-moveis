@@ -4,14 +4,24 @@ import {
   Pressable,
   ScrollView,
   Image,
+  Animated,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {screenSlideAnimation,fadeInAnimation,
+} from '../../components/Animations/animations';
 
 import { styles } from './styles'
+import { useState, useEffect, useRef } from 'react';
 
 export function Detalhes({ onVoltar }: { onVoltar: () => void }) {
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {screenSlideAnimation(translateX,
+    'right').start();fadeInAnimation(opacity).start();}, []);
+
   return (
-    <View>
+    <Animated.View style={{flex: 1,opacity,transform: [{ translateX }],}}>
       <View style={styles.header}>
         <Pressable onPress={onVoltar}>
           <Text style={styles.titleVoltar}>Voltar</Text>
@@ -82,7 +92,7 @@ export function Detalhes({ onVoltar }: { onVoltar: () => void }) {
           />
         </View>
       </ScrollView>
-    </View>
+    </Animated.View>
   )
 }
 
