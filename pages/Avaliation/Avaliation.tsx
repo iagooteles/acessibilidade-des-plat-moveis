@@ -33,7 +33,7 @@ function getTituloAvaliation(ehDetalhe: boolean, editando: boolean) {
     return 'Novo local';
   }
 
-  return editando ? 'Editar local' : 'Detalhes do local';
+  return editando ? 'Editar local' : 'Detalhes';
 }
 
 function getTextoBotaoSalvar(ehDetalhe: boolean) {
