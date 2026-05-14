@@ -3,30 +3,32 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   base: {
     flex: 1,
+    backgroundColor: '#fff',
   },
-  // TODO transformar header em componente
   header: {
-    height: 120,
+    height: 100,
     paddingTop: 20,
-    paddingHorizontal: 40,
+    paddingHorizontal: 32,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
-  // texto
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111',
   },
   titleVoltar: {
-    color: '#8abe94',
-    fontSize: 22,
-    fontWeight: 'bold',
+    color: '#59B36B',
+    fontSize: 20,
+    fontWeight: '700',
   },
-  titleGhost: {
-    color: '#ffffff00',
-    fontSize: 22,
-    fontWeight: 'bold',
+  voltarButton: {
+    position: 'absolute',
+    left: 32,
+    paddingVertical: 8,
+    paddingRight: 16,
   },
   topic: {
     alignSelf: 'flex-start',

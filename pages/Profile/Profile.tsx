@@ -26,7 +26,32 @@ import * as ImagePicker from 'expo-image-picker';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { Header, HeaderElement } from '../../components/Header/Header';
 
-export function Profile({ onVoltar }: { onVoltar: () => void }) {
+type ProfileProps = {
+  onVoltar: () => void;
+};
+
+function formatBirth(text: string) {
+  const cleaned = text.replace(/\D/g, '');
+
+  let formatted = cleaned;
+
+  if (cleaned.length > 2) {
+    formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+  }
+
+  if (cleaned.length > 4) {
+    formatted =
+      cleaned.slice(0, 2) +
+      '/' +
+      cleaned.slice(2, 4) +
+      '/' +
+      cleaned.slice(4, 8);
+  }
+
+  return formatted;
+}
+
+export function Profile({ onVoltar }: Readonly<ProfileProps>) {
   const { user, logout } = useAuth();
 
   const [editing, setEditing] = useState(false);
@@ -85,27 +110,6 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
     setEditing(true);
   }
 
-  function formatBirth(text: string) {
-    const cleaned = text.replace(/\D/g, '');
-
-    let formatted = cleaned;
-
-    if (cleaned.length > 2) {
-      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
-    }
-
-    if (cleaned.length > 4) {
-      formatted =
-        cleaned.slice(0, 2) +
-        '/' +
-        cleaned.slice(2, 4) +
-        '/' +
-        cleaned.slice(4, 8);
-    }
-
-    return formatted;
-  }
-
   // ESCOLHER FOTO
   async function pickImage() {
     const permission =
@@ -120,7 +124,7 @@ export function Profile({ onVoltar }: { onVoltar: () => void }) {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 0.5,
       base64: true,

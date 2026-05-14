@@ -17,11 +17,12 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     maxWidth: 420,
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    paddingHorizontal: 24,
   },
   voltarPressable: {
     paddingVertical: 8,
-    alignSelf: 'baseline',
+    paddingRight: 16,
   },
   scrollArea: {
     flex: 1,
