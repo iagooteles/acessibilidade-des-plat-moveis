@@ -23,11 +23,10 @@ export function Detalhes({ onVoltar }: { onVoltar: () => void }) {
   return (
     <Animated.View style={{flex: 1,opacity,transform: [{ translateX }],}}>
       <View style={styles.header}>
-        <Pressable onPress={onVoltar}>
+        <Pressable style={styles.voltarButton} onPress={onVoltar}>
           <Text style={styles.titleVoltar}>Voltar</Text>
         </Pressable>
         <Text style={styles.title}>Local</Text>
-        <Text style={styles.titleGhost}>Voltar</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.contentScrollView}>
@@ -107,7 +106,7 @@ function Comment({
   name,
   date,
   comment,
-}: CommentProps) {
+}: Readonly<CommentProps>) {
   return (
     <View>
       <View style={styles.commentTop}>

@@ -27,10 +27,11 @@ import { useAuth } from '../../components/AuthProvider';
 import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
 import { Detalhes } from '../Detalhes/Detalhes';
+import Locais from '../Locais/Locais';
 import { styles } from './styles';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { HeaderElement, Header } from '../../components/Header/Header';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
 type HomeProps = {
   onPrecisaLogin: () => void;
@@ -41,6 +42,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
   const [verDetalhes, setVerDetalhes] = useState(false);
+  const [verLocais, setVerLocais] = useState(false);
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [rampa, setRampa] = useState(false);
   const [piso, setPiso] = useState(true);
@@ -143,6 +145,10 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
   if (verDetalhes) {
     return <Detalhes onVoltar={() => setVerDetalhes(false)} />
+  }
+
+  if (verLocais) {
+    return <Locais onVoltar={() => setVerLocais(false)} />;
   }
 
   return (
@@ -311,6 +317,12 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
         <FooterButton
           type='2'
           onPress={() => { setVerDetalhes(true) }}
+        />
+        <FooterButton
+          type='4'
+          onPress={() => setVerLocais(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Gerenciar locais"
         />
         <FooterButton
           type='3'
