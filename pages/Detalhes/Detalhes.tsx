@@ -6,8 +6,8 @@ import {
   Image,
   Animated,
 } from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {screenSlideAnimation,fadeInAnimation,
+import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
+import {screenSlideAnimation, fadeInAnimation,
 } from '../../components/Animations/animations';
 
 import { styles } from './styles'
