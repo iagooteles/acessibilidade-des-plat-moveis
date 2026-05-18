@@ -15,6 +15,7 @@ import {
 import {
   screenSlideAnimation,
   fadeInAnimation,
+  fadeOutAnimation,
 } from '../../components/Animations/animations';
 
 import {
@@ -56,6 +57,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [verLocais, setVerLocais] = useState(false);
 
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
+  const [renderizarFiltro, setRenderizarFiltro] = useState(false);
 
   const [filtrosSelecionados, setFiltrosSelecionados] = useState<string[]>([]);
 
@@ -78,6 +80,13 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
   const translateX = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const filtroTranslateX = useRef(
+  new Animated.Value(80)
+  ).current;
+
+  const filtroOpacity = useRef(
+    new Animated.Value(0)
+  ).current;
 
   useEffect(() => {
     translateX.setValue(-400);
@@ -87,6 +96,38 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
     fadeInAnimation(opacity).start();
   }, [verProfile, verAvaliation, verDetalhes]);
+
+  useEffect(() => {
+  if (mostrarFiltro) {
+    setRenderizarFiltro(true);
+
+    screenSlideAnimation(
+      filtroTranslateX,
+      'right',
+      220
+    ).start();
+
+    fadeInAnimation(
+      filtroOpacity,
+      220
+    ).start();
+  } else {
+    Animated.parallel([
+      Animated.timing(filtroTranslateX, {
+        toValue: 80,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+
+      fadeOutAnimation(
+        filtroOpacity,
+        180
+      ),
+    ]).start(() => {
+      setRenderizarFiltro(false);
+    });
+  }
+}, [mostrarFiltro]);
 
   const toggleFiltro = (filtro: string) => {
     setFiltrosSelecionados((prev) => {
@@ -248,13 +289,16 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
       </Header>
 
       <View style={styles.mapContainer}>
-        {mostrarFiltro && (
+        {renderizarFiltro && (
           <>
           <Pressable
           style={styles.overlayFiltro}
           onPress={() => setMostrarFiltro(false)}
         />
-    <View style={styles.filtroCard}>
+    <Animated.View style={[styles.filtroCard, {
+      opacity: filtroOpacity,
+      transform: [{translateX: filtroTranslateX,},],},]}>
+
             <Text style={styles.filtroTitulo}>
               Filtros de acessibilidade
             </Text>
@@ -283,7 +327,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
                 );
               })}
             </View>
-          </View>
+          </Animated.View>
           </>
         )}
 
