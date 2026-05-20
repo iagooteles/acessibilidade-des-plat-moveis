@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import {
   View,
   Text,
@@ -17,14 +18,27 @@ import {
   verifyBeforeUpdateEmail,
 } from 'firebase/auth';
 
-import { useAuth } from '../../components/AuthProvider';
-import { styles } from './styles';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
+import { useAuth } from '../../components/AuthProvider';
+
 import { Footer, FooterButton } from '../../components/Footer/Footer';
-import { Header, HeaderElement } from '../../components/Header/Header';
+
+import {
+  Header,
+  HeaderElement,
+} from '../../components/Header/Header';
+
+import MeusLocais from '../MeusLocais/MeusLocais';
+
+import Avaliation from '../Avaliation/Avaliation';
+
+import {
+  type LocalFirebase,
+} from '../../services/locaisFirebase';
+
+import { styles } from './styles';
 
 type ProfileProps = {
   onVoltar: () => void;
@@ -36,7 +50,10 @@ function formatBirth(text: string) {
   let formatted = cleaned;
 
   if (cleaned.length > 2) {
-    formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+    formatted =
+      cleaned.slice(0, 2) +
+      '/' +
+      cleaned.slice(2);
   }
 
   if (cleaned.length > 4) {
@@ -51,66 +68,122 @@ function formatBirth(text: string) {
   return formatted;
 }
 
-export function Profile({ onVoltar }: Readonly<ProfileProps>) {
+export function Profile({
+  onVoltar,
+}: Readonly<ProfileProps>) {
   const { user, logout } = useAuth();
 
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] =
+    useState(false);
 
-  const [name, setName] = useState('User');
-  const [bio, setBio] = useState('');
-  const [birth, setBirth] = useState('');
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [name, setName] =
+    useState('User');
 
-  // EMAIL
-  const [email, setEmail] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [bio, setBio] =
+    useState('');
 
-  // CARREGAR DADOS
+  const [birth, setBirth] =
+    useState('');
+
+  const [photo, setPhoto] =
+    useState<string | null>(null);
+
+  const [email, setEmail] =
+    useState('');
+
+  const [
+    passwordConfirm,
+    setPasswordConfirm,
+  ] = useState('');
+
+  const [
+    verMeusLocais,
+    setVerMeusLocais,
+  ] = useState(false);
+
+  const [
+    localEditando,
+    setLocalEditando,
+  ] = useState<LocalFirebase | null>(
+    null
+  );
+
   useEffect(() => {
     async function loadData() {
       if (!user) return;
 
       try {
-        const savedName = await AsyncStorage.getItem(`name_${user.uid}`);
-        const savedBio = await AsyncStorage.getItem(`bio_${user.uid}`);
-        const savedBirth = await AsyncStorage.getItem(`birth_${user.uid}`);
-        const savedPhoto = await AsyncStorage.getItem(`photo_${user.uid}`);
+        const savedName =
+          await AsyncStorage.getItem(
+            `name_${user.uid}`
+          );
 
-        if (savedName !== null) setName(savedName);
-        if (savedBio !== null) setBio(savedBio);
-        if (savedBirth !== null) setBirth(savedBirth);
-        if (savedPhoto !== null) setPhoto(savedPhoto);
+        const savedBio =
+          await AsyncStorage.getItem(
+            `bio_${user.uid}`
+          );
+
+        const savedBirth =
+          await AsyncStorage.getItem(
+            `birth_${user.uid}`
+          );
+
+        const savedPhoto =
+          await AsyncStorage.getItem(
+            `photo_${user.uid}`
+          );
+
+        if (savedName !== null)
+          setName(savedName);
+
+        if (savedBio !== null)
+          setBio(savedBio);
+
+        if (savedBirth !== null)
+          setBirth(savedBirth);
+
+        if (savedPhoto !== null)
+          setPhoto(savedPhoto);
 
         if (user.email) {
           setEmail(user.email);
         }
       } catch (error) {
-        console.log('Erro ao carregar:', error);
+        console.log(
+          'Erro ao carregar:',
+          error
+        );
       }
     }
 
     loadData();
   }, [user]);
 
-  // NÍVEL DINÂMICO
   const infosPreenchidas = [
-    name.trim() !== '' && name !== 'User',
+    name.trim() !== '' &&
+      name !== 'User',
+
     bio.trim() !== '',
+
     birth.trim() !== '',
+
     photo !== null,
   ];
 
-  const nivel = infosPreenchidas.filter(Boolean).length;
+  const nivel =
+    infosPreenchidas.filter(Boolean)
+      .length;
 
-  const porcentagemXp = (nivel / 4) * 100;
+  const porcentagemXp =
+    (nivel / 4) * 100;
 
-  const perfilCompleto = nivel === 4;
+  const perfilCompleto =
+    nivel === 4;
 
   function handleEdit() {
     setEditing(true);
   }
 
-  // ESCOLHER FOTO
   async function pickImage() {
     const permission =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -120,17 +193,24 @@ export function Profile({ onVoltar }: Readonly<ProfileProps>) {
         'Permissão negada',
         'Libere acesso à galeria'
       );
+
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 0.5,
-      base64: true,
-    });
+    const result =
+      await ImagePicker.launchImageLibraryAsync(
+        {
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          quality: 0.5,
+          base64: true,
+        }
+      );
 
-    if (!result.canceled && result.assets[0].base64) {
+    if (
+      !result.canceled &&
+      result.assets[0].base64
+    ) {
       const base64Image =
         `data:image/jpeg;base64,${result.assets[0].base64}`;
 
@@ -138,94 +218,125 @@ export function Profile({ onVoltar }: Readonly<ProfileProps>) {
     }
   }
 
-  // SALVAR
-async function handleSave() {
-  if (!user) return;
+  async function handleSave() {
+    if (!user) return;
 
-  try {
-    // VERIFICA SE EMAIL FOI ALTERADO
-    const emailAlterado = email !== user.email;
+    try {
+      const emailAlterado =
+        email !== user.email;
 
-    // ALTERAR EMAIL FIREBASE
-    if (emailAlterado) {
-      if (!passwordConfirm) {
-        Alert.alert(
-          'Confirmação necessária',
-          'Digite sua senha para alterar o email.'
+      if (emailAlterado) {
+        if (!passwordConfirm) {
+          Alert.alert(
+            'Confirmação necessária',
+            'Digite sua senha para alterar o email.'
+          );
+
+          return;
+        }
+
+        const credential =
+          EmailAuthProvider.credential(
+            user.email || '',
+            passwordConfirm
+          );
+
+        await reauthenticateWithCredential(
+          user,
+          credential
         );
-        return;
+
+        await verifyBeforeUpdateEmail(
+          user,
+          email
+        );
       }
 
-      const credential =
-        EmailAuthProvider.credential(
-          user.email || '',
-          passwordConfirm
-        );
-
-      await reauthenticateWithCredential(
-        user,
-        credential
-      );
-
-      await verifyBeforeUpdateEmail(
-        user,
-        email
-      );
-    }
-
-    // SALVAR DADOS
-    await AsyncStorage.setItem(
-      `name_${user.uid}`,
-      name
-    );
-
-    await AsyncStorage.setItem(
-      `bio_${user.uid}`,
-      bio
-    );
-
-    await AsyncStorage.setItem(
-      `birth_${user.uid}`,
-      birth
-    );
-
-    if (photo) {
       await AsyncStorage.setItem(
-        `photo_${user.uid}`,
-        photo
+        `name_${user.uid}`,
+        name
       );
-    }
 
-    setPasswordConfirm('');
+      await AsyncStorage.setItem(
+        `bio_${user.uid}`,
+        bio
+      );
 
-    setEditing(false);
+      await AsyncStorage.setItem(
+        `birth_${user.uid}`,
+        birth
+      );
 
-    // ALERTA SOMENTE SE ALTERAR EMAIL
-    if (emailAlterado) {
+      if (photo) {
+        await AsyncStorage.setItem(
+          `photo_${user.uid}`,
+          photo
+        );
+      }
+
+      setPasswordConfirm('');
+
+      setEditing(false);
+
+      if (emailAlterado) {
+        Alert.alert(
+          'Email atualizado',
+          'Enviamos um email de confirmação para o novo endereço.'
+        );
+      }
+    } catch (error: any) {
+      console.log(error);
+
       Alert.alert(
-        'Email atualizado',
-        'Enviamos um email de confirmação para o novo endereço. Verifique sua caixa de entrada ou spam para concluir a alteração.'
+        'Erro',
+        error.message ||
+          'Não foi possível atualizar.'
       );
     }
-
-  } catch (error: any) {
-    console.log(error);
-
-    Alert.alert(
-      'Erro',
-      error.message || 'Não foi possível atualizar.'
-    );
   }
-}
 
-  // LOGOUT
   async function handleLogout() {
     await logout();
   }
 
+  if (localEditando) {
+    return (
+      <Avaliation
+        local={localEditando}
+        coordenadas={{
+          lat: localEditando.lat,
+          long: localEditando.long,
+        }}
+        onVoltar={() =>
+          setLocalEditando(null)
+        }
+        onSalvo={() => {
+          setLocalEditando(null);
+        }}
+        onExcluido={() => {
+          setLocalEditando(null);
+        }}
+      />
+    );
+  }
+
+  if (verMeusLocais) {
+    return (
+      <MeusLocais
+        onVoltar={() =>
+          setVerMeusLocais(false)
+        }
+        onEditarLocal={(
+          local: LocalFirebase
+        ) => {
+          setLocalEditando(local);
+        }}
+      />
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <Header themed>
         <HeaderElement
           themed
@@ -258,11 +369,16 @@ async function handleSave() {
       </Header>
 
       <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={
+          styles.content
+        }
+        showsVerticalScrollIndicator={
+          false
+        }
       >
-        {/* FOTO */}
-        <View style={styles.avatarWrapper}>
+        <View
+          style={styles.avatarWrapper}
+        >
           <Image
             source={
               photo
@@ -274,7 +390,9 @@ async function handleSave() {
 
           {editing && (
             <Pressable
-              style={styles.cameraButton}
+              style={
+                styles.cameraButton
+              }
               onPress={pickImage}
             >
               <Ionicons
@@ -286,7 +404,6 @@ async function handleSave() {
           )}
         </View>
 
-        {/* NOME */}
         {editing ? (
           <TextInput
             value={name}
@@ -294,28 +411,50 @@ async function handleSave() {
             style={styles.input}
           />
         ) : (
-          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.name}>
+            {name}
+          </Text>
         )}
 
-        {/* CARD NÍVEL */}
         <View style={styles.levelCard}>
           {perfilCompleto ? (
-            <Text style={styles.completeText}>
-              Usuário pronto para explorar 🚀
+            <Text
+              style={
+                styles.completeText
+              }
+            >
+              Usuário pronto para
+              explorar 🚀
             </Text>
           ) : (
             <>
-              <View style={styles.levelHeader}>
-                <Text style={styles.levelTitle}>
+              <View
+                style={
+                  styles.levelHeader
+                }
+              >
+                <Text
+                  style={
+                    styles.levelTitle
+                  }
+                >
                   Nível {nivel}
                 </Text>
 
-                <Text style={styles.levelXp}>
+                <Text
+                  style={
+                    styles.levelXp
+                  }
+                >
                   {nivel}/4
                 </Text>
               </View>
 
-              <View style={styles.progressBarBackground}>
+              <View
+                style={
+                  styles.progressBarBackground
+                }
+              >
                 <View
                   style={[
                     styles.progressBarFill,
@@ -329,24 +468,31 @@ async function handleSave() {
           )}
         </View>
 
-        {/* BIO */}
-        <Text style={styles.label}>Bio</Text>
+        <Text style={styles.label}>
+          Bio
+        </Text>
 
         {editing ? (
           <TextInput
             value={bio}
             onChangeText={setBio}
-            style={[styles.input, styles.bioInput]}
+            style={[
+              styles.input,
+              styles.bioInput,
+            ]}
             multiline
           />
         ) : (
-          <Text style={styles.infoText}>
+          <Text
+            style={styles.infoText}
+          >
             {bio || '-'}
           </Text>
         )}
 
-        {/* EMAIL */}
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>
+          Email
+        </Text>
 
         {editing ? (
           <>
@@ -360,22 +506,27 @@ async function handleSave() {
 
             <TextInput
               value={passwordConfirm}
-              onChangeText={setPasswordConfirm}
+              onChangeText={
+                setPasswordConfirm
+              }
               style={[
                 styles.input,
-                { marginTop: 10 },
+                {
+                  marginTop: 10,
+                },
               ]}
               placeholder='Confirme sua senha'
               secureTextEntry
             />
           </>
         ) : (
-          <Text style={styles.infoText}>
+          <Text
+            style={styles.infoText}
+          >
             {email || '-'}
           </Text>
         )}
 
-        {/* DATA */}
         <Text style={styles.label}>
           Data de Nascimento
         </Text>
@@ -384,30 +535,49 @@ async function handleSave() {
           <TextInput
             value={birth}
             onChangeText={(text) =>
-              setBirth(formatBirth(text))
+              setBirth(
+                formatBirth(text)
+              )
             }
             style={styles.input}
             keyboardType='numeric'
             maxLength={10}
           />
         ) : (
-          <Text style={styles.infoText}>
+          <Text
+            style={styles.infoText}
+          >
             {birth || '-'}
           </Text>
         )}
 
-        {/* LOGOUT */}
+        <Pressable
+          style={styles.meusLocaisBtn}
+          onPress={() =>
+            setVerMeusLocais(true)
+          }
+        >
+          <Text
+            style={
+              styles.meusLocaisText
+            }
+          >
+            Meus Locais
+          </Text>
+        </Pressable>
+
         <Pressable
           style={styles.logoutBtn}
           onPress={handleLogout}
         >
-          <Text style={styles.logoutText}>
+          <Text
+            style={styles.logoutText}
+          >
             Sair
           </Text>
         </Pressable>
       </ScrollView>
 
-      {/* FOOTER */}
       <Footer>
         <FooterButton
           type='1'
