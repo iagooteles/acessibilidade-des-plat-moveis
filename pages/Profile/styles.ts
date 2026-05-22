@@ -5,6 +5,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+
   content: {
     alignItems: 'center',
     paddingHorizontal: 24,
@@ -125,6 +126,22 @@ export const styles = StyleSheet.create({
     color: '#333',
   },
 
+  meusLocaisBtn: {
+    marginTop: 30,
+    width: '100%',
+    backgroundColor: '#5FA777',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  meusLocaisText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
   logoutBtn: {
     marginTop: 40,
     marginBottom: 30,
@@ -141,4 +158,5 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  
 });
