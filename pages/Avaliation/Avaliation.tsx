@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,7 +13,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Animated,
 } from 'react-native';
+import {
+  screenSlideUpAnimation,
+  fadeInAnimation,
+} from '../../components/Animations/animations';
 import { useAuth } from '../../components/AuthProvider';
 import {
   criarLocalNoFirebase,
@@ -76,6 +81,9 @@ export default function Avaliation({
   const [otherModalVisible, setOtherModalVisible] = useState(false);
   const [customAnnotation, setCustomAnnotation] = useState('');
 
+  const translateY = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
   const [options, setOptions] = useState<string[]>([
     'Rampa de acesso',
     'Piso tátil',
@@ -84,6 +92,8 @@ export default function Avaliation({
     'Trajetória adequada',
 
   ]);
+  useEffect(() => {screenSlideUpAnimation(translateY).start();
+  fadeInAnimation(opacity).start();}, []);
 
   const filteredOptions = options.filter((item) =>
     item.toLowerCase().includes(search.toLowerCase())
@@ -241,7 +251,8 @@ export default function Avaliation({
   const textoBotaoSalvar = getTextoBotaoSalvar(ehDetalhe);
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container,
+    {flex: 1,opacity,transform: [{ translateY }],},]}>
       <KeyboardAvoidingView
         style={styles.keyboardWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -491,6 +502,6 @@ export default function Avaliation({
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 }

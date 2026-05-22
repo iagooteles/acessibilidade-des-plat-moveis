@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-
+import { useState, useEffect, useRef  } from 'react';
 import {
   View,
   Text,
@@ -8,7 +7,10 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  Animated,
 } from 'react-native';
+import {screenSlideAnimation,fadeInAnimation,
+} from '../../components/Animations/animations';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -108,7 +110,14 @@ export function Profile({
     null
   );
 
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  // CARREGAR DADOS
   useEffect(() => {
+    screenSlideAnimation(translateX,'right').start();
+    fadeInAnimation(opacity).start();
+
     async function loadData() {
       if (!user) return;
 
@@ -336,7 +345,8 @@ export function Profile({
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container,{opacity,transform: [{ translateX }],},]}>
+      {/* HEADER */}
       <Header themed>
         <HeaderElement
           themed
@@ -591,6 +601,6 @@ export function Profile({
           type='3'
         />
       </Footer>
-    </View>
+    </Animated.View>
   );
 }

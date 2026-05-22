@@ -9,24 +9,38 @@ import {
   Text,
   TextInput,
   View,
+  Animated,
 } from 'react-native';
+
+import {
+  screenSlideAnimation,
+  fadeInAnimation,
+} from '../../components/Animations/animations';
+
 import {
   OsmLeafletMap,
   type OsmLeafletMapHandle,
 } from '../../components/OsmLeafletMap/OsmLeafletMap';
+
 import { nominatimSearch } from '../../services/nominatimGeocode';
+
 import {
-  listarLocaisParaMapa,
-  type PontoMapa,
+  listarLocais,
+  type LocalFirebase,
 } from '../../services/locaisFirebase';
+
 import { useAuth } from '../../components/AuthProvider';
+
 import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
 import { Detalhes } from '../Detalhes/Detalhes';
 import Locais from '../Locais/Locais';
+
 import { styles } from './styles';
+
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { HeaderElement, Header } from '../../components/Header/Header';
+
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
 type HomeProps = {
@@ -35,55 +49,125 @@ type HomeProps = {
 
 export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const { user } = useAuth();
+
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
+
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
-  const [rampa, setRampa] = useState(false);
-  const [piso, setPiso] = useState(true);
-  const [estacionamento, setEstacionamento] = useState(false);
-  const [sinalizacao, setSinalizacao] = useState(false);
+
+  const [filtrosSelecionados, setFiltrosSelecionados] = useState<string[]>([]);
+
+
   const [busca, setBusca] = useState('');
   const [buscando, setBuscando] = useState(false);
+
   const mapRef = useRef<OsmLeafletMapHandle>(null);
+
   const [marcandoLocal, setMarcandoLocal] = useState(false);
+
   const [coordsNovoLocal, setCoordsNovoLocal] = useState<{
     lat: number;
     long: number;
   } | null>(null);
-  const [locaisMapa, setLocaisMapa] = useState<PontoMapa[]>([]);
+
+  const [locaisMapa, setLocaisMapa] = useState<LocalFirebase[]>([]);
+
   const [avisarLoginParaMapa, setAvisarLoginParaMapa] = useState(false);
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    translateX.setValue(-400);
+    opacity.setValue(0);
+
+    screenSlideAnimation(translateX, 'left').start();
+
+    fadeInAnimation(opacity).start();
+  }, [verProfile, verAvaliation, verDetalhes]);
+
+  const toggleFiltro = (filtro: string) => {
+    setFiltrosSelecionados((prev) => {
+      if (prev.includes(filtro)) {
+        return prev.filter((item) => item !== filtro);
+      }
+
+      return [...prev, filtro];
+    });
+  };
+
+  const locaisFiltrados = locaisMapa
+    .filter((local) => {
+      const anotacoes = local.anotacoes ?? [];
+
+      return filtrosSelecionados.every((filtro) =>
+        anotacoes.some(
+        (item) =>
+        item?.type === 'positive' &&
+        typeof item?.text === 'string' &&
+        item.text
+          .replace('Possui ', '')
+          .trim()
+          .includes(filtro)
+      ));
+    })
+    .map((local) => ({
+      id: local.id,
+      lat: local.lat,
+      long: local.long,
+    }));
 
   const refetchLocais = useCallback(async () => {
     try {
-      if (!user) {
-        setLocaisMapa([]);
-        return;
-      }
-      const lista = await listarLocaisParaMapa();
+      const lista = await listarLocais();
+
       setLocaisMapa(lista);
     } catch {
       setLocaisMapa([]);
     }
-  }, [user]);
+  }, []);
+
+  const filtrosDisponiveis = Array.from(
+  new Set(
+    locaisMapa.flatMap((local) =>
+      (local.anotacoes ?? [])
+        .filter(
+          (item) =>
+            item?.type === 'positive' &&
+            typeof item?.text === 'string'
+        )
+        .map((item) =>
+          item.text.replace('Possui ', '').trim()
+        )
+    )
+  )
+  ).sort();
 
   const executarBuscaNoMapa = useCallback(async () => {
     const q = busca.trim();
+
     if (!q) {
       return;
     }
+
     Keyboard.dismiss();
+
     setBuscando(true);
+
     try {
       const hit = await nominatimSearch(q);
+
       if (!hit) {
         Alert.alert(
           'Busca',
           'Não encontramos esse lugar. Tente outra rua, bairro ou cidade.'
         );
+
         return;
       }
+
       mapRef.current?.flyTo(hit.lat, hit.lon, 16);
     } catch {
       Alert.alert(
@@ -123,6 +207,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
             coordsNovoLocal.long,
             17
           );
+
           void refetchLocais();
         }}
       />
@@ -130,7 +215,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }
 
   if (verDetalhes) {
-    return <Detalhes onVoltar={() => setVerDetalhes(false)} />
+    return <Detalhes onVoltar={() => setVerDetalhes(false)} />;
   }
 
   if (verLocais) {
@@ -138,43 +223,68 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }
 
   return (
-    <View style={styles.container}>
-
-      {/* HEADER */}
-      <Header >
-        <HeaderElement 
-          type='2'
-          text='Mapa'
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          opacity,
+          transform: [{ translateX }],
+        },
+      ]}
+    >
+      <Header>
+        <HeaderElement
+          type="2"
+          text="Mapa"
         />
-        <HeaderElement 
-          type='3'
-          text='Filtrar'
+
+        <HeaderElement
+          type="3"
+          text="Filtrar"
           onPress={() => setMostrarFiltro(!mostrarFiltro)}
           accessibilityRole="button"
           accessibilityLabel="Filtrar mapa"
         />
       </Header>
 
-      {/* MAPA */}
       <View style={styles.mapContainer}>
         {mostrarFiltro && (
-          <View style={styles.filtroCard}>
-            <Pressable onPress={() => setRampa(!rampa)}>
-              <Text>{rampa ? '☑' : '☐'} Rampa de acesso</Text>
-            </Pressable>
+          <>
+          <Pressable
+          style={styles.overlayFiltro}
+          onPress={() => setMostrarFiltro(false)}
+        />
+    <View style={styles.filtroCard}>
+            <Text style={styles.filtroTitulo}>
+              Filtros de acessibilidade
+            </Text>
 
-            <Pressable onPress={() => setPiso(!piso)}>
-              <Text>{piso ? '☑' : '☐'} Piso tátil</Text>
-            </Pressable>
+            <View style={styles.filtrosContainer}>
+              {filtrosDisponiveis.map((filtro) => {
+                const ativo =
+                  filtrosSelecionados.includes(filtro);
 
-            <Pressable onPress={() => setEstacionamento(!estacionamento)}>
-              <Text>{estacionamento ? '☑' : '☐'} Estacionamento prioritário</Text>
-            </Pressable>
-
-            <Pressable onPress={() => setSinalizacao(!sinalizacao)}>
-              <Text>{sinalizacao ? '☑' : '☐'} Sinalização adequada</Text>
-            </Pressable>
+                return (
+                  <Pressable
+                    key={`${filtro}`}
+                    onPress={() => toggleFiltro(filtro)}
+                    style={[
+                      styles.filtroChip,
+                      ativo && styles.filtroChipAtivo,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                      styles.filtroChipTexto,
+                      ativo && styles.filtroChipTextoAtivo,]}>
+                       {`${ativo ? '✓ ' : ''}${String(filtro)}`}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
+          </>
         )}
 
         <View style={styles.searchRow} pointerEvents="box-none">
@@ -188,8 +298,12 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
             editable={!buscando}
             accessibilityLabel="Buscar lugar no mapa"
           />
+
           {buscando ? (
-            <View style={styles.searchSpinner} accessibilityLabel="Buscando">
+            <View
+              style={styles.searchSpinner}
+              accessibilityLabel="Buscando"
+            >
               <ActivityIndicator color="#5db075" />
             </View>
           ) : (
@@ -199,7 +313,9 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
               accessibilityRole="button"
               accessibilityLabel="Buscar no mapa"
             >
-              <Text style={styles.searchButtonText}>Buscar</Text>
+              <Text style={styles.searchButtonText}>
+                Buscar
+              </Text>
             </Pressable>
           )}
         </View>
@@ -210,10 +326,16 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           marcacaoAtiva={marcandoLocal}
           onMarcacaoNoMapa={(lat, long) => {
             setMarcandoLocal(false);
+
             setCoordsNovoLocal({ lat, long });
+
             setVerAvaliation(true);
           }}
-          pontosNoMapa={locaisMapa}
+          pontosNoMapa={
+            locaisFiltrados.length > 0
+            ? locaisFiltrados
+            : []
+      }
         />
 
         {marcandoLocal ? (
@@ -221,12 +343,15 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
             <Text style={styles.marcacaoBannerText}>
               Toque no mapa para marcar o ponto do novo local.
             </Text>
+
             <Pressable
               onPress={() => setMarcandoLocal(false)}
               accessibilityRole="button"
               accessibilityLabel="Cancelar marcação no mapa"
             >
-              <Text style={styles.marcacaoCancelText}>Cancelar</Text>
+              <Text style={styles.marcacaoCancelText}>
+                Cancelar
+              </Text>
             </Pressable>
           </View>
         ) : null}
@@ -238,79 +363,35 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
               setAvisarLoginParaMapa(true);
               return;
             }
+
             setMarcandoLocal(true);
           }}
           accessibilityRole="button"
           accessibilityLabel="Adicionar local no mapa"
         >
-          <Icon name='plus' size={48} color='white' />
+          <Icon name="plus" size={48} color="white" />
         </Pressable>
-
       </View>
 
-      <Modal
-        visible={avisarLoginParaMapa}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setAvisarLoginParaMapa(false)}
-        accessibilityViewIsModal
-      >
-        <View style={styles.loginMapaOverlay}>
-          <Pressable
-            style={StyleSheet.absoluteFillObject}
-            onPress={() => setAvisarLoginParaMapa(false)}
-            accessibilityRole="button"
-            accessibilityLabel="Fechar aviso"
-          />
-          <View style={styles.loginMapaCard}>
-            <Text style={styles.loginMapaTitulo}>Conta necessária</Text>
-            <Text style={styles.loginMapaTexto}>
-              Entre com sua conta para cadastrar um local no mapa.
-            </Text>
-            <View style={styles.loginMapaBotoes}>
-              <Pressable
-                style={[styles.loginMapaBtn, styles.loginMapaBtnSecundario]}
-                onPress={() => setAvisarLoginParaMapa(false)}
-                accessibilityRole="button"
-                accessibilityLabel="Cancelar"
-              >
-                <Text style={styles.loginMapaBtnSecundarioTexto}>Cancelar</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.loginMapaBtn, styles.loginMapaBtnPrimario]}
-                onPress={() => {
-                  setAvisarLoginParaMapa(false);
-                  onPrecisaLogin();
-                }}
-                accessibilityRole="button"
-                accessibilityLabel="Ir para login"
-              >
-                <Text style={styles.loginMapaBtnPrimarioTexto}>Entrar</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* FOOTER */}
-
       <Footer>
+        <FooterButton active type="1" />
+
         <FooterButton
-          active
-          type='1'
+          type="2"
+          onPress={() => {
+            setVerDetalhes(true);
+          }}
         />
+
         <FooterButton
-          type='2'
-          onPress={() => { setVerDetalhes(true) }}
-        />
-        <FooterButton
-          type='4'
+          type="4"
           onPress={() => setVerLocais(true)}
           accessibilityRole="button"
           accessibilityLabel="Gerenciar locais"
         />
+
         <FooterButton
-          type='3'
+          type="3"
           onPress={() => {
             if (user) {
               setVerProfile(true);
@@ -319,9 +400,13 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
             }
           }}
           accessibilityRole="button"
-          accessibilityLabel={user ? 'Abrir perfil' : 'Entrar para ver o perfil'}
+          accessibilityLabel={
+            user
+              ? 'Abrir perfil'
+              : 'Entrar para ver o perfil'
+          }
         />
       </Footer>
-    </View>
+    </Animated.View>
   );
 }

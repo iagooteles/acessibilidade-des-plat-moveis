@@ -34,19 +34,23 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   filtroCard: {
-  position: 'absolute',
-  top: 80,
-  right: 20,
-  width: 220,
-  backgroundColor: '#fff',
-  borderRadius: 15,
-  padding: 15,
-  zIndex: 10,
-  elevation: 10, 
-  shadowColor: '#000',
-  shadowOpacity: 0.2,
-  shadowOffset: { width: 0, height: 2 },
-},
+    position: 'absolute',
+    top: 80,
+    right: 20,
+    width: 260,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 18,
+    zIndex: 10,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+    shadowRadius: 10,
+  },
   title: {
     color: '#fff',
     fontSize: 22,
@@ -216,4 +220,53 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  filtroTitulo: {
+  fontSize: 17,
+  fontWeight: '700',
+  marginBottom: 16,
+  color: '#222',
+},
+
+filtrosContainer: {
+  gap: 10,
+},
+
+filtroChip: {
+  height: 48,
+  borderRadius: 14,
+  backgroundColor: '#f5f5f5',
+  borderWidth: 1,
+  borderColor: '#e5e5e5',
+  justifyContent: 'center',
+  paddingHorizontal: 14,
+},
+
+filtroChipAtivo: {
+  backgroundColor: '#5db075',
+  borderColor: '#5db075',
+},
+
+filtroChipConteudo: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
+
+filtroChipTexto: {
+  color: '#444',
+  fontWeight: '600',
+  fontSize: 14,
+},
+
+filtroChipTextoAtivo: {
+  color: '#fff',
+},
+overlayFiltro: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 5,
+},
 });
