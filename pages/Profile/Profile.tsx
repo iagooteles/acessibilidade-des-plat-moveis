@@ -26,6 +26,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../components/AuthProvider';
 
 import { Footer, FooterButton } from '../../components/Footer/Footer';
+import { Detalhes } from '../Detalhes/Detalhes';
+import Locais from '../Locais/Locais';
 
 import {
   Header,
@@ -109,6 +111,8 @@ export function Profile({
   ] = useState<LocalFirebase | null>(
     null
   );
+  const [verDetalhes, setVerDetalhes] = useState(false);
+  const [verLocais, setVerLocais] = useState(false);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -192,6 +196,13 @@ export function Profile({
   function handleEdit() {
     setEditing(true);
   }
+  if (verDetalhes) {
+      return <Detalhes onVoltar={() => setVerDetalhes(false)} />;
+    }
+  
+    if (verLocais) {
+      return <Locais onVoltar={() => setVerLocais(false)} />;
+    }
 
   async function pickImage() {
     const permission =
@@ -594,7 +605,19 @@ export function Profile({
           onPress={onVoltar}
         />
 
-        <FooterButton type='2' />
+        <FooterButton
+          type="2"
+          onPress={() => {
+            setVerDetalhes(true);
+          }}
+        />
+
+        <FooterButton
+          type="4"
+          onPress={() => setVerLocais(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Gerenciar locais"
+        />
 
         <FooterButton
           active
