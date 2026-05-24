@@ -25,6 +25,7 @@ export type PontoMapa = {
 export type LocalFirebase = PontoMapa & {
   nome: string;
   anotacoes: AnotacaoLocal[];
+  comentarios?: string[];
   fotoUrl: string | null;
   fotoBase64: string | null;
   criadoPor: string | null;
@@ -125,7 +126,7 @@ export async function listarLocais(): Promise<
 
       nome:
         typeof dados.nome === 'string' &&
-        dados.nome.trim()
+          dados.nome.trim()
           ? dados.nome
           : 'Local sem nome',
 
@@ -139,21 +140,21 @@ export async function listarLocais(): Promise<
 
       fotoUrl:
         typeof dados.fotoUrl === 'string' &&
-        dados.fotoUrl
+          dados.fotoUrl
           ? dados.fotoUrl
           : null,
 
       fotoBase64:
         typeof dados.fotoBase64 ===
           'string' &&
-        dados.fotoBase64
+          dados.fotoBase64
           ? dados.fotoBase64
           : null,
 
       criadoPor:
         typeof dados.criadoPor ===
           'string' &&
-        dados.criadoPor
+          dados.criadoPor
           ? dados.criadoPor
           : null,
     });
@@ -194,7 +195,7 @@ export async function buscarLocalPorId(
 
     nome:
       typeof dados.nome === 'string' &&
-      dados.nome.trim()
+        dados.nome.trim()
         ? dados.nome
         : 'Local sem nome',
 
@@ -208,21 +209,21 @@ export async function buscarLocalPorId(
 
     fotoUrl:
       typeof dados.fotoUrl === 'string' &&
-      dados.fotoUrl
+        dados.fotoUrl
         ? dados.fotoUrl
         : null,
 
     fotoBase64:
       typeof dados.fotoBase64 ===
         'string' &&
-      dados.fotoBase64
+        dados.fotoBase64
         ? dados.fotoBase64
         : null,
 
     criadoPor:
       typeof dados.criadoPor ===
         'string' &&
-      dados.criadoPor
+        dados.criadoPor
         ? dados.criadoPor
         : null,
   };
@@ -234,6 +235,7 @@ export async function criarLocalNoFirebase(
     lat: number;
     long: number;
     anotacoes: AnotacaoLocal[];
+    comentarios?: string[];
     fotoBase64: string | null;
     criadoPor: string;
   }
@@ -267,6 +269,7 @@ export async function editarLocalNoFirebase(
     id: string;
     nome: string;
     anotacoes: AnotacaoLocal[];
+    comentarios?: string[];
     fotoBase64: string | null;
   }
 ): Promise<void> {

@@ -26,7 +26,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../components/AuthProvider';
 
 import { Footer, FooterButton } from '../../components/Footer/Footer';
-import { Detalhes } from '../Detalhes/Detalhes';
 import Locais from '../Locais/Locais';
 
 import {
@@ -195,10 +194,7 @@ export function Profile({
 
   function handleEdit() {
     setEditing(true);
-  }
-  if (verDetalhes) {
-      return <Detalhes onVoltar={() => setVerDetalhes(false)} />;
-    }
+  } 
   
     if (verLocais) {
       return <Locais onVoltar={() => setVerLocais(false)} />;
