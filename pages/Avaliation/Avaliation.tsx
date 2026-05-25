@@ -31,6 +31,7 @@ import {
 import { styles } from './styles';
 
 export type CoordenadasLocal = { lat: number; long: number };
+import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
 
 const MAX_FOTO_BASE64_CHARS = 900000;
 
@@ -79,6 +80,7 @@ export default function Avaliation({
     local?.comentarios ?? []
   );
   const [novoComentario, setNovoComentario] = useState('');
+  const [nomeUsuarioAtual, setNomeUsuarioAtual] = useState('Usuário Anônimo');
 
   const [editando, setEditando] = useState(!local);
   const [salvando, setSalvando] = useState(false);
@@ -105,6 +107,23 @@ export default function Avaliation({
     screenSlideUpAnimation(translateY).start();
     fadeInAnimation(opacity).start();
   }, []);
+
+  useEffect(() => {
+    async function carregarNomeUsuario() {
+      if (user?.uid) {
+        try {
+          const perfil = await buscarPerfilFirestore(user.uid);
+          if (perfil && perfil.name) {
+            setNomeUsuarioAtual(perfil.name);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar nome do usuário:", error);
+        }
+      }
+    }
+    
+    void carregarNomeUsuario();
+  }, [user]);
 
   const filteredOptions = options.filter((item) =>
     item.toLowerCase().includes(search.toLowerCase())
@@ -142,7 +161,7 @@ export default function Avaliation({
 
     const novoComentarioObj: ComentarioLocal = {
       texto: novoComentario.trim(),
-      nomeAutor: nomeAutor,
+      nomeAutor: nomeUsuarioAtual,
       uidAutor: user?.uid ?? 'unknown',
     };
 
@@ -371,7 +390,7 @@ export default function Avaliation({
           <Text style={[styles.section, { marginTop: 24 }]}>Comentários</Text>
 
           {comentarios.map((comentario, index) => (
-            <View key={index} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 8, marginBottom: 8 }}>
+            <View key={index} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 4, marginBottom: 8 }}>
               <Text style={{ fontSize: 13, color: '#666', fontWeight: 'bold', marginBottom: 4 }}>
                 {comentario.nomeAutor}
               </Text>
