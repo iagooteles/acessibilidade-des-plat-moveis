@@ -27,10 +27,7 @@ type OsmLeafletMapProps = {
   marcacaoAtiva?: boolean;
   onMarcacaoNoMapa?: (lat: number, long: number) => void;
   pontosNoMapa?: PontoMapa[];
-  onMarkerTap?: (id: string) => void;
 };
-
-
 
 export const OsmLeafletMap = forwardRef<
   OsmLeafletMapHandle,
@@ -42,7 +39,6 @@ export const OsmLeafletMap = forwardRef<
     marcacaoAtiva = false,
     onMarcacaoNoMapa,
     pontosNoMapa = [],
-    onMarkerTap,
   },
   ref
 ) {
@@ -83,7 +79,6 @@ export const OsmLeafletMap = forwardRef<
         type?: string;
         lat?: number;
         long?: number;
-        id?: string;
       };
       if (msg.type === 'mapReady') {
         setMapCarregado(true);
@@ -95,12 +90,6 @@ export const OsmLeafletMap = forwardRef<
         typeof msg.long === 'number'
       ) {
         onMarcacaoNoMapa?.(msg.lat, msg.long);
-      }
-      if (
-        msg.type === 'markerTap' &&
-        typeof msg.id === 'string'
-      ) {
-        onMarkerTap?.(msg.id);
       }
     } catch {
       /* ignore */
