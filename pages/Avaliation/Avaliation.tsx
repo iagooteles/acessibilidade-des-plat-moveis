@@ -26,6 +26,7 @@ import {
   excluirLocalNoFirebase,
   type AnotacaoLocal,
   type LocalFirebase,
+  type ComentarioLocal,
 } from '../../services/locaisFirebase';
 import { styles } from './styles';
 
@@ -72,9 +73,9 @@ export default function Avaliation({
   const [annotations, setAnnotations] = useState<AnotacaoLocal[]>(
     local?.anotacoes ?? []
   );
-  
+
   // estados para os comentários
-  const [comentarios, setComentarios] = useState<string[]>(
+  const [comentarios, setComentarios] = useState<ComentarioLocal[]>(
     local?.comentarios ?? []
   );
   const [novoComentario, setNovoComentario] = useState('');
@@ -134,11 +135,18 @@ export default function Avaliation({
     setModalVisible(false);
   };
 
-  // adicionar comentário à lista local
   const handleAddComentario = () => {
     if (!podeAlterar || !novoComentario.trim()) return;
 
-    setComentarios((prev) => [...prev, novoComentario.trim()]);
+    const nomeAutor = user?.displayName ?? 'Usuário Anônimo';
+
+    const novoComentarioObj: ComentarioLocal = {
+      texto: novoComentario.trim(),
+      nomeAutor: nomeAutor,
+      uidAutor: user?.uid ?? 'unknown',
+    };
+
+    setComentarios((prev) => [...prev, novoComentarioObj]);
     setNovoComentario('');
   };
 
@@ -364,7 +372,12 @@ export default function Avaliation({
 
           {comentarios.map((comentario, index) => (
             <View key={index} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 8, marginBottom: 8 }}>
-              <Text style={{ color: '#333', fontSize: 15 }}>{comentario}</Text>
+              <Text style={{ fontSize: 13, color: '#666', fontWeight: 'bold', marginBottom: 4 }}>
+                {comentario.nomeAutor}
+              </Text>
+              <Text style={{ color: '#333', fontSize: 15 }}>
+                {comentario.texto}
+              </Text>
             </View>
           ))}
 
@@ -394,10 +407,10 @@ export default function Avaliation({
                 onPress={handleAddComentario}
                 disabled={salvando || !novoComentario.trim()}
               >
-                <Ionicons 
-                  name="send" 
+                <Ionicons
+                  name="send"
                   size={20}
-                  color={!novoComentario.trim() ? '#AFAFAF' : '#fff'} 
+                  color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
                 />
               </TouchableOpacity>
             </View>

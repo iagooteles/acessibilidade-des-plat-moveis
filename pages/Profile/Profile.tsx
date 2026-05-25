@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef  } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import {screenSlideAnimation,fadeInAnimation,
+import {
+  screenSlideAnimation, fadeInAnimation,
 } from '../../components/Animations/animations';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -18,12 +19,14 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   verifyBeforeUpdateEmail,
+  updateProfile,
 } from 'firebase/auth';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useAuth } from '../../components/AuthProvider';
+import { buscarPerfilFirestore, salvarPerfilFirestore } from '../../services/usuariosFirebase';
 
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import Locais from '../Locais/Locais';
@@ -118,53 +121,27 @@ export function Profile({
 
   // CARREGAR DADOS
   useEffect(() => {
-    screenSlideAnimation(translateX,'right').start();
+    screenSlideAnimation(translateX, 'right').start();
     fadeInAnimation(opacity).start();
 
     async function loadData() {
       if (!user) return;
 
       try {
-        const savedName =
-          await AsyncStorage.getItem(
-            `name_${user.uid}`
-          );
+        const userProfile = await buscarPerfilFirestore(user.uid);
 
-        const savedBio =
-          await AsyncStorage.getItem(
-            `bio_${user.uid}`
-          );
-
-        const savedBirth =
-          await AsyncStorage.getItem(
-            `birth_${user.uid}`
-          );
-
-        const savedPhoto =
-          await AsyncStorage.getItem(
-            `photo_${user.uid}`
-          );
-
-        if (savedName !== null)
-          setName(savedName);
-
-        if (savedBio !== null)
-          setBio(savedBio);
-
-        if (savedBirth !== null)
-          setBirth(savedBirth);
-
-        if (savedPhoto !== null)
-          setPhoto(savedPhoto);
+        if (userProfile) {
+          if (userProfile.name) setName(userProfile.name);
+          if (userProfile.bio) setBio(userProfile.bio);
+          if (userProfile.birth) setBirth(userProfile.birth);
+          if (userProfile.photo) setPhoto(userProfile.photo);
+        }
 
         if (user.email) {
           setEmail(user.email);
         }
       } catch (error) {
-        console.log(
-          'Erro ao carregar:',
-          error
-        );
+        console.log('Erro ao carregar do Firestore:', error);
       }
     }
 
@@ -173,7 +150,7 @@ export function Profile({
 
   const infosPreenchidas = [
     name.trim() !== '' &&
-      name !== 'User',
+    name !== 'User',
 
     bio.trim() !== '',
 
@@ -194,11 +171,11 @@ export function Profile({
 
   function handleEdit() {
     setEditing(true);
-  } 
-  
-    if (verLocais) {
-      return <Locais onVoltar={() => setVerLocais(false)} />;
-    }
+  }
+
+  if (verLocais) {
+    return <Locais onVoltar={() => setVerLocais(false)} />;
+  }
 
   async function pickImage() {
     const permission =
@@ -238,76 +215,37 @@ export function Profile({
     if (!user) return;
 
     try {
-      const emailAlterado =
-        email !== user.email;
+      const emailAlterado = email !== user.email;
 
       if (emailAlterado) {
         if (!passwordConfirm) {
-          Alert.alert(
-            'Confirmação necessária',
-            'Digite sua senha para alterar o email.'
-          );
-
+          Alert.alert('Confirmação necessária', 'Digite sua senha para alterar o email.');
           return;
         }
 
-        const credential =
-          EmailAuthProvider.credential(
-            user.email || '',
-            passwordConfirm
-          );
 
-        await reauthenticateWithCredential(
-          user,
-          credential
-        );
-
-        await verifyBeforeUpdateEmail(
-          user,
-          email
-        );
+        const credential = EmailAuthProvider.credential(user.email || '', passwordConfirm);
+        await reauthenticateWithCredential(user, credential);
+        await verifyBeforeUpdateEmail(user, email);
       }
 
-      await AsyncStorage.setItem(
-        `name_${user.uid}`,
-        name
-      );
-
-      await AsyncStorage.setItem(
-        `bio_${user.uid}`,
-        bio
-      );
-
-      await AsyncStorage.setItem(
-        `birth_${user.uid}`,
-        birth
-      );
-
-      if (photo) {
-        await AsyncStorage.setItem(
-          `photo_${user.uid}`,
-          photo
-        );
-      }
+      await salvarPerfilFirestore(user.uid, {
+        name: name,
+        bio: bio,
+        birth: birth,
+        photo: photo, // Base64
+        email: email,
+      });
 
       setPasswordConfirm('');
-
       setEditing(false);
 
       if (emailAlterado) {
-        Alert.alert(
-          'Email atualizado',
-          'Enviamos um email de confirmação para o novo endereço.'
-        );
+        Alert.alert('Email atualizado', 'Enviamos um email de confirmação para o novo endereço.');
       }
     } catch (error: any) {
       console.log(error);
-
-      Alert.alert(
-        'Erro',
-        error.message ||
-          'Não foi possível atualizar.'
-      );
+      Alert.alert('Erro', error.message || 'Não foi possível atualizar.');
     }
   }
 
@@ -352,7 +290,7 @@ export function Profile({
   }
 
   return (
-    <Animated.View style={[styles.container,{opacity,transform: [{ translateX }],},]}>
+    <Animated.View style={[styles.container, { opacity, transform: [{ translateX }], },]}>
       {/* HEADER */}
       <Header themed>
         <HeaderElement
