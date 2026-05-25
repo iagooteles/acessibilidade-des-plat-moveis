@@ -95,7 +95,13 @@ export function buildLeafletEmbedHtml(): string {
         if (pts && pts.length) {
           window.__locaisLayer = L.layerGroup();
           pts.forEach(function (p) {
-            L.marker([p.lat, p.long]).addTo(window.__locaisLayer);
+            var marker = L.marker([p.lat, p.long]);
+
+            marker.on('click', function(){
+              __postToApp({ type: 'markerTap', id: p.id });
+            });
+
+            marker.addTo(window.__locaisLayer);
           });
           window.__locaisLayer.addTo(m);
         }

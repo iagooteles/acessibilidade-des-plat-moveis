@@ -25,6 +25,7 @@ type OsmLeafletMapProps = {
   marcacaoAtiva?: boolean;
   onMarcacaoNoMapa?: (lat: number, long: number) => void;
   pontosNoMapa?: PontoMapa[];
+  onMarkerTap?: (id: string) => void;
 };
 
 export const OsmLeafletMap = forwardRef<
@@ -37,6 +38,7 @@ export const OsmLeafletMap = forwardRef<
     marcacaoAtiva = false,
     onMarcacaoNoMapa,
     pontosNoMapa = [],
+    onMarkerTap
   },
   ref
 ) {
@@ -79,6 +81,7 @@ export const OsmLeafletMap = forwardRef<
         type?: string;
         lat?: number;
         long?: number;
+        id?: string;
       };
       if (!msg || typeof msg !== 'object') {
         return;
@@ -93,6 +96,12 @@ export const OsmLeafletMap = forwardRef<
         typeof msg.long === 'number'
       ) {
         onMarcacaoNoMapa?.(msg.lat, msg.long);
+      }
+      if (
+        msg.type === 'markerTap' &&
+        typeof msg.id === 'string'
+      ) {
+        onMarkerTap?.(msg.id);
       }
     };
     window.addEventListener('message', handler);

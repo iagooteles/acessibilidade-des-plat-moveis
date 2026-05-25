@@ -1,148 +1,114 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  base: {
+  container: {
     flex: 1,
+    padding: 20,
     backgroundColor: '#fff',
   },
-  header: {
-    height: 100,
-    paddingTop: 20,
-    paddingHorizontal: 32,
-    flexDirection: 'row',
+
+  center: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
   },
+
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#111',
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
-  titleVoltar: {
-    color: '#59B36B',
+
+  address: {
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#666',
+  },
+
+  image: {
+    width: '100%',
+    height: 220,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+
+  section: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-  voltarButton: {
+
+  commentCard: {
+    backgroundColor: '#f2f2f2',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  user: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+
+  comment: {
+    color: '#444',
+  },
+
+  fab: {
     position: 'absolute',
-    left: 32,
-    paddingVertical: 8,
-    paddingRight: 16,
-  },
-  topic: {
-    alignSelf: 'flex-start',
-    fontWeight: 'bold',
-    fontSize: 24,
-    paddingVertical: 32,
-  },
-  // main ScrollView componentes
-  contentScrollView: {
-    padding: 32,
-    rowGap: 16,
-  },
-  contentContainer: {
-    rowGap: 8,
-    alignItems: 'center',
-  },
-  // anotações
-  anotacoesContainer: { // container geral >
-    width: '100%',
-    paddingHorizontal: 8,
-    rowGap: 24,
-  },
-  anotacao: { // container geral > container anotação >
-    flexDirection: 'row',
-    columnGap: 12,
-    alignItems: 'center',
-  },
-  anotacoesCheckFalse: { // container geral > container anotação > anotações check + desc + edit
-    width: 24,
-    height: 24,
-    borderRadius: 16,
-    backgroundColor: 'red',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  anotacoesCheckTrue: { // container geral > container anotação > anotações check + desc + edit
-    width: 24,
-    height: 24,
-    borderRadius: 16,
-    backgroundColor: 'green',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  anotacoesCheckAdd: {
-    width: 24,
-    height: 24,
-    borderRadius: 16,
-    backgroundColor: '#cacaca',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  anotacoesDescAdd: {
-    color: 'gray',
-    fontSize: 20,
-    width: '100%',
-  },
-  anotacoesDesc: { // container geral > container anotação > anotações check + desc + edit
-    fontSize: 20,
-    width: '100%',
-  },
-  // propriedades do local
-  localNome: {
-    fontSize: 30,
-  },
-  localNum: {
-    fontSize: 24,
-  },
-  localPicScrollView: {
-    top: 16,
-    padding: 10,
-    height: 336,
-    columnGap: 40,
-    alignSelf: 'flex-start',
-  },
-  LocalPic: {
-    width: 300,
-    height: 300,
-    borderRadius: 16,
-  },
-  //comment
-  commentTop: {
-    flexDirection: 'row',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#43A047',
+    width: 60,
     height: 60,
-    width: '70%',
-    alignSelf: 'flex-start',
-    columnGap: 12,
+    borderRadius: 30,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  commentTopPfp: {
-    backgroundColor: '#9d9da4',
-    borderRadius: 100,
-    width: 40,
-    height: 40,
-    flexBasis: 'auto',
-    flexGrow: 0,
+
+  fabText: {
+    color: '#fff',
+    fontSize: 24,
   },
-  commentTopName: {
-    flexBasis: 'auto',
-    flexGrow: 0,
+
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    padding: 20,
   },
-  commentTopNameText: {
-    fontSize: 20,
+
+  modal: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+  },
+
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: 15,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+
+  sendButton: {
+    backgroundColor: '#43A047',
+    marginTop: 15,
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  sendText: {
+    color: '#fff',
     fontWeight: 'bold',
   },
-  commentTopDate: {
-    flexBasis: 'auto',
-    flexGrow: 0,
-  },
-  commentTopDateText: {
-    color: 'gray',
-  },
-  commentText: {
-    alignSelf: 'center',
-    width: '85%',
-    height: 'auto',
-  },
-})
+});

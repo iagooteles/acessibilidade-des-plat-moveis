@@ -56,6 +56,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
 
+
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [renderizarFiltro, setRenderizarFiltro] = useState(false);
 
@@ -64,6 +65,8 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
   const [busca, setBusca] = useState('');
   const [buscando, setBuscando] = useState(false);
+  const [verDetalhesLocal, setVerDetalhesLocal] = useState(false);
+  const [localSelecionadoId, setLocalSelecionadoId] = useState<string | null>(null);
 
   const mapRef = useRef<OsmLeafletMapHandle>(null);
 
@@ -255,8 +258,8 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
     );
   }
 
-  if (verDetalhes) {
-    return <Detalhes onVoltar={() => setVerDetalhes(false)} />;
+  if (verDetalhesLocal && localSelecionadoId) {
+    return <Detalhes localId={localSelecionadoId} onVoltar={() => setVerDetalhesLocal(false)} />;
   }
 
   if (verLocais) {
@@ -368,6 +371,12 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           ref={mapRef}
           style={styles.mapLeaflet}
           marcacaoAtiva={marcandoLocal}
+          
+          onMarkerTap={(id) =>{
+            setLocalSelecionadoId(id);
+            setVerDetalhesLocal(true);
+          }}
+
           onMarcacaoNoMapa={(lat, long) => {
             setMarcandoLocal(false);
 
