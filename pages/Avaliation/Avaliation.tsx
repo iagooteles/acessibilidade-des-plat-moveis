@@ -26,10 +26,12 @@ import {
   excluirLocalNoFirebase,
   type AnotacaoLocal,
   type LocalFirebase,
+  type ComentarioLocal,
 } from '../../services/locaisFirebase';
 import { styles } from './styles';
 
 export type CoordenadasLocal = { lat: number; long: number };
+import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
 
 const MAX_FOTO_BASE64_CHARS = 900000;
 
@@ -72,6 +74,14 @@ export default function Avaliation({
   const [annotations, setAnnotations] = useState<AnotacaoLocal[]>(
     local?.anotacoes ?? []
   );
+
+  // estados para os comentários
+  const [comentarios, setComentarios] = useState<ComentarioLocal[]>(
+    local?.comentarios ?? []
+  );
+  const [novoComentario, setNovoComentario] = useState('');
+  const [nomeUsuarioAtual, setNomeUsuarioAtual] = useState('Usuário Anônimo');
+
   const [editando, setEditando] = useState(!local);
   const [salvando, setSalvando] = useState(false);
   const ehDetalhe = Boolean(local);
@@ -92,8 +102,28 @@ export default function Avaliation({
     'Trajetória adequada',
 
   ]);
-  useEffect(() => {screenSlideUpAnimation(translateY).start();
-  fadeInAnimation(opacity).start();}, []);
+
+  useEffect(() => {
+    screenSlideUpAnimation(translateY).start();
+    fadeInAnimation(opacity).start();
+  }, []);
+
+  useEffect(() => {
+    async function carregarNomeUsuario() {
+      if (user?.uid) {
+        try {
+          const perfil = await buscarPerfilFirestore(user.uid);
+          if (perfil && perfil.name) {
+            setNomeUsuarioAtual(perfil.name);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar nome do usuário:", error);
+        }
+      }
+    }
+    
+    void carregarNomeUsuario();
+  }, [user]);
 
   const filteredOptions = options.filter((item) =>
     item.toLowerCase().includes(search.toLowerCase())
@@ -122,6 +152,21 @@ export default function Avaliation({
       ];
     });
     setModalVisible(false);
+  };
+
+  const handleAddComentario = () => {
+    if (!podeAlterar || !novoComentario.trim()) return;
+
+    const nomeAutor = user?.displayName ?? 'Usuário Anônimo';
+
+    const novoComentarioObj: ComentarioLocal = {
+      texto: novoComentario.trim(),
+      nomeAutor: nomeUsuarioAtual,
+      uidAutor: user?.uid ?? 'unknown',
+    };
+
+    setComentarios((prev) => [...prev, novoComentarioObj]);
+    setNovoComentario('');
   };
 
   const escolherFoto = async () => {
@@ -184,6 +229,7 @@ export default function Avaliation({
           id: local.id,
           nome: nomeLimpo,
           anotacoes: annotations,
+          comentarios: comentarios,
           fotoBase64,
         });
         Alert.alert('Salvo', 'Local atualizado com sucesso.');
@@ -193,6 +239,7 @@ export default function Avaliation({
           lat: coordenadas.lat,
           long: coordenadas.long,
           anotacoes: annotations,
+          comentarios: comentarios,
           fotoBase64,
           criadoPor: user.uid,
         });
@@ -252,7 +299,7 @@ export default function Avaliation({
 
   return (
     <Animated.View style={[styles.container,
-    {flex: 1,opacity,transform: [{ translateY }],},]}>
+    { flex: 1, opacity, transform: [{ translateY }], },]}>
       <KeyboardAvoidingView
         style={styles.keyboardWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -337,6 +384,55 @@ export default function Avaliation({
                 Adicionar…
               </Text>
             </TouchableOpacity>
+          ) : null}
+
+          {/* comentários */}
+          <Text style={[styles.section, { marginTop: 24 }]}>Comentários</Text>
+
+          {comentarios.map((comentario, index) => (
+            <View key={index} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 4, marginBottom: 8 }}>
+              <Text style={{ fontSize: 13, color: '#666', fontWeight: 'bold', marginBottom: 4 }}>
+                {comentario.nomeAutor}
+              </Text>
+              <Text style={{ color: '#333', fontSize: 15 }}>
+                {comentario.texto}
+              </Text>
+            </View>
+          ))}
+
+          {comentarios.length === 0 && !podeAlterar && (
+            <Text style={{ color: '#8e8e93', fontStyle: 'italic', marginBottom: 8 }}>
+              Não há comentários.
+            </Text>
+          )}
+
+          {podeAlterar ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+              <TextInput
+                style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                value={novoComentario}
+                onChangeText={setNovoComentario}
+                placeholder="Adicionar um comentário"
+                placeholderTextColor="#999"
+                editable={!salvando}
+              />
+              <TouchableOpacity
+                style={{
+                  marginLeft: 10,
+                  backgroundColor: !novoComentario.trim() ? '#E5E5EA' : '#35C759',
+                  padding: 14,
+                  borderRadius: 100,
+                }}
+                onPress={handleAddComentario}
+                disabled={salvando || !novoComentario.trim()}
+              >
+                <Ionicons
+                  name="send"
+                  size={20}
+                  color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
+                />
+              </TouchableOpacity>
+            </View>
           ) : null}
 
           <View style={styles.scrollSpacer} />

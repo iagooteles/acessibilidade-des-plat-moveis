@@ -17,6 +17,7 @@ import {
   type ReactNode,
 } from 'react';
 import { auth } from '../config/firebase';
+import { salvarPerfilFirestore } from '../services/usuariosFirebase';
 
 type AuthContextValue = {
   user: User | null;
@@ -77,7 +78,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (email: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      
+      // cria o documento do usuário no firestore no momento do registro
+      await salvarPerfilFirestore(userCredential.user.uid, {
+        name: 'User',
+        bio: '',
+        birth: '',
+        photo: null,
+        email: email.trim(),
+      });
+
     } catch (error: unknown) {
       throw new Error(mapAuthError(getAuthErrorCode(error)));
     }
