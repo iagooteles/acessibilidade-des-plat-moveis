@@ -34,7 +34,6 @@ import { useAuth } from '../../components/AuthProvider';
 
 import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
-import { Detalhes } from '../Detalhes/Detalhes';
 import Locais from '../Locais/Locais';
 
 import { styles } from './styles';
@@ -253,10 +252,6 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
         }}
       />
     );
-  }
-
-  if (verDetalhes) {
-    return <Detalhes onVoltar={() => setVerDetalhes(false)} />;
   }
 
   if (verLocais) {
