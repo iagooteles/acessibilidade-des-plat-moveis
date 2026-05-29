@@ -269,4 +269,52 @@ overlayFiltro: {
   bottom: 0,
   zIndex: 5,
 },
+localPopup: {
+  position: 'absolute',
+  left: 24,
+  right: 24,
+  bottom: 96,
+  backgroundColor: '#fff',
+  borderRadius: 18,
+  padding: 18,
+  elevation: 6,
+  shadowColor: '#000',
+  shadowOpacity: 0.2,
+  shadowRadius: 8,
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+},
+
+localPopupTitulo: {
+  fontSize: 16,
+  fontWeight: '700',
+  color: '#222',
+  marginBottom: 8,
+},
+
+localPopupAnotacoes: {
+  gap: 4,
+  marginBottom: 16,
+},
+
+localPopupAnotacao: {
+  fontSize: 14,
+  color: '#333',
+},
+
+localPopupButton: {
+  alignSelf: 'center',
+  backgroundColor: '#5db075',
+  paddingHorizontal: 28,
+  paddingVertical: 12,
+  borderRadius: 24,
+},
+
+localPopupButtonText: {
+  color: '#fff',
+  fontSize: 15,
+  fontWeight: '700',
+},
 });

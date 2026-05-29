@@ -40,6 +40,7 @@ import { styles } from './styles';
 
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { HeaderElement, Header } from '../../components/Header/Header';
+import { Detalhes } from '../Detalhes/Detalhes';
 
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
@@ -66,6 +67,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [buscando, setBuscando] = useState(false);
   const [verDetalhesLocal, setVerDetalhesLocal] = useState(false);
   const [localSelecionadoId, setLocalSelecionadoId] = useState<string | null>(null);
+  const [localPopup, setLocalPopup] = useState<LocalFirebase | null>(null);
 
   const mapRef = useRef<OsmLeafletMapHandle>(null);
 
@@ -83,7 +85,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const translateX = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const filtroTranslateX = useRef(
-  new Animated.Value(80)
+    new Animated.Value(80)
   ).current;
 
   const filtroOpacity = useRef(
@@ -100,36 +102,36 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }, [verProfile, verAvaliation, verDetalhes]);
 
   useEffect(() => {
-  if (mostrarFiltro) {
-    setRenderizarFiltro(true);
+    if (mostrarFiltro) {
+      setRenderizarFiltro(true);
 
-    screenSlideAnimation(
-      filtroTranslateX,
-      'right',
-      220
-    ).start();
+      screenSlideAnimation(
+        filtroTranslateX,
+        'right',
+        220
+      ).start();
 
-    fadeInAnimation(
-      filtroOpacity,
-      220
-    ).start();
-  } else {
-    Animated.parallel([
-      Animated.timing(filtroTranslateX, {
-        toValue: 80,
-        duration: 180,
-        useNativeDriver: true,
-      }),
-
-      fadeOutAnimation(
+      fadeInAnimation(
         filtroOpacity,
-        180
-      ),
-    ]).start(() => {
-      setRenderizarFiltro(false);
-    });
-  }
-}, [mostrarFiltro]);
+        220
+      ).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(filtroTranslateX, {
+          toValue: 80,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+
+        fadeOutAnimation(
+          filtroOpacity,
+          180
+        ),
+      ]).start(() => {
+        setRenderizarFiltro(false);
+      });
+    }
+  }, [mostrarFiltro]);
 
   const toggleFiltro = (filtro: string) => {
     setFiltrosSelecionados((prev) => {
@@ -147,19 +149,21 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
 
       return filtrosSelecionados.every((filtro) =>
         anotacoes.some(
-        (item) =>
-        item?.type === 'positive' &&
-        typeof item?.text === 'string' &&
-        item.text
-          .replace('Possui ', '')
-          .trim()
-          .includes(filtro)
-      ));
+          (item) =>
+            item?.type === 'positive' &&
+            typeof item?.text === 'string' &&
+            item.text
+              .replace('Possui ', '')
+              .trim()
+              .includes(filtro)
+        ));
     })
     .map((local) => ({
       id: local.id,
       lat: local.lat,
       long: local.long,
+      nome: local.nome,
+      anotacoes: local.anotacoes,
     }));
 
   const refetchLocais = useCallback(async () => {
@@ -173,19 +177,19 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }, []);
 
   const filtrosDisponiveis = Array.from(
-  new Set(
-    locaisMapa.flatMap((local) =>
-      (local.anotacoes ?? [])
-        .filter(
-          (item) =>
-            item?.type === 'positive' &&
-            typeof item?.text === 'string'
-        )
-        .map((item) =>
-          item.text.replace('Possui ', '').trim()
-        )
+    new Set(
+      locaisMapa.flatMap((local) =>
+        (local.anotacoes ?? [])
+          .filter(
+            (item) =>
+              item?.type === 'positive' &&
+              typeof item?.text === 'string'
+          )
+          .map((item) =>
+            item.text.replace('Possui ', '').trim()
+          )
+      )
     )
-  )
   ).sort();
 
   const executarBuscaNoMapa = useCallback(async () => {
@@ -293,43 +297,44 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
       <View style={styles.mapContainer}>
         {renderizarFiltro && (
           <>
-          <Pressable
-          style={styles.overlayFiltro}
-          onPress={() => setMostrarFiltro(false)}
-        />
-    <Animated.View style={[styles.filtroCard, {
-      opacity: filtroOpacity,
-      transform: [{translateX: filtroTranslateX,},],},]}>
+            <Pressable
+              style={styles.overlayFiltro}
+              onPress={() => setMostrarFiltro(false)}
+            />
+            <Animated.View style={[styles.filtroCard, {
+              opacity: filtroOpacity,
+              transform: [{ translateX: filtroTranslateX, },],
+            },]}>
 
-            <Text style={styles.filtroTitulo}>
-              Filtros de acessibilidade
-            </Text>
+              <Text style={styles.filtroTitulo}>
+                Filtros de acessibilidade
+              </Text>
 
-            <View style={styles.filtrosContainer}>
-              {filtrosDisponiveis.map((filtro) => {
-                const ativo =
-                  filtrosSelecionados.includes(filtro);
+              <View style={styles.filtrosContainer}>
+                {filtrosDisponiveis.map((filtro) => {
+                  const ativo =
+                    filtrosSelecionados.includes(filtro);
 
-                return (
-                  <Pressable
-                    key={`${filtro}`}
-                    onPress={() => toggleFiltro(filtro)}
-                    style={[
-                      styles.filtroChip,
-                      ativo && styles.filtroChipAtivo,
-                    ]}
-                  >
-                    <Text
+                  return (
+                    <Pressable
+                      key={`${filtro}`}
+                      onPress={() => toggleFiltro(filtro)}
                       style={[
-                      styles.filtroChipTexto,
-                      ativo && styles.filtroChipTextoAtivo,]}>
-                       {`${ativo ? '✓ ' : ''}${String(filtro)}`}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Animated.View>
+                        styles.filtroChip,
+                        ativo && styles.filtroChipAtivo,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.filtroChipTexto,
+                          ativo && styles.filtroChipTextoAtivo,]}>
+                        {`${ativo ? '✓ ' : ''}${String(filtro)}`}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Animated.View>
           </>
         )}
 
@@ -370,10 +375,17 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           ref={mapRef}
           style={styles.mapLeaflet}
           marcacaoAtiva={marcandoLocal}
-          
-          onMarkerTap={(id) =>{
+
+          onMarkerTap={(id) => {
+            const local = locaisMapa.find((item) => item.id === id);
             setLocalSelecionadoId(id);
             setVerDetalhesLocal(true);
+
+            if (!local) {
+              return;
+            }
+
+            setLocalPopup(local);
           }}
 
           onMarcacaoNoMapa={(lat, long) => {
@@ -385,10 +397,11 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
           }}
           pontosNoMapa={
             locaisFiltrados.length > 0
-            ? locaisFiltrados
-            : []
-      }
+              ? locaisFiltrados
+              : []
+          }
         />
+
 
         {marcandoLocal ? (
           <View style={styles.marcacaoBanner}>

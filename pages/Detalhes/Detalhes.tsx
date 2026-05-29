@@ -10,27 +10,46 @@ import {
   ScrollView,
   Image,
   FlatList,
+  Alert,
+  TextInput,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-
+import { styles } from './styles';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
+  orderBy,
+  query,
+  Timestamp,
 } from 'firebase/firestore';
 
+import { useAuth } from '../../components/AuthProvider';
+
 import { db } from '../../config/firebase';
+import { Footer, FooterButton } from '../../components/Footer/Footer';
+import { Profile } from '../Profile/Profile';
+import Locais from '../Locais/Locais';
+import { ComentarioLocal, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
+import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
 
 type Props = {
   localId: string;
+  localFire?: LocalFirebase;
   onVoltar: () => void;
 };
 
 type Comentario = {
   id: string;
-  usuario: string;
-  comentario: string;
-  data: string;
+  uidAutor: string;
+  nomeAutor: string;
+  texto: string;
+  createdAt: Timestamp;
 };
 
 type Local = {
@@ -42,17 +61,42 @@ type Local = {
   fotoBase64?: string | null;
 
   anotacoes?: {
-  text: string;
-  type: 'positive' | 'negative';
+    text: string;
+    type: 'positive' | 'negative';
   }[];
 
   comentarios?: Comentario[];
 };
 
 export function Detalhes({
+  localFire,
   localId,
   onVoltar,
 }: Readonly<Props>) {
+
+
+  const [mostrarModalComentario, setMostrarModalComentario] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [novoComentario, setNovoComentario] = useState('');
+  const [nomeUsuarioAtual, setNomeUsuarioAtual] = useState('Usuário Anônimo');
+  const { user } = useAuth();
+  const [verProfile, setVerProfile] = useState(false);
+  const [verAvaliation, setVerAvaliation] = useState(false);
+  const [verDetalhes, setVerDetalhes] = useState(false);
+  const [verLocais, setVerLocais] = useState(false);
+  const [comentarios, setComentarios] = useState<ComentarioLocal[]>(
+    localFire?.comentarios ?? []
+  );
+
+  const [modalReportarAnotacao, setModalReportarAnotacao] = useState(false);
+  const [AnotacaoSelecionada, setAnotacaoSelecionada] =
+    useState<
+      | {
+        text: string;
+        type: 'positive' | 'negative';
+      }
+      | null
+    >(null);
 
   const [local, setLocal] = useState<Local | null>(null);
 
@@ -60,27 +104,113 @@ export function Detalhes({
     carregarLocal();
   }, [localId]);
 
-  async function carregarLocal() {
-
-    try {
-
-      const ref = doc(db, 'locais', localId);
-
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-
-        setLocal(snap.data() as Local);
-
+  useEffect(() => {
+    async function carregarNomeUsuario() {
+      if (user?.uid) {
+        try {
+          const perfil = await buscarPerfilFirestore(user.uid);
+          if (perfil && perfil.name) {
+            setNomeUsuarioAtual(perfil.name);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar nome do usuário:", error);
+        }
       }
-
-    } catch (error) {
-
-      console.log(error);
-
     }
 
+    void carregarNomeUsuario();
+  }, [user]);
+
+  async function carregarLocal() {
+    try {
+      const ref = doc(db, 'locais', localId);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        return;
+      }
+
+      const comentariosRef = collection(
+        db,
+        'locais',
+        localId,
+        'comentarios'
+      );
+
+      const comentariosSnap = await getDocs(
+        query(comentariosRef, orderBy('createdAt', 'desc'))
+      );
+
+      const comentarios: Comentario[] = comentariosSnap.docs.map((docSnap) => {
+        const data = docSnap.data();
+
+        return {
+          id: docSnap.id,
+          uidAutor:
+            typeof data.uidAutor === 'string'
+              ? data.uidAutor
+              : '',
+          nomeAutor:
+            typeof data.nomeAutor === 'string'
+              ? data.nomeAutor
+              : 'Usuário Anônimo',
+          texto:
+            typeof data.texto === 'string'
+              ? data.texto
+              : '',
+
+          createdAt:
+            data.createdAt instanceof Timestamp
+              ? data.createdAt
+              : Timestamp.now(),
+        };
+      });
+
+      setLocal({
+        ...(snap.data() as Local),
+        comentarios,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
+
+  const handleAddComentario = async () => {
+    if (!novoComentario.trim()) return;
+
+    if (!user) {
+      Alert.alert('Sessão', 'Você precisa estar logado para comentar.');
+      return;
+    }
+
+
+
+    const texto = novoComentario.trim();
+
+    try {
+      const comentarioId = await criarComentarioNoLocal({
+
+        localId,
+        texto,
+        nomeAutor: nomeUsuarioAtual,
+        uidAutor: user.uid,
+      });
+      const novoComentarioObj: ComentarioLocal = {
+        id: comentarioId,
+        createdAt: Timestamp.now(),
+        texto,
+        nomeAutor: nomeUsuarioAtual,
+        uidAutor: user.uid,
+      };
+
+      setComentarios((prev) => [...prev, novoComentarioObj]);
+      setNovoComentario('');
+      await carregarLocal();
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Erro', 'Não foi possível salvar o comentário.');
+    }
+  };
 
   if (!local) {
 
@@ -92,12 +222,22 @@ export function Detalhes({
 
   }
 
+  if (verProfile) {
+    return <Profile onVoltar={() => setVerProfile(false)} />
+  }
+
+  if (verLocais) {
+    return <Locais onVoltar={() => setVerLocais(false)} />;
+  }
+
+
   return (
     <View style={styles.container}>
 
       <View style={styles.header}>
 
         <Pressable
+          style={styles.voltarButton}
           onPress={onVoltar}
         >
           <Text style={styles.voltar}>
@@ -127,12 +267,12 @@ export function Detalhes({
           horizontal
           data={
             local.fotoBase64 || local.fotoUrl
-            ? [
-            local.fotoBase64 ??
-            local.fotoUrl ??
-            ''
-            ]
-            : []
+              ? [
+                local.fotoBase64 ??
+                local.fotoUrl ??
+                ''
+              ]
+              : []
           }
           keyExtractor={(item, index) => String(index)}
           showsHorizontalScrollIndicator={false}
@@ -161,14 +301,14 @@ export function Detalhes({
               <Icon
                 name={
                   item.type === 'positive'
-                  ? 'check-circle'
-                  : 'close-circle'
+                    ? 'check-circle'
+                    : 'close-circle'
                 }
                 size={22}
                 color={
                   item.type === 'positive'
-                  ? '#31C451'
-                  : '#FF3B30'
+                    ? '#31C451'
+                    : '#FF3B30'
                 }
               />
 
@@ -177,11 +317,18 @@ export function Detalhes({
               </Text>
             </View>
 
-            <Icon
-              name="pencil"
-              size={18}
-              color="#B0B0B0"
-            />
+            <Pressable
+              onPress={() => {
+                setModalReportarAnotacao(true);
+                setAnotacaoSelecionada(item);
+              }}
+            >
+              <Icon
+                name="pencil"
+                size={18}
+                color="#B0B0B0"
+              />
+            </Pressable>
 
           </View>
 
@@ -221,17 +368,20 @@ export function Detalhes({
                 <View style={styles.commentTop}>
 
                   <Text style={styles.commentUser}>
-                    {item.usuario}
+                    {item.nomeAutor}
                   </Text>
 
                   <Text style={styles.commentDate}>
-                    {item.data}
+                    {item.createdAt
+                      ?.toDate()
+                      .toLocaleDateString('pt-BR')
+                    }
                   </Text>
 
                 </View>
 
                 <Text style={styles.commentText}>
-                  {item.comentario}
+                  {item.texto}
                 </Text>
 
               </View>
@@ -244,7 +394,10 @@ export function Detalhes({
 
       </ScrollView>
 
-      <Pressable style={styles.fab}>
+      <Pressable
+        style={styles.fab}
+        onPress={() => setMostrarModalComentario(true)}
+      >
 
         <Icon
           name="message-text-outline"
@@ -254,194 +407,127 @@ export function Detalhes({
 
       </Pressable>
 
-      <View style={styles.bottomBar}>
+      <Modal
+        visible={mostrarModalComentario}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMostrarModalComentario(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+        
+          <Pressable 
+            style={styles.modalOverlay}
+            onPress={() => setMostrarModalComentario(false)}  
+          >
+            <View style={styles.modalContainer}>
 
-        <Icon
-          name="map-marker"
-          size={24}
-          color="#5DB075"
+              <Text style={styles.modalTitulo}>
+                Novo comentário
+              </Text>
+
+              <TextInput
+                style={styles.modalInput}
+                value={novoComentario}
+                onChangeText={setNovoComentario}
+                placeholder="Digite seu comentário"
+                multiline
+              />
+
+              <Pressable
+                style={styles.modalBotao}
+                onPress={() => {
+                  void handleAddComentario();
+                  setMostrarModalComentario(false);
+                }}
+              >
+                <Text style={styles.modalBotaoTexto}>
+                  Enviar
+                </Text>
+              </Pressable>
+
+              
+            </View>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={modalReportarAnotacao}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalReport}>
+
+            <Text style={styles.modalTituloReport}>
+              Há algum problema com esta anotação?
+            </Text>
+
+            <Text style={styles.modalDescricao}>
+              Esta anotação contém uma informação incorreta ou desatualizada?
+            </Text>
+
+            <View style={styles.botoes}>
+
+              <Pressable
+                style={styles.botaoConfirmar}
+                onPress={() => {
+                  setModalReportarAnotacao(false);
+                }}
+              >
+                <Text style={styles.textoBotaoConfirmar}>
+                  Sim
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.botaoCancelar}
+                onPress={() =>
+                  setModalReportarAnotacao(false)
+                }
+              >
+                <Text style={styles.textoBotaoCancelar}>
+                  Cancelar
+                </Text>
+              </Pressable>
+
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
+      <Footer>
+        <FooterButton active type='1' />
+
+        <FooterButton
+          type="2"
+          onPress={() => {
+            setVerDetalhes(true);
+          }}
         />
 
-        <Icon
-          name="pencil"
-          size={24}
-          color="#000"
+        <FooterButton
+          type="4"
+          onPress={() => setVerLocais(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Gerenciar locais"
         />
 
-        <Icon
-          name="account"
-          size={24}
-          color="#000"
-        />
+        <FooterButton
+          type="3"
+          onPress={() => {
+            setVerProfile(true)
+          }}
 
-      </View>
+        />
+      </Footer>
 
     </View>
   );
 
 }
 
-const styles = StyleSheet.create({
-
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    paddingTop: 48,
-  },
-
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    marginBottom: 12,
-  },
-
-  voltar: {
-    color: '#5DB075',
-    fontSize: 16,
-  },
-
-  title: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 38,
-    fontWeight: '700',
-    marginRight: 50,
-    color: '#000',
-  },
-
-  nome: {
-    fontSize: 24,
-    textAlign: 'center',
-    fontWeight: '600',
-    color: '#000',
-  },
-
-  numero: {
-    textAlign: 'center',
-    color: '#555',
-    marginTop: 4,
-    marginBottom: 20,
-  },
-
-  imagesList: {
-    paddingLeft: 18,
-    paddingRight: 8,
-  },
-
-  image: {
-    width: 165,
-    height: 165,
-    borderRadius: 22,
-    marginRight: 18,
-  },
-
-  sectionTitle: {
-    marginTop: 26,
-    marginBottom: 16,
-    marginHorizontal: 18,
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
-  },
-
-  anotacaoItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 18,
-    marginBottom: 16,
-  },
-
-  anotacaoLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  anotacaoTexto: {
-    marginLeft: 10,
-    fontSize: 15,
-    color: '#000',
-  },
-
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 18,
-    marginTop: 4,
-  },
-
-  addText: {
-    marginLeft: 8,
-    color: '#9C9C9C',
-  },
-
-  commentContainer: {
-    marginHorizontal: 18,
-    marginBottom: 18,
-  },
-
-  commentHeader: {
-    flexDirection: 'row',
-  },
-
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#CFCFCF',
-    marginRight: 10,
-  },
-
-  commentTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  commentUser: {
-    fontWeight: '600',
-    color: '#444',
-  },
-
-  commentDate: {
-    marginLeft: 8,
-    fontSize: 11,
-    color: '#999',
-  },
-
-  commentText: {
-    marginTop: 4,
-    color: '#B5B5B5',
-    fontSize: 13,
-  },
-
-  fab: {
-    position: 'absolute',
-    right: 24,
-    bottom: 95,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#5DB075',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-
-  bottomBar: {
-    height: 70,
-    borderTopWidth: 1,
-    borderTopColor: '#ECECEC',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-  },
-
-});

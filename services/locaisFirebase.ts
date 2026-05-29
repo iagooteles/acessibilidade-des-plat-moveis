@@ -7,6 +7,9 @@ import {
   getDocs,
   serverTimestamp,
   updateDoc,
+  orderBy,
+  query,
+  Timestamp,
 } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
@@ -17,15 +20,19 @@ export type AnotacaoLocal = {
 };
 
 export type ComentarioLocal = {
+  id: string;
+  createdAt: Timestamp | null;
   texto: string;
   nomeAutor: string;
   uidAutor: string;
 };
 
 export type PontoMapa = {
+  nome: string;
   id: string;
   lat: number;
   long: number;
+  anotacoes: AnotacaoLocal[];
 };
 
 export type LocalFirebase = PontoMapa & {
@@ -51,17 +58,65 @@ function normalizarAnotacoes(value: unknown): AnotacaoLocal[] {
   });
 }
 
-function normalizarComentarios(value: unknown): ComentarioLocal[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is ComentarioLocal => {
-    if (!item || typeof item !== 'object') return false;
-    const comentario = item as Record<string, unknown>;
-    return (
-      typeof comentario.texto === 'string' &&
-      typeof comentario.nomeAutor === 'string' &&
-      typeof comentario.uidAutor === 'string'
-    );
-  });
+function normalizarComentarioDoc(id: string, value: unknown): ComentarioLocal | null {
+  if (!value || typeof value !== 'object') return null;
+
+  const comentario = value as Record<string, unknown>;
+
+  if (
+    typeof comentario.texto !== 'string' ||
+    typeof comentario.nomeAutor !== 'string' ||
+    typeof comentario.uidAutor !== 'string'
+  ) {
+    return null;
+  }
+
+  return {
+    id,
+    texto: comentario.texto,
+    nomeAutor: comentario.nomeAutor,
+    uidAutor: comentario.uidAutor,
+    createdAt:
+       comentario.createdAt instanceof Timestamp
+        ? comentario.createdAt
+        : null,
+  };
+}
+
+export async function listarComentariosDoLocal(localId: string): Promise<ComentarioLocal[]> {
+  const comentariosRef = collection(
+    db,
+    COLECAO_LOCAIS,
+    localId,
+    'comentarios'
+  );
+
+  const snap = await getDocs(
+    query(comentariosRef, orderBy('createdAt', 'desc'))
+  );
+
+  return snap.docs
+    .map((docSnap) => normalizarComentarioDoc(docSnap.id, docSnap.data()))
+    .filter((item): item is ComentarioLocal => item !== null);
+}
+
+export async function criarComentarioNoLocal(input: {
+  localId: string;
+  texto: string;
+  nomeAutor: string;
+  uidAutor: string;
+}): Promise<string> {
+  const docRef = await addDoc(
+    collection(db, COLECAO_LOCAIS, input.localId, 'comentarios'),
+    {
+      texto: input.texto,
+      nomeAutor: input.nomeAutor,
+      uidAutor: input.uidAutor,
+      createdAt: serverTimestamp(),
+    }
+  );
+
+  return docRef.id;
 }
 
 export async function listarLocaisParaMapa(): Promise<PontoMapa[]> {
@@ -72,7 +127,16 @@ export async function listarLocaisParaMapa(): Promise<PontoMapa[]> {
     const lat = Number(dados.lat);
     const long = Number(dados.long);
     if (Number.isFinite(lat) && Number.isFinite(long)) {
-      pontos.push({ id: docSnap.id, lat, long });
+      pontos.push({
+         nome: 
+          typeof dados.nome === 'string'
+            ? dados.nome
+            : 'Local',
+          anotacoes: Array.isArray(dados.anotacoes)
+            ? (dados.anotacoes as AnotacaoLocal[])
+            : [],
+         id: docSnap.id, lat, long
+        });
     }
   }
   return pontos;
@@ -95,7 +159,6 @@ export async function listarLocais(): Promise<LocalFirebase[]> {
       lat,
       long,
       anotacoes: normalizarAnotacoes(dados.anotacoes),
-      comentarios: normalizarComentarios(dados.comentarios),
       fotoUrl: typeof dados.fotoUrl === 'string' && dados.fotoUrl ? dados.fotoUrl : null,
       fotoBase64: typeof dados.fotoBase64 === 'string' && dados.fotoBase64 ? dados.fotoBase64 : null,
       criadoPor: typeof dados.criadoPor === 'string' && dados.criadoPor ? dados.criadoPor : null,
@@ -121,7 +184,6 @@ export async function buscarLocalPorId(id: string): Promise<LocalFirebase | null
     lat,
     long,
     anotacoes: normalizarAnotacoes(dados.anotacoes),
-    comentarios: normalizarComentarios(dados.comentarios),
     fotoUrl: typeof dados.fotoUrl === 'string' && dados.fotoUrl ? dados.fotoUrl : null,
     fotoBase64: typeof dados.fotoBase64 === 'string' && dados.fotoBase64 ? dados.fotoBase64 : null,
     criadoPor: typeof dados.criadoPor === 'string' && dados.criadoPor ? dados.criadoPor : null,
@@ -134,7 +196,6 @@ export async function criarLocalNoFirebase(
     lat: number;
     long: number;
     anotacoes: AnotacaoLocal[];
-    comentarios?: ComentarioLocal[];
     fotoBase64: string | null;
     criadoPor: string;
   }
@@ -144,7 +205,6 @@ export async function criarLocalNoFirebase(
     lat: input.lat,
     long: input.long,
     anotacoes: input.anotacoes,
-    comentarios: input.comentarios ?? [],
     fotoBase64: input.fotoBase64,
     criadoPor: input.criadoPor,
     criadoEm: serverTimestamp(),
@@ -158,14 +218,12 @@ export async function editarLocalNoFirebase(
     id: string;
     nome: string;
     anotacoes: AnotacaoLocal[];
-    comentarios?: ComentarioLocal[];
     fotoBase64: string | null;
   }
 ): Promise<void> {
   await updateDoc(doc(db, COLECAO_LOCAIS, input.id), {
     nome: input.nome,
     anotacoes: input.anotacoes,
-    comentarios: input.comentarios ?? [],
     fotoBase64: input.fotoBase64,
     atualizadoEm: serverTimestamp(),
   });

@@ -24,6 +24,8 @@ import {
   criarLocalNoFirebase,
   editarLocalNoFirebase,
   excluirLocalNoFirebase,
+  criarComentarioNoLocal,
+  listarComentariosDoLocal,
   type AnotacaoLocal,
   type LocalFirebase,
   type ComentarioLocal,
@@ -32,6 +34,7 @@ import { styles } from './styles';
 
 export type CoordenadasLocal = { lat: number; long: number };
 import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
+import { Timestamp } from 'firebase/firestore';
 
 const MAX_FOTO_BASE64_CHARS = 900000;
 
@@ -87,6 +90,7 @@ export default function Avaliation({
   const ehDetalhe = Boolean(local);
   const usuarioCriador = Boolean(local?.criadoPor && user?.uid === local.criadoPor);
   const podeAlterar = !ehDetalhe || (usuarioCriador && editando);
+  const podeComentar = Boolean(user && local?.id);
   const [search, setSearch] = useState('');
   const [otherModalVisible, setOtherModalVisible] = useState(false);
   const [customAnnotation, setCustomAnnotation] = useState('');
@@ -102,6 +106,21 @@ export default function Avaliation({
     'Trajetória adequada',
 
   ]);
+
+  useEffect(() => {
+    async function carregarComentarios() {
+      if (!local?.id) return;
+
+      try {
+        const comentariosSalvos = await listarComentariosDoLocal(local.id);
+        setComentarios(comentariosSalvos);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    void carregarComentarios();
+  }, [local?.id]);
 
   useEffect(() => {
     screenSlideUpAnimation(translateY).start();
@@ -121,7 +140,7 @@ export default function Avaliation({
         }
       }
     }
-    
+
     void carregarNomeUsuario();
   }, [user]);
 
@@ -154,21 +173,44 @@ export default function Avaliation({
     setModalVisible(false);
   };
 
-  const handleAddComentario = () => {
-    if (!podeAlterar || !novoComentario.trim()) return;
+  const handleAddComentario = async () => {
+    if (!novoComentario.trim()) return;
 
-    const nomeAutor = user?.displayName ?? 'Usuário Anônimo';
+    if (!user) {
+      Alert.alert('Sessão', 'Você precisa estar logado para comentar.');
+      return;
+    }
 
-    const novoComentarioObj: ComentarioLocal = {
-      texto: novoComentario.trim(),
-      nomeAutor: nomeUsuarioAtual,
-      uidAutor: user?.uid ?? 'unknown',
-    };
+    if (!local?.id) {
+      Alert.alert('Comentário', 'Salve o local antes de adicionar comentários.');
+      return;
+    }
+    
+    const texto = novoComentario.trim();
 
-    setComentarios((prev) => [...prev, novoComentarioObj]);
-    setNovoComentario('');
+    try {
+      const comentarioId = await criarComentarioNoLocal({
+        localId: local.id,
+        texto,
+        nomeAutor: nomeUsuarioAtual,
+        uidAutor: user.uid,
+      });
+
+      const novoComentarioObj: ComentarioLocal = {
+        id: comentarioId,
+        createdAt: Timestamp.now(),
+        texto,
+        nomeAutor: nomeUsuarioAtual,
+        uidAutor: user.uid,
+      };
+
+      setComentarios((prev) => [...prev, novoComentarioObj]);
+      setNovoComentario('');
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Erro', 'Não foi possível salvar o comentário.');
+    }
   };
-
   const escolherFoto = async () => {
     if (!podeAlterar) {
       return;
@@ -229,20 +271,27 @@ export default function Avaliation({
           id: local.id,
           nome: nomeLimpo,
           anotacoes: annotations,
-          comentarios: comentarios,
           fotoBase64,
         });
         Alert.alert('Salvo', 'Local atualizado com sucesso.');
       } else {
-        await criarLocalNoFirebase({
+        const localId = await criarLocalNoFirebase({
           nome: nomeLimpo,
           lat: coordenadas.lat,
           long: coordenadas.long,
           anotacoes: annotations,
-          comentarios: comentarios,
           fotoBase64,
           criadoPor: user.uid,
         });
+
+        if(novoComentario.trim()){
+          await criarComentarioNoLocal({
+            localId,
+            texto: novoComentario,
+            nomeAutor: nomeUsuarioAtual,
+            uidAutor: user.uid,
+          });
+        }
         Alert.alert('Salvo', 'Local registrado com sucesso.');
       }
       onSalvo?.();
@@ -389,8 +438,8 @@ export default function Avaliation({
           {/* comentários */}
           <Text style={[styles.section, { marginTop: 24 }]}>Comentários</Text>
 
-          {comentarios.map((comentario, index) => (
-            <View key={index} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 4, marginBottom: 8 }}>
+          {comentarios.map((comentario) => (
+            <View key={comentario.id} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 4, marginBottom: 8 }}>
               <Text style={{ fontSize: 13, color: '#666', fontWeight: 'bold', marginBottom: 4 }}>
                 {comentario.nomeAutor}
               </Text>
@@ -423,7 +472,7 @@ export default function Avaliation({
                   padding: 14,
                   borderRadius: 100,
                 }}
-                onPress={handleAddComentario}
+                onPress={() => void handleAddComentario()}
                 disabled={salvando || !novoComentario.trim()}
               >
                 <Ionicons

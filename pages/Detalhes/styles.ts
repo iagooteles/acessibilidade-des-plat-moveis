@@ -1,114 +1,290 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
+
   },
 
-  center: {
+  loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  header: {
+    height: 100,
+    paddingTop: 20,
+    paddingHorizontal: 32,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
   },
 
-  address: {
+  voltar: {
+    color: "#59B36B",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111',
+  },
+
+  nome: {
+    fontSize: 24,
     textAlign: 'center',
+    fontWeight: '600',
+    color: '#000',
+  },
+
+  numero: {
+    textAlign: 'center',
+    color: '#555',
+    marginTop: 4,
     marginBottom: 20,
-    color: '#666',
+  },
+
+  imagesList: {
+    paddingLeft: 18,
+    paddingRight: 8,
+  },
+  voltarButton: {
+    position: "absolute",
+    left: 32,
+    paddingVertical: 8,
+    paddingRight: 16,
   },
 
   image: {
-    width: '100%',
-    height: 220,
-    borderRadius: 20,
-    marginBottom: 20,
+    width: 165,
+    height: 165,
+    borderRadius: 22,
+    marginRight: 18,
   },
 
-  section: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  sectionTitle: {
+    marginTop: 26,
+    marginBottom: 16,
+    marginHorizontal: 18,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000',
   },
 
-  commentCard: {
-    backgroundColor: '#f2f2f2',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 10,
+  anotacaoItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 18,
+    marginBottom: 16,
   },
 
-  user: {
-    fontWeight: 'bold',
-    marginBottom: 4,
+  anotacaoLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
-  comment: {
+  anotacaoTexto: {
+    marginLeft: 10,
+    fontSize: 15,
+    color: '#000',
+  },
+
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 18,
+    marginTop: 4,
+  },
+
+  addText: {
+    marginLeft: 8,
+    color: '#9C9C9C',
+  },
+
+  commentContainer: {
+    marginHorizontal: 18,
+    marginBottom: 18,
+  },
+
+  commentHeader: {
+    flexDirection: 'row',
+  },
+
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#CFCFCF',
+    marginRight: 10,
+  },
+
+  commentTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  commentUser: {
+    fontWeight: '600',
     color: '#444',
+  },
+
+  commentDate: {
+    marginLeft: 8,
+    fontSize: 11,
+    color: '#999',
+  },
+
+  commentText: {
+    marginTop: 4,
+    color: '#B5B5B5',
+    fontSize: 13,
   },
 
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#43A047',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    right: 24,
+    bottom: 95,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#5DB075',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
   },
 
-  fabText: {
-    color: '#fff',
-    fontSize: 24,
+  bottomBar: {
+    height: 70,
+    borderTopWidth: 1,
+    borderTopColor: '#ECECEC',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
   },
 
-  modalBackground: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
-    padding: 20,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
 
-  modal: {
-    backgroundColor: '#fff',
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#FFF',
     borderRadius: 20,
     padding: 20,
   },
 
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
+  modalTitulo: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
   },
 
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 15,
+  modalInput: {
     minHeight: 100,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
     textAlignVertical: 'top',
   },
 
-  sendButton: {
-    backgroundColor: '#43A047',
-    marginTop: 15,
-    padding: 15,
+  modalBotao: {
+    backgroundColor: '#5DB075',
+    padding: 14,
     borderRadius: 12,
     alignItems: 'center',
+    marginBottom: 10,
   },
 
-  sendText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  modalBotaoTexto: {
+    color: '#FFF',
+    fontWeight: '600',
   },
+
+  overlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.35)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+modalReport: {
+  width: '82%',
+  backgroundColor: '#FFF',
+  borderRadius: 24,
+  paddingHorizontal: 24,
+  paddingVertical: 28,
+  elevation: 10,
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+  shadowOpacity: 0.15,
+  shadowRadius: 10,
+},
+
+modalTituloReport: {
+  fontSize: 20,
+  fontWeight: '700',
+  color: '#111',
+  textAlign: 'center',
+  marginBottom: 18,
+},
+
+modalDescricao: {
+  fontSize: 16,
+  color: '#555',
+  textAlign: 'center',
+  marginBottom: 28,
+},
+
+botoes: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+},
+
+botaoConfirmar: {
+  flex: 1,
+  backgroundColor: '#FF5A5F',
+  height: 48,
+  borderRadius: 24,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 10,
+},
+
+botaoCancelar: {
+  flex: 1,
+  backgroundColor: '#D1D1D6',
+  height: 48,
+  borderRadius: 24,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+textoBotaoConfirmar: {
+  color: '#FFF',
+  fontSize: 16,
+  fontWeight: '600',
+},
+
+textoBotaoCancelar: {
+  color: '#FFF',
+  fontSize: 16,
+  fontWeight: '600',
+},
+
 });
