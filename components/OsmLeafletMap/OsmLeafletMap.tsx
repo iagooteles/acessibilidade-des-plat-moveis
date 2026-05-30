@@ -95,7 +95,7 @@ export const OsmLeafletMap = forwardRef<
         onMarcacaoNoMapa?.(msg.lat, msg.long);
       }
       if (msg.type === 'markerTap' && typeof msg.id === 'string') {
-        onMarkerTap?.(msg.id); // 👈 adicione
+        onMarkerTap?.(msg.id);
       }
     } catch {
       /* ignore */
