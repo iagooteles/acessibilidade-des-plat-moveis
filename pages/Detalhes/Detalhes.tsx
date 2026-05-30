@@ -37,6 +37,7 @@ import { Profile } from '../Profile/Profile';
 import Locais from '../Locais/Locais';
 import { ComentarioLocal, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
 import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
+import { reportarAnotacao, contarDenuncias } from '../../services/locaisFirebase';
 
 type Props = {
   localId: string;
@@ -87,7 +88,7 @@ export function Detalhes({
   const [comentarios, setComentarios] = useState<ComentarioLocal[]>(
     localFire?.comentarios ?? []
   );
-
+  const [denunciaPorAnotacao, setDenunciaPorAnotacao] = useState<Record<string, number>>({});
   const [modalReportarAnotacao, setModalReportarAnotacao] = useState(false);
   const [AnotacaoSelecionada, setAnotacaoSelecionada] =
     useState<
@@ -170,6 +171,23 @@ export function Detalhes({
         ...(snap.data() as Local),
         comentarios,
       });
+
+      const mapaDenuncias: Record<string, number> = {};
+
+      const anotacoes = (snap.data() as Local).anotacoes ?? [];
+
+      for (const anotacao of anotacoes) {
+        const total = await contarDenuncias(
+          localId,
+          anotacao.text
+        );
+
+        mapaDenuncias[anotacao.text] = total;
+      }
+
+      setDenunciaPorAnotacao(
+        mapaDenuncias
+      );
     } catch (error) {
       console.log(error);
     }
@@ -315,6 +333,14 @@ export function Detalhes({
               <Text style={styles.anotacaoTexto}>
                 {item.text}
               </Text>
+
+              {
+                denunciaPorAnotacao[item.text] >= 3 && (
+                  <Text style={styles.alertaAnotacao}>
+                    ⚠ Possível informação incorreta
+                  </Text>
+                )
+              }
             </View>
 
             <Pressable
@@ -417,10 +443,10 @@ export function Detalhes({
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
         >
-        
-          <Pressable 
+
+          <Pressable
             style={styles.modalOverlay}
-            onPress={() => setMostrarModalComentario(false)}  
+            onPress={() => setMostrarModalComentario(false)}
           >
             <View style={styles.modalContainer}>
 
@@ -448,7 +474,7 @@ export function Detalhes({
                 </Text>
               </Pressable>
 
-              
+
             </View>
           </Pressable>
         </KeyboardAvoidingView>
@@ -467,15 +493,61 @@ export function Detalhes({
             </Text>
 
             <Text style={styles.modalDescricao}>
-              Esta anotação contém uma informação incorreta ou desatualizada?
+              "{AnotacaoSelecionada?.text}"
             </Text>
+
+            {
+              AnotacaoSelecionada &&
+              denunciaPorAnotacao[
+              AnotacaoSelecionada.text
+              ] > 0 && (
+                <Text style={styles.modalDescricao}>
+                  {
+                    denunciaPorAnotacao[
+                    AnotacaoSelecionada.text
+                    ]
+                  } usuário(s) já reportaram esta anotação.
+                </Text>
+              )
+            }
 
             <View style={styles.botoes}>
 
               <Pressable
                 style={styles.botaoConfirmar}
-                onPress={() => {
-                  setModalReportarAnotacao(false);
+                onPress={async () => {
+                  if (!user) return;
+                  if (!AnotacaoSelecionada) return;
+                  try {
+                    await reportarAnotacao({
+                      localId,
+                      textoAnotacao: AnotacaoSelecionada.text,
+                      uidAutor: user.uid,
+                      nomeAutor: nomeUsuarioAtual,
+
+                    });
+                    await carregarLocal();
+
+                    Alert.alert(
+                      'Obrigado',
+                      'Sua denúncia foi registrada.'
+                    );
+                    setModalReportarAnotacao(false);
+                  } catch (error) {
+
+                    if (error instanceof Error && error.message === 'DENUNCIA_DUPLICADA') {
+                      Alert.alert(
+                        'Denúncia',
+                        'Você já denunciou esta anotação'
+                      );
+                      return;
+                    }
+
+                    Alert.alert(
+                      'Erro',
+                      'Não foi possível registrar a denúncia.'
+                    );
+                  }
                 }}
               >
                 <Text style={styles.textoBotaoConfirmar}>

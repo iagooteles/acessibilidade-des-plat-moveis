@@ -287,4 +287,11 @@ textoBotaoCancelar: {
   fontWeight: '600',
 },
 
+alertaAnotacao: {
+  color: '#FF9500',
+  fontSize: 12,
+  fontWeight: '600',
+  marginTop: 2,
+},
+
 });

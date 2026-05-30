@@ -10,6 +10,7 @@ import {
   orderBy,
   query,
   Timestamp,
+  where,
 } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
@@ -43,6 +44,14 @@ export type LocalFirebase = PontoMapa & {
   fotoBase64: string | null;
   criadoPor: string | null;
 };
+
+export type DenunciaAnotacao = {
+  id: string;
+  textoAnotacao: string;
+  uidAutor: string;
+  nomeAutor: string;
+  creatAt: Timestamp | null;
+}
 
 const COLECAO_LOCAIS = 'locais';
 
@@ -264,4 +273,71 @@ export async function excluirLocalNoFirebase(
   await deleteDoc(
     doc(db, COLECAO_LOCAIS, id)
   );
+}
+
+export async function reportarAnotacao(input: {
+  localId: string;
+  textoAnotacao: string;
+  uidAutor: string;
+  nomeAutor: string;
+}): Promise<string> {
+
+  const denunciarRef = collection(
+    db,
+    COLECAO_LOCAIS, 
+    input.localId,
+    'denuncias'
+  );
+
+  const existente = await getDocs(
+    query(
+      denunciarRef,
+      where('uidAutor', '==', input.uidAutor),
+      where('textoAnotacao', '==', input.textoAnotacao)
+    )
+  );
+
+  if(!existente.empty){
+    throw new Error('DENUNCIA_DUPLICADA');
+  }
+
+  const docRef = await addDoc(
+    collection(
+      db,
+      COLECAO_LOCAIS,
+      input.localId,
+      'denuncias'
+    ),
+    {
+      textoAnotacao: input.textoAnotacao,
+      uidAutor: input.uidAutor,
+      nomeAutor: input.nomeAutor,
+      createdAt: serverTimestamp(),
+    }
+  );
+
+  return docRef.id;
+}
+
+export async function contarDenuncias(
+  localId: string,
+  textoAnotacao: string
+): Promise<number> {
+
+  const snap = await getDocs(
+    collection(
+      db,
+      COLECAO_LOCAIS,
+      localId,
+      'denuncias'
+    )
+  );
+
+  return snap.docs.filter((docSnap) => {
+    const data = docSnap.data();
+
+    return (
+      data.textoAnotacao === textoAnotacao
+    );
+  }).length;
 }
