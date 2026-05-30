@@ -260,6 +260,18 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
     );
   }
 
+  if (verDetalhesLocal && localSelecionadoId) {
+    return (
+      <Detalhes
+        localId={localSelecionadoId}
+        onVoltar={() => {
+          setVerDetalhesLocal(false);
+          setLocalSelecionadoId(null);
+        }}
+      />
+    );
+  }
+
   if (verLocais) {
     return <Locais onVoltar={() => setVerLocais(false)} />;
   }
