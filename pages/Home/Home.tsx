@@ -56,7 +56,6 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
 
-
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [renderizarFiltro, setRenderizarFiltro] = useState(false);
 
@@ -259,10 +258,6 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
         }}
       />
     );
-  }
-
-  if (verDetalhesLocal && localSelecionadoId) {
-    return <Detalhes localId={localSelecionadoId} onVoltar={() => setVerDetalhesLocal(false)} />;
   }
 
   if (verLocais) {
