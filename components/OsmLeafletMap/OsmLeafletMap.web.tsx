@@ -46,8 +46,8 @@ export const OsmLeafletMap = forwardRef<
   const html = useMemo(() => buildLeafletEmbedHtml(), []);
 
   const postParaMapa = (cmd: Record<string, unknown>) => {
-    const origem = typeof window !== 'undefined' ? window.location.origin : '*';
-    iframeRef.current?.contentWindow?.postMessage(cmd, origem);
+    iframeRef.current?.contentWindow?.postMessage(cmd, '*');
+    
   };
 
   useImperativeHandle(ref, () => ({
@@ -67,6 +67,7 @@ export const OsmLeafletMap = forwardRef<
     if (!mapCarregado) {
       return;
     }
+    
     postParaMapa(mapCommandPontos(pontosNoMapa));
   }, [pontosNoMapa, mapCarregado]);
 
@@ -79,11 +80,15 @@ export const OsmLeafletMap = forwardRef<
         type?: string;
         lat?: number;
         long?: number;
+        id?: string;
+        
       };
+      
       if (!msg || typeof msg !== 'object') {
         return;
       }
       if (msg.type === 'mapReady') {
+        console.log('✅ mapa carregado web!');
         setMapCarregado(true);
         onMapReady?.();
       }
@@ -106,7 +111,6 @@ export const OsmLeafletMap = forwardRef<
         srcDoc={html}
         title="Mapa OpenStreetMap"
         style={styles.iframe}
-        sandbox="allow-scripts allow-same-origin"
       />
     </View>
   );

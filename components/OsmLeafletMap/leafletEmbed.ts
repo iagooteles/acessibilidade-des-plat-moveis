@@ -85,21 +85,57 @@ export function buildLeafletEmbedHtml(): string {
         }
       }
 
-      function applyPontos(pts) {
-        var m = window.__osmMap;
-        if (!m) return;
-        if (window.__locaisLayer) {
-          try { m.removeLayer(window.__locaisLayer); } catch (e) {}
-          window.__locaisLayer = null;
-        }
-        if (pts && pts.length) {
-          window.__locaisLayer = L.layerGroup();
-          pts.forEach(function (p) {
-            L.marker([p.lat, p.long]).addTo(window.__locaisLayer);
-          });
-          window.__locaisLayer.addTo(m);
-        }
-      }
+      window.__verLocal = function(id) {
+  __postToApp({ type: 'markerTap', id: id });
+};
+
+function applyPontos(pts) {
+  var m = window.__osmMap;
+  if (!m) return;
+  if (window.__locaisLayer) {
+    try { m.removeLayer(window.__locaisLayer); } catch (e) {}
+    window.__locaisLayer = null;
+  }
+  if (pts && pts.length) {
+    window.__locaisLayer = L.layerGroup();
+    pts.forEach(function (p) {
+      var marker = L.marker([p.lat, p.long]);
+      var pid = p.id;
+      var pnome = p.nome;
+      var panotacoes = p.anotacoes || [];
+
+      var popupEl = document.createElement('div');
+      popupEl.style.cssText = 'min-width:200px;font-family:sans-serif;padding:4px;';
+
+      // Nome
+      var titulo = document.createElement('b');
+      titulo.style.cssText = 'font-size:15px;display:block;margin-bottom:8px;';
+      titulo.textContent = pnome;
+      popupEl.appendChild(titulo);
+
+      // Anotações
+      panotacoes.slice(0, 3).forEach(function(anotacao) {
+        var linha = document.createElement('div');
+        linha.style.cssText = 'font-size:13px;margin-bottom:4px;display:flex;align-items:center;gap:6px;';
+        linha.textContent = (anotacao.type === 'positive' ? '✅ ' : '❌ ') + anotacao.text;
+        popupEl.appendChild(linha);
+      });
+
+      // Botão
+      var btn = document.createElement('button');
+      btn.style.cssText = 'margin-top:10px;width:100%;padding:10px;border:none;border-radius:20px;background:#5DB075;color:white;font-weight:bold;font-size:14px;cursor:pointer;';
+      btn.textContent = 'Ver local';
+      btn.addEventListener('click', function() {
+        __postToApp({ type: 'markerTap', id: pid });
+      });
+      popupEl.appendChild(btn);
+
+      marker.bindPopup(popupEl, { autoPan: true });
+      marker.addTo(window.__locaisLayer);
+    });
+    window.__locaisLayer.addTo(m);
+  }
+}
 
       window.addEventListener('message', function (ev) {
         var payload = ev.data;
@@ -146,7 +182,13 @@ export function mapCommandMarcacao(ativo: boolean): Record<string, unknown> {
 export function mapCommandPontos(pontos: PontoMapa[]): Record<string, unknown> {
   return {
     type: 'pontos',
-    pontos: pontos.map((p) => ({ id: p.id, lat: p.lat, long: p.long })),
+    pontos: pontos.map((p) => ({
+      id: p.id,
+      lat: p.lat,
+      long: p.long,
+      nome: p.nome,
+      anotacoes: p.anotacoes,
+    })),
   };
 }
 
