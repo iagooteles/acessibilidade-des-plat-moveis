@@ -26,10 +26,17 @@ import {
   excluirLocalNoFirebase,
   criarComentarioNoLocal,
   listarComentariosDoLocal,
+  carregarUpvotesDoLocal,
+  alternarUpvoteAnotacao,
+  carregarUpvoteDoLocal,
+  alternarUpvoteLocal,
+  mensagemErroFirebase,
   type AnotacaoLocal,
   type LocalFirebase,
   type ComentarioLocal,
+  type UpvoteResumo,
 } from '../../services/locaisFirebase';
+import { AnotacaoUpvote } from '../../components/AnotacaoUpvote/AnotacaoUpvote';
 import { styles } from './styles';
 
 export type CoordenadasLocal = { lat: number; long: number };
@@ -94,6 +101,13 @@ export default function Avaliation({
   const [search, setSearch] = useState('');
   const [otherModalVisible, setOtherModalVisible] = useState(false);
   const [customAnnotation, setCustomAnnotation] = useState('');
+  const [upvotePorAnotacao, setUpvotePorAnotacao] = useState<
+    Record<string, UpvoteResumo>
+  >({});
+  const [upvoteLocal, setUpvoteLocal] = useState<UpvoteResumo>({
+    total: 0,
+    votouUsuario: false,
+  });
 
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -121,6 +135,42 @@ export default function Avaliation({
 
     void carregarComentarios();
   }, [local?.id]);
+
+  useEffect(() => {
+    async function carregarUpvotes() {
+      if (!local?.id) return;
+
+      try {
+        const mapa = await carregarUpvotesDoLocal(
+          local.id,
+          user?.uid
+        );
+        setUpvotePorAnotacao(mapa);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    void carregarUpvotes();
+  }, [local?.id, user?.uid]);
+
+  useEffect(() => {
+    async function carregarVotoLocal() {
+      if (!local?.id) return;
+
+      try {
+        const resumo = await carregarUpvoteDoLocal(
+          local.id,
+          user?.uid
+        );
+        setUpvoteLocal(resumo);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    void carregarVotoLocal();
+  }, [local?.id, user?.uid]);
 
   useEffect(() => {
     screenSlideUpAnimation(translateY).start();
@@ -211,6 +261,81 @@ export default function Avaliation({
       Alert.alert('Erro', 'Não foi possível salvar o comentário.');
     }
   };
+
+  async function handleAlternarUpvoteLocal() {
+    if (!local?.id) return;
+
+    if (!user) {
+      Alert.alert(
+        'Sessão',
+        'Você precisa estar logado para dar upvote ao local.'
+      );
+      return;
+    }
+
+    try {
+      const resultado = await alternarUpvoteLocal({
+        localId: local.id,
+        uidAutor: user.uid,
+      });
+
+      setUpvoteLocal((prev) => {
+        const delta = resultado === 'adicionado' ? 1 : -1;
+        return {
+          total: Math.max(0, prev.total + delta),
+          votouUsuario: resultado === 'adicionado',
+        };
+      });
+    } catch (error) {
+      console.error('upvote local', error);
+      Alert.alert(
+        'Erro',
+        `Não foi possível registrar o upvote.\n\n${mensagemErroFirebase(error)}`
+      );
+    }
+  }
+
+  async function handleAlternarUpvote(textoAnotacao: string) {
+    if (!local?.id) return;
+
+    if (!user) {
+      Alert.alert(
+        'Sessão',
+        'Você precisa estar logado para confirmar uma anotação.'
+      );
+      return;
+    }
+
+    const atual = upvotePorAnotacao[textoAnotacao] ?? {
+      total: 0,
+      votouUsuario: false,
+    };
+
+    try {
+      const resultado = await alternarUpvoteAnotacao({
+        localId: local.id,
+        textoAnotacao,
+        uidAutor: user.uid,
+      });
+
+      setUpvotePorAnotacao((prev) => {
+        const proximo = { ...prev };
+        const delta = resultado === 'adicionado' ? 1 : -1;
+        proximo[textoAnotacao] = {
+          total: Math.max(0, atual.total + delta),
+          votouUsuario: resultado === 'adicionado',
+        };
+        return proximo;
+      });
+    } catch (error) {
+      console.error('upvote', error);
+      Alert.alert(
+        'Erro',
+        `Não foi possível registrar o upvote.\n\n${mensagemErroFirebase(error)}`
+      );
+    }
+  }
+
   const escolherFoto = async () => {
     if (!podeAlterar) {
       return;
@@ -371,92 +496,143 @@ export default function Avaliation({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.fieldLabel}>Nome do local</Text>
-          <TextInput
-            style={styles.input}
-            value={nome}
-            onChangeText={setNome}
-            placeholder="Ex.: Entrada principal da biblioteca"
-            placeholderTextColor="#999"
-            editable={podeAlterar && !salvando}
-          />
+          <View style={styles.section}>
+            <View style={styles.nomeLinha}>
+              <View style={styles.nomeLinhaConteudo}>
+                <Text style={styles.fieldLabel}>Nome do local</Text>
+                {podeAlterar ? (
+                  <TextInput
+                    style={[styles.input, styles.inputNomeLinha]}
+                    value={nome}
+                    onChangeText={setNome}
+                    placeholder="Ex.: Entrada principal da biblioteca"
+                    placeholderTextColor="#999"
+                    editable={!salvando}
+                  />
+                ) : (
+                  <Text style={styles.nomeDetalhe}>{nome}</Text>
+                )}
+              </View>
 
-          <Text style={styles.fieldLabel}>Coordenadas</Text>
-          <Text style={styles.coordsText}>{textoCoordenadas}</Text>
-
-          <Text style={styles.fieldLabel}>Foto</Text>
-          <View style={styles.imageRow}>
-            {fotoSource ? (
-              <Image source={fotoSource} style={styles.image} />
-            ) : null}
-
-            {mostrarSemFoto ? (
-              <Text style={styles.semFoto}>Sem foto cadastrada.</Text>
-            ) : null}
-
-            {podeAlterar ? (
-              <TouchableOpacity
-                style={styles.addImageBox}
-                onPress={() => void escolherFoto()}
-                disabled={salvando}
-                accessibilityRole="button"
-                accessibilityLabel="Adicionar foto"
-              >
-                <Ionicons name="camera-outline" size={36} color="#AFAFAF" />
-              </TouchableOpacity>
-            ) : null}
+              {local?.id ? (
+                <AnotacaoUpvote
+                  variant="local"
+                  total={upvoteLocal.total}
+                  votouUsuario={upvoteLocal.votouUsuario}
+                  onPress={() => {
+                    void handleAlternarUpvoteLocal();
+                  }}
+                  disabled={!user}
+                />
+              ) : null}
+            </View>
           </View>
 
-          <Text style={styles.section}>Anotações</Text>
+          <View style={styles.section}>
+            <Text style={styles.fieldLabel}>Coordenadas</Text>
+            <Text style={styles.coordsText}>{textoCoordenadas}</Text>
+          </View>
 
-          {annotations.map((item, index) => (
-            <View key={`${item.text}-${index}`} style={styles.noteRow}>
-              <Ionicons
-                name={
-                  item.type === 'positive' ? 'checkmark-circle' : 'close-circle'
-                }
-                size={24}
-                color={item.type === 'positive' ? '#35C759' : '#FF3B30'}
-              />
-              <Text style={styles.noteText}>{item.text}</Text>
+          <View style={styles.hr} />
+
+          <View style={styles.section}>
+            <Text style={styles.fieldLabel}>Foto</Text>
+            <View style={styles.imageRow}>
+              {fotoSource ? (
+                <Image source={fotoSource} style={styles.image} />
+              ) : null}
+
+              {mostrarSemFoto ? (
+                <Text style={styles.semFoto}>Sem foto cadastrada.</Text>
+              ) : null}
+
+              {podeAlterar ? (
+                <TouchableOpacity
+                  style={styles.addImageBox}
+                  onPress={() => void escolherFoto()}
+                  disabled={salvando}
+                  accessibilityRole="button"
+                  accessibilityLabel="Adicionar foto"
+                >
+                  <Ionicons name="camera-outline" size={36} color="#AFAFAF" />
+                </TouchableOpacity>
+              ) : null}
             </View>
-          ))}
+          </View>
+
+          <View style={styles.anotacoesSection}>
+            <Text style={styles.sectionTitle}>Anotações</Text>
+
+            <View style={styles.anotacoesLista}>
+              {annotations.map((item, index) => (
+                <View key={`${item.text}-${index}`} style={styles.noteRow}>
+                  <View style={styles.noteRowConteudo}>
+                    <Ionicons
+                      name={
+                        item.type === 'positive' ? 'checkmark-circle' : 'close-circle'
+                      }
+                      size={24}
+                      color={item.type === 'positive' ? '#35C759' : '#FF3B30'}
+                    />
+                    <Text style={styles.noteText}>{item.text}</Text>
+                  </View>
+
+                  {local?.id ? (
+                    <AnotacaoUpvote
+                      total={
+                        upvotePorAnotacao[item.text]?.total ?? 0
+                      }
+                      votouUsuario={
+                        upvotePorAnotacao[item.text]?.votouUsuario ?? false
+                      }
+                      onPress={() => {
+                        void handleAlternarUpvote(item.text);
+                      }}
+                      disabled={!user}
+                    />
+                  ) : null}
+                </View>
+              ))}
+
+              {podeAlterar ? (
+                <TouchableOpacity
+                  style={styles.noteRow}
+                  activeOpacity={0.7}
+                  onPress={() => setModalVisible(true)}
+                  disabled={salvando}
+                >
+                  <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                  <Text style={[styles.noteText, { color: '#BDBDBD' }]}>
+                    Adicionar…
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Comentários</Text>
+
+            {comentarios.map((comentario) => (
+              <View key={comentario.id} style={styles.commentCard}>
+                <Text style={styles.commentAuthor}>
+                  {comentario.nomeAutor}
+                </Text>
+                <Text style={styles.commentBody}>
+                  {comentario.texto}
+                </Text>
+              </View>
+            ))}
+
+            {comentarios.length === 0 && !podeAlterar && (
+              <Text style={styles.semComentarios}>
+                Não há comentários.
+              </Text>
+            )}
+          </View>
 
           {podeAlterar ? (
-            <TouchableOpacity
-              style={styles.noteRow}
-              onPress={() => setModalVisible(true)}
-              disabled={salvando}
-            >
-              <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
-              <Text style={[styles.noteText, { color: '#BDBDBD' }]}>
-                Adicionar…
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-
-          {/* comentários */}
-          <Text style={[styles.section, { marginTop: 24 }]}>Comentários</Text>
-
-          {comentarios.map((comentario) => (
-            <View key={comentario.id} style={{ padding: 12, backgroundColor: '#f2f2f7', borderRadius: 4, marginBottom: 8 }}>
-              <Text style={{ fontSize: 13, color: '#666', fontWeight: 'bold', marginBottom: 4 }}>
-                {comentario.nomeAutor}
-              </Text>
-              <Text style={{ color: '#333', fontSize: 15 }}>
-                {comentario.texto}
-              </Text>
-            </View>
-          ))}
-
-          {comentarios.length === 0 && !podeAlterar && (
-            <Text style={{ color: '#8e8e93', fontStyle: 'italic', marginBottom: 8 }}>
-              Não há comentários.
-            </Text>
-          )}
-
-          {podeAlterar ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+            <View style={styles.commentInputRow}>
               <TextInput
                 style={[styles.input, { flex: 1, marginBottom: 0 }]}
                 value={novoComentario}

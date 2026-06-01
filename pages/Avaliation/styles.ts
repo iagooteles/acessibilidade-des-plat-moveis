@@ -1,5 +1,11 @@
 import { StyleSheet } from "react-native";
 
+/** Padding horizontal único do conteúdo em relação à borda da tela */
+export const PAGE_PADDING_HORIZONTAL = 24;
+
+/** Espaço vertical entre blocos (nome, coordenadas, foto, etc.) */
+export const SECTION_SPACING = 28;
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -12,20 +18,58 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: PAGE_PADDING_HORIZONTAL,
+    paddingBottom: 120,
+  },
+
+  section: {
+    marginBottom: SECTION_SPACING,
+  },
+
+  hr: {
+    height: 1,
+    backgroundColor: "#E5E5E5",
+    marginTop: 4,
+    marginBottom: SECTION_SPACING,
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111",
+    marginBottom: 12,
   },
   fieldLabel: {
     fontSize: 16,
     fontWeight: "600",
     color: "#333",
     marginBottom: 8,
-    paddingHorizontal: 12,
   },
   coordsText: {
     fontSize: 15,
     color: "#666",
-    marginBottom: 20,
-    paddingHorizontal: 12,
+  },
+
+  nomeDetalhe: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#111",
+  },
+
+  nomeLinha: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+
+  nomeLinhaConteudo: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  inputNomeLinha: {
+    marginBottom: 0,
   },
   scrollSpacer: {
     height: 24,
@@ -49,6 +93,7 @@ export const styles = StyleSheet.create({
   voltarButton: {
     position: "absolute",
     left: 32,
+    top: 42,
     paddingVertical: 8,
     paddingRight: 16,
   },
@@ -72,8 +117,8 @@ export const styles = StyleSheet.create({
   imageRow: {
     flexDirection: "row",
     gap: 18,
-    marginBottom: 35,
-    paddingHorizontal: 12,
+    marginBottom: 0,
+    paddingHorizontal: 0,
   },
 
   image: {
@@ -98,19 +143,61 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  section: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginBottom: 20,
-    paddingHorizontal: 12,
+  anotacoesSection: {
+    marginBottom: SECTION_SPACING,
+    padding: 16,
+    backgroundColor: 'rgba(180, 180, 180, 0.55)',
+    borderRadius: 16,
+  },
+
+  anotacoesLista: {
+    gap: 4,
   },
 
   noteRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    paddingVertical: 8,
+    gap: 8,
+  },
+
+  noteRowConteudo: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    marginBottom: 16,
-    paddingHorizontal: 12,
+    marginRight: 8,
+  },
+
+  commentCard: {
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+
+  commentAuthor: {
+    fontSize: 13,
+    color: "#666",
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+
+  commentBody: {
+    color: "#333",
+    fontSize: 15,
+  },
+
+  semComentarios: {
+    color: "#8e8e93",
+    fontStyle: "italic",
+    marginBottom: 8,
+  },
+
+  commentInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
   },
 
   noteText: {

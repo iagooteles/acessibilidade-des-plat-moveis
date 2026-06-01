@@ -156,6 +156,20 @@ export const styles = StyleSheet.create({
     elevation: 12,
   },
 
+  fabRanking: {
+    position: 'absolute',
+    bottom: 28,
+    left: 28,
+    width: 64,
+    height: 64,
+    borderRadius: 999,
+    backgroundColor: '#5db075',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+    elevation: 12,
+  },
+
   loginMapaOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',

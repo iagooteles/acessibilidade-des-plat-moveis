@@ -37,7 +37,17 @@ import { Profile } from '../Profile/Profile';
 import Locais from '../Locais/Locais';
 import { ComentarioLocal, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
 import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
-import { reportarAnotacao, contarDenuncias } from '../../services/locaisFirebase';
+import {
+  reportarAnotacao,
+  contarDenuncias,
+  carregarUpvotesDoLocal,
+  alternarUpvoteAnotacao,
+  carregarUpvoteDoLocal,
+  alternarUpvoteLocal,
+  mensagemErroFirebase,
+  type UpvoteResumo,
+} from '../../services/locaisFirebase';
+import { AnotacaoUpvote } from '../../components/AnotacaoUpvote/AnotacaoUpvote';
 
 type Props = {
   localId: string;
@@ -57,6 +67,8 @@ type Local = {
   nome: string;
   numero?: string;
   descricao?: string;
+  lat?: number;
+  long?: number;
 
   fotoUrl?: string | null;
   fotoBase64?: string | null;
@@ -89,6 +101,13 @@ export function Detalhes({
     localFire?.comentarios ?? []
   );
   const [denunciaPorAnotacao, setDenunciaPorAnotacao] = useState<Record<string, number>>({});
+  const [upvotePorAnotacao, setUpvotePorAnotacao] = useState<
+    Record<string, UpvoteResumo>
+  >({});
+  const [upvoteLocal, setUpvoteLocal] = useState<UpvoteResumo>({
+    total: 0,
+    votouUsuario: false,
+  });
   const [modalReportarAnotacao, setModalReportarAnotacao] = useState(false);
   const [AnotacaoSelecionada, setAnotacaoSelecionada] =
     useState<
@@ -102,8 +121,8 @@ export function Detalhes({
   const [local, setLocal] = useState<Local | null>(null);
 
   useEffect(() => {
-    carregarLocal();
-  }, [localId]);
+    void carregarLocal();
+  }, [localId, user?.uid]);
 
   useEffect(() => {
     async function carregarNomeUsuario() {
@@ -167,9 +186,16 @@ export function Detalhes({
         };
       });
 
+      const dados = snap.data() as Local;
+      const lat = Number(dados.lat);
+      const long = Number(dados.long);
+
       setLocal({
-        ...(snap.data() as Local),
+        ...dados,
         comentarios,
+        ...(Number.isFinite(lat) && Number.isFinite(long)
+          ? { lat, long }
+          : {}),
       });
 
       const mapaDenuncias: Record<string, number> = {};
@@ -188,8 +214,90 @@ export function Detalhes({
       setDenunciaPorAnotacao(
         mapaDenuncias
       );
+
+      const mapaUpvotes = await carregarUpvotesDoLocal(
+        localId,
+        user?.uid
+      );
+      setUpvotePorAnotacao(mapaUpvotes);
+
+      const resumoLocal = await carregarUpvoteDoLocal(
+        localId,
+        user?.uid
+      );
+      setUpvoteLocal(resumoLocal);
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async function handleAlternarUpvoteLocal() {
+    if (!user) {
+      Alert.alert(
+        'Sessão',
+        'Você precisa estar logado para dar upvote ao local.'
+      );
+      return;
+    }
+
+    try {
+      const resultado = await alternarUpvoteLocal({
+        localId,
+        uidAutor: user.uid,
+      });
+
+      setUpvoteLocal((prev) => {
+        const delta = resultado === 'adicionado' ? 1 : -1;
+        return {
+          total: Math.max(0, prev.total + delta),
+          votouUsuario: resultado === 'adicionado',
+        };
+      });
+    } catch (error) {
+      console.error('upvote local', error);
+      Alert.alert(
+        'Erro',
+        `Não foi possível registrar o upvote.\n\n${mensagemErroFirebase(error)}`
+      );
+    }
+  }
+
+  async function handleAlternarUpvote(textoAnotacao: string) {
+    if (!user) {
+      Alert.alert(
+        'Sessão',
+        'Você precisa estar logado para confirmar uma anotação.'
+      );
+      return;
+    }
+
+    const atual = upvotePorAnotacao[textoAnotacao] ?? {
+      total: 0,
+      votouUsuario: false,
+    };
+
+    try {
+      const resultado = await alternarUpvoteAnotacao({
+        localId,
+        textoAnotacao,
+        uidAutor: user.uid,
+      });
+
+      setUpvotePorAnotacao((prev) => {
+        const proximo = { ...prev };
+        const delta = resultado === 'adicionado' ? 1 : -1;
+        proximo[textoAnotacao] = {
+          total: Math.max(0, atual.total + delta),
+          votouUsuario: resultado === 'adicionado',
+        };
+        return proximo;
+      });
+    } catch (error) {
+      console.error('upvote', error);
+      Alert.alert(
+        'Erro',
+        `Não foi possível registrar o upvote.\n\n${mensagemErroFirebase(error)}`
+      );
     }
   }
 
@@ -271,152 +379,234 @@ export function Detalhes({
 
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
 
-        <Text style={styles.nome}>
-          {local.nome}
-        </Text>
-
-        <Text style={styles.numero}>
-          {local.numero}
-        </Text>
-
-        <FlatList
-          horizontal
-          data={
-            local.fotoBase64 || local.fotoUrl
-              ? [
-                local.fotoBase64 ??
-                local.fotoUrl ??
-                ''
-              ]
-              : []
-          }
-          keyExtractor={(item, index) => String(index)}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.imagesList}
-          renderItem={({ item }) => (
-            <Image
-              source={{ uri: item }}
-              style={styles.image}
-            />
-          )}
-        />
-
-        <Text style={styles.sectionTitle}>
-          Anotações por usuários
-        </Text>
-
-        {(local.anotacoes ?? []).map((item, index) => (
-
-          <View
-            key={index}
-            style={styles.anotacaoItem}
-          >
-
-            <View style={styles.anotacaoLeft}>
-
-              <Icon
-                name={
-                  item.type === 'positive'
-                    ? 'check-circle'
-                    : 'close-circle'
-                }
-                size={22}
-                color={
-                  item.type === 'positive'
-                    ? '#31C451'
-                    : '#FF3B30'
-                }
-              />
-
-              <Text style={styles.anotacaoTexto}>
-                {item.text}
+        <View style={styles.section}>
+          <View style={styles.nomeLinha}>
+            <View style={styles.nomeLinhaConteudo}>
+              <Text style={styles.nome}>
+                {local.nome}
               </Text>
-
-              {
-                denunciaPorAnotacao[item.text] >= 3 && (
-                  <Text style={styles.alertaAnotacao}>
-                    ⚠ Possível informação incorreta
-                  </Text>
-                )
-              }
             </View>
 
-            <Pressable
+            <AnotacaoUpvote
+              variant="local"
+              total={upvoteLocal.total}
+              votouUsuario={upvoteLocal.votouUsuario}
               onPress={() => {
-                setModalReportarAnotacao(true);
-                setAnotacaoSelecionada(item);
+                void handleAlternarUpvoteLocal();
               }}
-            >
-              <Icon
-                name="pencil"
-                size={18}
-                color="#B0B0B0"
-              />
-            </Pressable>
-
+              disabled={!user}
+            />
           </View>
 
-        ))}
+          {local.numero ? (
+            <Text style={styles.numero}>
+              {local.numero}
+            </Text>
+          ) : null}
 
-        <Pressable style={styles.addButton}>
+          {local.descricao ? (
+            <Text style={styles.descricao}>
+              {local.descricao}
+            </Text>
+          ) : null}
+        </View>
 
-          <Icon
-            name="plus-circle"
-            size={22}
-            color="#B0B0B0"
-          />
+        {local.lat != null && local.long != null ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              Coordenadas
+            </Text>
+            <Text style={styles.coordenadas}>
+              {local.lat.toFixed(5)}, {local.long.toFixed(5)}
+            </Text>
+          </View>
+        ) : null}
 
-          <Text style={styles.addText}>
-            Adicionar...
+        {local.lat != null && local.long != null ? (
+          <View style={styles.hr} />
+        ) : null}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Fotos
           </Text>
 
-        </Pressable>
+          <FlatList
+            horizontal
+            data={
+              local.fotoBase64 || local.fotoUrl
+                ? [
+                  local.fotoBase64 ??
+                  local.fotoUrl ??
+                  ''
+                ]
+                : []
+            }
+            keyExtractor={(item, index) => String(index)}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.imagesList}
+            ListEmptyComponent={
+              <Text style={styles.semFoto}>
+                Sem foto cadastrada.
+              </Text>
+            }
+            renderItem={({ item }) => (
+              <Image
+                source={{ uri: item }}
+                style={styles.image}
+              />
+            )}
+          />
+        </View>
 
-        <Text style={styles.sectionTitle}>
-          Comentários
-        </Text>
+        <View style={[styles.section, styles.anotacoesSection]}>
+          <Text style={styles.sectionTitle}>
+            Anotações por usuários
+          </Text>
 
-        {(local.comentarios ?? []).map((item) => (
+          <View style={styles.anotacoesLista}>
+            {(local.anotacoes ?? []).map((item, index) => (
 
-          <View
-            key={item.id}
-            style={styles.commentContainer}
-          >
+              <View
+                key={index}
+                style={styles.anotacaoItem}
+              >
 
-            <View style={styles.commentHeader}>
+                <View style={styles.anotacaoLeft}>
 
-              <View style={styles.avatar} />
-
-              <View>
-
-                <View style={styles.commentTop}>
-
-                  <Text style={styles.commentUser}>
-                    {item.nomeAutor}
-                  </Text>
-
-                  <Text style={styles.commentDate}>
-                    {item.createdAt
-                      ?.toDate()
-                      .toLocaleDateString('pt-BR')
+                  <Icon
+                    name={
+                      item.type === 'positive'
+                        ? 'check-circle'
+                        : 'close-circle'
                     }
+                    size={22}
+                    color={
+                      item.type === 'positive'
+                        ? '#31C451'
+                        : '#FF3B30'
+                    }
+                  />
+
+                  <View style={styles.anotacaoConteudo}>
+                    <Text style={styles.anotacaoTexto}>
+                      {item.text}
+                    </Text>
+
+                    {
+                      denunciaPorAnotacao[item.text] >= 3 && (
+                        <Text style={styles.alertaAnotacao}>
+                          ⚠ Possível informação incorreta
+                        </Text>
+                      )
+                    }
+                  </View>
+                </View>
+
+                <View style={styles.anotacaoAcoes}>
+                  <AnotacaoUpvote
+                    total={
+                      upvotePorAnotacao[item.text]?.total ?? 0
+                    }
+                    votouUsuario={
+                      upvotePorAnotacao[item.text]?.votouUsuario ?? false
+                    }
+                    onPress={() => {
+                      void handleAlternarUpvote(item.text);
+                    }}
+                    disabled={!user}
+                  />
+
+                  <Pressable
+                    onPress={() => {
+                      setModalReportarAnotacao(true);
+                      setAnotacaoSelecionada(item);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Reportar anotação"
+                  >
+                    <Icon
+                      name="pencil"
+                      size={18}
+                      color="#B0B0B0"
+                    />
+                  </Pressable>
+                </View>
+
+              </View>
+
+            ))}
+          </View>
+
+          <Pressable style={styles.addButton}>
+
+            <Icon
+              name="plus-circle"
+              size={22}
+              color="#B0B0B0"
+            />
+
+            <Text style={styles.addText}>
+              Adicionar...
+            </Text>
+
+          </Pressable>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Comentários
+          </Text>
+
+          {(local.comentarios ?? []).map((item) => (
+
+            <View
+              key={item.id}
+              style={styles.commentContainer}
+            >
+
+              <View style={styles.commentHeader}>
+
+                <View style={styles.avatar} />
+
+                <View>
+
+                  <View style={styles.commentTop}>
+
+                    <Text style={styles.commentUser}>
+                      {item.nomeAutor}
+                    </Text>
+
+                    <Text style={styles.commentDate}>
+                      {item.createdAt
+                        ?.toDate()
+                        .toLocaleDateString('pt-BR')
+                      }
+                    </Text>
+
+                  </View>
+
+                  <Text style={styles.commentText}>
+                    {item.texto}
                   </Text>
 
                 </View>
-
-                <Text style={styles.commentText}>
-                  {item.texto}
-                </Text>
 
               </View>
 
             </View>
 
-          </View>
+          ))}
 
-        ))}
+          {(local.comentarios ?? []).length === 0 && (
+            <Text style={styles.semComentarios}>
+              Não há comentários.
+            </Text>
+          )}
+        </View>
 
       </ScrollView>
 

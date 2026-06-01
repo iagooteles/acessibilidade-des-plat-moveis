@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
   voltarButton: {
     position: 'absolute',
     left: 32,
+    top: 42,
     paddingVertical: 8,
     paddingRight: 16,
   },

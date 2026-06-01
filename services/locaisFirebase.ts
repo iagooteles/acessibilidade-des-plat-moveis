@@ -6,6 +6,7 @@ import {
   getDoc,
   getDocs,
   serverTimestamp,
+  setDoc,
   updateDoc,
   orderBy,
   query,
@@ -51,9 +52,62 @@ export type DenunciaAnotacao = {
   uidAutor: string;
   nomeAutor: string;
   creatAt: Timestamp | null;
+};
+
+export type UpvoteResumo = {
+  total: number;
+  votouUsuario: boolean;
+};
+
+export function mensagemErroFirebase(error: unknown): string {
+  if (error && typeof error === 'object' && 'code' in error) {
+    const codigo = String((error as { code: string }).code);
+
+    if (codigo === 'permission-denied') {
+      return (
+        'Permissão negada no Firestore. Inclua regras para upvotes e votosLocal ' +
+        'em locais/{id} (leitura autenticada; criar/apagar só o próprio voto) e publique no Console.'
+      );
+    }
+
+    if ('message' in error && typeof (error as { message: string }).message === 'string') {
+      return (error as { message: string }).message;
+    }
+
+    return codigo;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Erro desconhecido';
 }
 
 const COLECAO_LOCAIS = 'locais';
+
+/** ID estável por usuário + texto da anotação (evita query composta e índice extra). */
+function idDocumentoUpvote(uidAutor: string, textoAnotacao: string): string {
+  let hash = 5381;
+  for (let i = 0; i < textoAnotacao.length; i++) {
+    hash = ((hash << 5) + hash) ^ textoAnotacao.charCodeAt(i);
+  }
+  return `${uidAutor}_${(hash >>> 0).toString(36)}`;
+}
+
+function refUpvoteDoc(
+  localId: string,
+  uidAutor: string,
+  textoAnotacao: string
+) {
+  return doc(
+    db,
+    COLECAO_LOCAIS,
+    localId,
+    'upvotes',
+    idDocumentoUpvote(uidAutor, textoAnotacao)
+  );
+}
 
 function normalizarAnotacoes(value: unknown): AnotacaoLocal[] {
   if (!Array.isArray(value)) return [];
@@ -340,4 +394,143 @@ export async function contarDenuncias(
       data.textoAnotacao === textoAnotacao
     );
   }).length;
+}
+
+export async function carregarUpvotesDoLocal(
+  localId: string,
+  uidUsuario?: string
+): Promise<Record<string, UpvoteResumo>> {
+  const snap = await getDocs(
+    collection(db, COLECAO_LOCAIS, localId, 'upvotes')
+  );
+
+  const mapa: Record<string, UpvoteResumo> = {};
+
+  for (const docSnap of snap.docs) {
+    const data = docSnap.data();
+    const texto =
+      typeof data.textoAnotacao === 'string' ? data.textoAnotacao : '';
+
+    if (!texto) continue;
+
+    if (!mapa[texto]) {
+      mapa[texto] = { total: 0, votouUsuario: false };
+    }
+
+    mapa[texto].total += 1;
+
+    if (uidUsuario && data.uidAutor === uidUsuario) {
+      mapa[texto].votouUsuario = true;
+    }
+  }
+
+  return mapa;
+}
+
+export async function alternarUpvoteAnotacao(input: {
+  localId: string;
+  textoAnotacao: string;
+  uidAutor: string;
+}): Promise<'adicionado' | 'removido'> {
+  const ref = refUpvoteDoc(
+    input.localId,
+    input.uidAutor,
+    input.textoAnotacao
+  );
+
+  const existente = await getDoc(ref);
+
+  if (existente.exists()) {
+    await deleteDoc(ref);
+    return 'removido';
+  }
+
+  await setDoc(ref, {
+    textoAnotacao: input.textoAnotacao,
+    uidAutor: input.uidAutor,
+    createdAt: serverTimestamp(),
+  });
+
+  return 'adicionado';
+}
+
+export type LocalRanking = LocalFirebase & {
+  totalUpvotes: number;
+  posicao: number;
+};
+
+function refVotoLocalDoc(localId: string, uidAutor: string) {
+  return doc(db, COLECAO_LOCAIS, localId, 'votosLocal', uidAutor);
+}
+
+export async function carregarUpvoteDoLocal(
+  localId: string,
+  uidUsuario?: string
+): Promise<UpvoteResumo> {
+  const snap = await getDocs(
+    collection(db, COLECAO_LOCAIS, localId, 'votosLocal')
+  );
+
+  let votouUsuario = false;
+
+  for (const docSnap of snap.docs) {
+    const data = docSnap.data();
+    if (uidUsuario && data.uidAutor === uidUsuario) {
+      votouUsuario = true;
+      break;
+    }
+  }
+
+  return {
+    total: snap.size,
+    votouUsuario,
+  };
+}
+
+export async function alternarUpvoteLocal(input: {
+  localId: string;
+  uidAutor: string;
+}): Promise<'adicionado' | 'removido'> {
+  const ref = refVotoLocalDoc(input.localId, input.uidAutor);
+  const existente = await getDoc(ref);
+
+  if (existente.exists()) {
+    await deleteDoc(ref);
+    return 'removido';
+  }
+
+  await setDoc(ref, {
+    uidAutor: input.uidAutor,
+    createdAt: serverTimestamp(),
+  });
+
+  return 'adicionado';
+}
+
+export async function listarLocaisRanking(): Promise<LocalRanking[]> {
+  const locais = await listarLocais();
+
+  const comVotos = await Promise.all(
+    locais.map(async (local) => {
+      const snap = await getDocs(
+        collection(db, COLECAO_LOCAIS, local.id, 'votosLocal')
+      );
+      return {
+        ...local,
+        totalUpvotes: snap.size,
+      };
+    })
+  );
+
+  return comVotos
+    .sort((a, b) => {
+      if (b.totalUpvotes !== a.totalUpvotes) {
+        return b.totalUpvotes - a.totalUpvotes;
+      }
+      return a.nome.localeCompare(b.nome, 'pt-BR');
+    })
+    .map((item, index) => ({
+      ...item,
+      posicao: index + 1,
+    }));
 }
