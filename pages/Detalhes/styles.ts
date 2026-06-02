@@ -1,5 +1,11 @@
 import { StyleSheet } from 'react-native';
 
+/** Padding horizontal único do conteúdo em relação à borda da tela */
+export const PAGE_PADDING_HORIZONTAL = 24;
+
+/** Espaço vertical entre blocos (nome, coordenadas, foto, etc.) */
+export const SECTION_SPACING = 28;
+
 export const styles = StyleSheet.create({
 
   container: {
@@ -36,27 +42,70 @@ export const styles = StyleSheet.create({
     color: '#111',
   },
 
+  scrollContent: {
+    paddingHorizontal: PAGE_PADDING_HORIZONTAL,
+    paddingBottom: 120,
+  },
+
+  section: {
+    marginBottom: SECTION_SPACING,
+  },
+
+  hr: {
+    height: 1,
+    backgroundColor: '#E5E5E5',
+    marginTop: 4,
+    marginBottom: SECTION_SPACING,
+  },
+
+  nomeLinha: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+
+  nomeLinhaConteudo: {
+    flex: 1,
+    minWidth: 0,
+  },
+
   nome: {
     fontSize: 24,
-    textAlign: 'center',
     fontWeight: '600',
     color: '#000',
   },
 
   numero: {
-    textAlign: 'center',
     color: '#555',
     marginTop: 4,
-    marginBottom: 20,
+  },
+
+  descricao: {
+    color: '#666',
+    marginTop: 8,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+
+  coordenadas: {
+    fontSize: 15,
+    color: '#555',
+    letterSpacing: 0.2,
+  },
+
+  semFoto: {
+    color: '#999',
+    fontSize: 15,
   },
 
   imagesList: {
-    paddingLeft: 18,
-    paddingRight: 8,
+    paddingRight: 0,
   },
   voltarButton: {
     position: "absolute",
     left: 32,
+    top: 42,
     paddingVertical: 8,
     paddingRight: 16,
   },
@@ -69,38 +118,61 @@ export const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    marginTop: 26,
-    marginBottom: 16,
-    marginHorizontal: 18,
+    marginTop: 4,
+    marginBottom: 12,
     fontSize: 18,
     fontWeight: '700',
     color: '#000',
   },
 
+  anotacoesSection: {
+    padding: 16,
+    backgroundColor: 'rgba(245, 245, 247, 0.55)',
+    borderRadius: 16,
+    marginBottom: SECTION_SPACING,
+  },
+
+  anotacoesLista: {
+    gap: 10,
+  },
+
   anotacaoItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingVertical: 10,
+    marginBottom: 4,
+  },
+
+  anotacaoAcoes: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 18,
-    marginBottom: 16,
+    gap: 8,
+    marginLeft: 8,
   },
 
   anotacaoLeft: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginRight: 8,
+  },
+
+  anotacaoConteudo: {
+    flex: 1,
+    marginLeft: 10,
   },
 
   anotacaoTexto: {
-    marginLeft: 10,
     fontSize: 15,
     color: '#000',
+    lineHeight: 22,
   },
 
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 18,
-    marginTop: 4,
+    marginTop: 8,
   },
 
   addText: {
@@ -109,8 +181,14 @@ export const styles = StyleSheet.create({
   },
 
   commentContainer: {
-    marginHorizontal: 18,
     marginBottom: 18,
+    paddingVertical: 8,
+  },
+
+  semComentarios: {
+    color: '#8e8e93',
+    fontStyle: 'italic',
+    marginBottom: 8,
   },
 
   commentHeader: {

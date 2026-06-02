@@ -41,6 +41,7 @@ import { styles } from './styles';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { HeaderElement, Header } from '../../components/Header/Header';
 import { Detalhes } from '../Detalhes/Detalhes';
+import Ranking from '../Ranking/Ranking';
 
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 
@@ -55,6 +56,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [verAvaliation, setVerAvaliation] = useState(false);
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
+  const [verRanking, setVerRanking] = useState(false);
 
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [renderizarFiltro, setRenderizarFiltro] = useState(false);
@@ -276,6 +278,19 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
     return <Locais onVoltar={() => setVerLocais(false)} />;
   }
 
+  if (verRanking) {
+    return (
+      <Ranking
+        onVoltar={() => setVerRanking(false)}
+        onAbrirLocal={(id) => {
+          setVerRanking(false);
+          setLocalSelecionadoId(id);
+          setVerDetalhesLocal(true);
+        }}
+      />
+    );
+  }
+
   return (
     <Animated.View
       style={[
@@ -427,6 +442,15 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
             </Pressable>
           </View>
         ) : null}
+
+        <Pressable
+          style={styles.fabRanking}
+          onPress={() => setVerRanking(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Ranking de locais"
+        >
+          <Icon name="crown" size={36} color="white" />
+        </Pressable>
 
         <Pressable
           style={styles.fab}
