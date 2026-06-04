@@ -60,6 +60,7 @@ function getTextoBotaoSalvar(ehDetalhe: boolean) {
 type AvaliationProps = {
   coordenadas: CoordenadasLocal;
   local?: LocalFirebase;
+  iniciarEditando?: boolean;
   onVoltar: () => void;
   onSalvo?: () => void;
   onExcluido?: () => void;
@@ -68,6 +69,7 @@ type AvaliationProps = {
 export default function Avaliation({
   coordenadas,
   local,
+  iniciarEditando,
   onVoltar,
   onSalvo,
   onExcluido,
@@ -92,7 +94,9 @@ export default function Avaliation({
   const [novoComentario, setNovoComentario] = useState('');
   const [nomeUsuarioAtual, setNomeUsuarioAtual] = useState('Usuário Anônimo');
 
-  const [editando, setEditando] = useState(!local);
+  const [editando, setEditando] = useState(
+  iniciarEditando || !local
+);
   const [salvando, setSalvando] = useState(false);
   const ehDetalhe = Boolean(local);
   const usuarioCriador = Boolean(local?.criadoPor && user?.uid === local.criadoPor);

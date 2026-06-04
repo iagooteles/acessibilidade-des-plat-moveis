@@ -507,21 +507,6 @@ export function Profile({
         )}
 
         <Pressable
-          style={styles.meusLocaisBtn}
-          onPress={() =>
-            setVerMeusLocais(true)
-          }
-        >
-          <Text
-            style={
-              styles.meusLocaisText
-            }
-          >
-            Meus Locais
-          </Text>
-        </Pressable>
-
-        <Pressable
           style={styles.logoutBtn}
           onPress={handleLogout}
         >
@@ -542,7 +527,7 @@ export function Profile({
         <FooterButton
           type="2"
           onPress={() => {
-            setVerDetalhes(true);
+            setVerMeusLocais(true);
           }}
         />
 
