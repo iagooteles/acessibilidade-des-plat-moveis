@@ -35,6 +35,7 @@ import { useAuth } from '../../components/AuthProvider';
 import Avaliation from '../Avaliation/Avaliation';
 import { Profile } from '../Profile/Profile';
 import Locais from '../Locais/Locais';
+import MeusLocais from '../MeusLocais/MeusLocais';
 
 import { styles } from './styles';
 
@@ -57,6 +58,8 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
   const [verRanking, setVerRanking] = useState(false);
+  const [verMeusLocais, setVerMeusLocais] = useState(false);
+  const [localEditando, setLocalEditando] = useState<LocalFirebase | null>(null);
 
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [renderizarFiltro, setRenderizarFiltro] = useState(false);
@@ -291,6 +294,39 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
     );
   }
 
+  if (localEditando) {
+  return (
+    <Avaliation
+      local={localEditando}
+      iniciarEditando={true}
+      coordenadas={{
+        lat: localEditando.lat,
+        long: localEditando.long,
+      }}
+      onVoltar={() => setLocalEditando(null)}
+      onSalvo={() => {
+        setLocalEditando(null);
+        void refetchLocais();
+      }}
+      onExcluido={() => {
+        setLocalEditando(null);
+        void refetchLocais();
+      }}
+    />
+  );
+}
+
+if (verMeusLocais) {
+  return (
+    <MeusLocais
+      onVoltar={() => setVerMeusLocais(false)}
+      onEditarLocal={(local) => {
+        setLocalEditando(local);
+      }}
+    />
+  );
+}
+
   return (
     <Animated.View
       style={[
@@ -475,7 +511,7 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
         <FooterButton
           type="2"
           onPress={() => {
-            setVerDetalhes(true);
+            setVerMeusLocais(true);
           }}
         />
 
