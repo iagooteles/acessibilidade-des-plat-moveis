@@ -42,6 +42,7 @@ import { styles } from './styles';
 export type CoordenadasLocal = { lat: number; long: number };
 import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
 import { Timestamp } from 'firebase/firestore';
+import { Header, HeaderElement } from '../../components/Header/Header';
 
 const MAX_FOTO_BASE64_CHARS = 900000;
 
@@ -95,8 +96,8 @@ export default function Avaliation({
   const [nomeUsuarioAtual, setNomeUsuarioAtual] = useState('Usuário Anônimo');
 
   const [editando, setEditando] = useState(
-  iniciarEditando || !local
-);
+    iniciarEditando || !local
+  );
   const [salvando, setSalvando] = useState(false);
   const ehDetalhe = Boolean(local);
   const usuarioCriador = Boolean(local?.criadoPor && user?.uid === local.criadoPor);
@@ -239,7 +240,7 @@ export default function Avaliation({
       Alert.alert('Comentário', 'Salve o local antes de adicionar comentários.');
       return;
     }
-    
+
     const texto = novoComentario.trim();
 
     try {
@@ -413,7 +414,7 @@ export default function Avaliation({
           criadoPor: user.uid,
         });
 
-        if(novoComentario.trim()){
+        if (novoComentario.trim()) {
           await criarComentarioNoLocal({
             localId,
             texto: novoComentario,
@@ -482,17 +483,19 @@ export default function Avaliation({
         style={styles.keyboardWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.voltarButton}
+        <Header>
+          <HeaderElement
+            type="1"
+            text="Voltar"
             onPress={onVoltar}
             accessibilityRole="button"
             accessibilityLabel="Voltar"
-          >
-            <Text style={styles.back}>Voltar</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>{titulo}</Text>
-        </View>
+          />
+          <HeaderElement
+            type='2'
+            text={titulo}
+          />
+        </Header>
 
         <ScrollView
           style={styles.scroll}
@@ -502,14 +505,14 @@ export default function Avaliation({
         >
           <View style={styles.section}>
             <View style={styles.nomeLinha}>
-              <View style={styles.nomeLinhaConteudo}>
-                <Text style={styles.fieldLabel}>Nome do local</Text>
+              <View style={[styles.nomeLinhaConteudo, { top: 1 }]}>
+                {/* <Text style={styles.fieldLabel}>Nome do local</Text> */}
                 {podeAlterar ? (
                   <TextInput
                     style={[styles.input, styles.inputNomeLinha]}
                     value={nome}
                     onChangeText={setNome}
-                    placeholder="Ex.: Entrada principal da biblioteca"
+                    placeholder="Nome do local"
                     placeholderTextColor="#999"
                     editable={!salvando}
                   />
@@ -532,15 +535,15 @@ export default function Avaliation({
             </View>
           </View>
 
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={styles.fieldLabel}>Coordenadas</Text>
             <Text style={styles.coordsText}>{textoCoordenadas}</Text>
-          </View>
+          </View> */}
 
-          <View style={styles.hr} />
+          {/* <View style={styles.hr} /> */}
 
-          <View style={styles.section}>
-            <Text style={styles.fieldLabel}>Foto</Text>
+          <View style={[styles.section]}>
+            {/* <Text style={styles.fieldLabel}>Foto</Text> */}
             <View style={styles.imageRow}>
               {fotoSource ? (
                 <Image source={fotoSource} style={styles.image} />
@@ -564,59 +567,57 @@ export default function Avaliation({
             </View>
           </View>
 
-          <View style={styles.anotacoesSection}>
-            <Text style={styles.sectionTitle}>Anotações</Text>
+          {/* <Text style={styles.sectionTitle}>Anotações</Text> */}
 
-            <View style={styles.anotacoesLista}>
-              {annotations.map((item, index) => (
-                <View key={`${item.text}-${index}`} style={styles.noteRow}>
-                  <View style={styles.noteRowConteudo}>
-                    <Ionicons
-                      name={
-                        item.type === 'positive' ? 'checkmark-circle' : 'close-circle'
-                      }
-                      size={24}
-                      color={item.type === 'positive' ? '#35C759' : '#FF3B30'}
-                    />
-                    <Text style={styles.noteText}>{item.text}</Text>
-                  </View>
-
-                  {local?.id ? (
-                    <AnotacaoUpvote
-                      total={
-                        upvotePorAnotacao[item.text]?.total ?? 0
-                      }
-                      votouUsuario={
-                        upvotePorAnotacao[item.text]?.votouUsuario ?? false
-                      }
-                      onPress={() => {
-                        void handleAlternarUpvote(item.text);
-                      }}
-                      disabled={!user}
-                    />
-                  ) : null}
+          <View style={styles.anotacoesLista}>
+            {annotations.map((item, index) => (
+              <View key={`${item.text}-${index}`} style={styles.noteRow}>
+                <View style={styles.noteRowConteudo}>
+                  <Ionicons
+                    name={
+                      item.type === 'positive' ? 'checkmark-circle' : 'close-circle'
+                    }
+                    size={24}
+                    color={item.type === 'positive' ? '#35C759' : '#FF3B30'}
+                  />
+                  <Text style={styles.noteText}>{item.text}</Text>
                 </View>
-              ))}
 
-              {podeAlterar ? (
-                <TouchableOpacity
-                  style={styles.noteRow}
-                  activeOpacity={0.7}
-                  onPress={() => setModalVisible(true)}
-                  disabled={salvando}
-                >
-                  <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
-                  <Text style={[styles.noteText, { color: '#BDBDBD' }]}>
-                    Adicionar…
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
+                {local?.id ? (
+                  <AnotacaoUpvote
+                    total={
+                      upvotePorAnotacao[item.text]?.total ?? 0
+                    }
+                    votouUsuario={
+                      upvotePorAnotacao[item.text]?.votouUsuario ?? false
+                    }
+                    onPress={() => {
+                      void handleAlternarUpvote(item.text);
+                    }}
+                    disabled={!user}
+                  />
+                ) : null}
+              </View>
+            ))}
+
+            {podeAlterar ? (
+              <TouchableOpacity
+                style={styles.noteRow}
+                activeOpacity={0.7}
+                onPress={() => setModalVisible(true)}
+                disabled={salvando}
+              >
+                <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                <Text style={[styles.noteText, { color: '#BDBDBD' }]}>
+                  Adicionar…
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
 
+          {/* Comentários */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Comentários</Text>
-
+            {/* <Text style={styles.sectionTitle}>Comentários</Text> */}
             {comentarios.map((comentario) => (
               <View key={comentario.id} style={styles.commentCard}>
                 <Text style={styles.commentAuthor}>
@@ -645,6 +646,7 @@ export default function Avaliation({
                 placeholderTextColor="#999"
                 editable={!salvando}
               />
+                  {novoComentario.trim() ?
               <TouchableOpacity
                 style={{
                   marginLeft: 10,
@@ -655,12 +657,13 @@ export default function Avaliation({
                 onPress={() => void handleAddComentario()}
                 disabled={salvando || !novoComentario.trim()}
               >
-                <Ionicons
-                  name="send"
-                  size={20}
-                  color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
-                />
+                  <Ionicons
+                    name="send"
+                    size={20}
+                    color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
+                  />
               </TouchableOpacity>
+                  : null}
             </View>
           ) : null}
 

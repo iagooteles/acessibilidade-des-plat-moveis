@@ -4,7 +4,8 @@ import { StyleSheet } from "react-native";
 export const PAGE_PADDING_HORIZONTAL = 24;
 
 /** Espaço vertical entre blocos (nome, coordenadas, foto, etc.) */
-export const SECTION_SPACING = 28;
+export const SECTION_SPACING = 32;
+export const IMAGE_BOX_SIDE = 128;
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,6 +17,7 @@ export const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
+    top: 24,
   },
   scrollContent: {
     paddingHorizontal: PAGE_PADDING_HORIZONTAL,
@@ -29,8 +31,8 @@ export const styles = StyleSheet.create({
   hr: {
     height: 1,
     backgroundColor: "#E5E5E5",
-    marginTop: 4,
-    marginBottom: SECTION_SPACING,
+    // marginTop: 4,
+    // marginBottom: SECTION_SPACING,
   },
 
   sectionTitle: {
@@ -40,10 +42,11 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   fieldLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
     color: "#333",
     marginBottom: 8,
+    left: 8,
   },
   coordsText: {
     fontSize: 15,
@@ -122,8 +125,8 @@ export const styles = StyleSheet.create({
   },
 
   image: {
-    width: 110,
-    height: 110,
+    width: IMAGE_BOX_SIDE,
+    height: IMAGE_BOX_SIDE,
     borderRadius: 28,
   },
 
@@ -134,9 +137,11 @@ export const styles = StyleSheet.create({
   },
 
   addImageBox: {
-    width: 110,
-    height: 110,
-    borderRadius: 28,
+    marginLeft: 12,
+    marginTop: 8,
+    width: IMAGE_BOX_SIDE,
+    height: IMAGE_BOX_SIDE,
+    borderRadius: 32,
     borderWidth: 2,
     borderColor: "#D9D9D9",
     justifyContent: "center",
@@ -151,16 +156,17 @@ export const styles = StyleSheet.create({
   },
 
   anotacoesLista: {
+    marginLeft: 12,
     gap: 4,
   },
 
   noteRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     marginBottom: 12,
     paddingVertical: 8,
-    gap: 8,
+    gap: 12,
   },
 
   noteRowConteudo: {
@@ -197,7 +203,6 @@ export const styles = StyleSheet.create({
   commentInputRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
   },
 
   noteText: {
@@ -283,7 +288,7 @@ export const styles = StyleSheet.create({
     padding: 22,
   },
 
-  
+
   search: {
     backgroundColor: "#F3F3F3",
     height: 50,

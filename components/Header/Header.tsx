@@ -15,29 +15,18 @@ type HeaderProps = PropsWithChildren &
     text?: string;
   };
 
-export function Header({
-  themed,
-  children,
-}: HeaderProps) {
+export function Header({ themed, children, }: HeaderProps) {
   return (
     <View
       style={[
         styles.header,
-        themed && styles.headerTheme,
-      ]}
-    >
+        themed ? styles.headerTheme : '',]}>
       {children}
     </View>
   );
 }
 
-export function HeaderElement({
-  themed,
-  type,
-  text,
-  ...pressableProps
-}: HeaderProps) {
-
+export function HeaderElement({ themed, type, text, ...pressableProps }: HeaderProps) {
   // TÍTULO
   if (type === '2') {
     return (
@@ -45,9 +34,7 @@ export function HeaderElement({
         <Text
           style={[
             styles.title,
-            themed && styles.titleTheme,
-          ]}
-        >
+            themed ? styles.titleTheme : '',]}>
           {text}
         </Text>
       </View>
@@ -58,16 +45,13 @@ export function HeaderElement({
   if (type === '1') {
     return (
       <View style={styles.leftContainer}>
-        <Pressable
-          {...pressableProps}
+        <Pressable {...pressableProps}
           style={styles.button}
         >
           <Text
             style={[
               styles.buttonText,
-              themed && styles.pressableTheme,
-            ]}
-          >
+              themed ? styles.pressableTheme : '',]}>
             {text}
           </Text>
         </Pressable>
@@ -85,9 +69,7 @@ export function HeaderElement({
         <Text
           style={[
             styles.buttonText,
-            themed && styles.pressableTheme,
-          ]}
-        >
+            themed ? styles.pressableTheme : '',]}>
           {text}
         </Text>
       </Pressable>
