@@ -31,8 +31,8 @@ export const styles = StyleSheet.create({
   hr: {
     height: 1,
     backgroundColor: "#E5E5E5",
-    // marginTop: 4,
-    // marginBottom: SECTION_SPACING,
+    marginTop: 4,
+    marginBottom: SECTION_SPACING,
   },
 
   sectionTitle: {
@@ -164,7 +164,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
-    marginBottom: 12,
+    marginBottom: 20,
     paddingVertical: 8,
     gap: 12,
   },

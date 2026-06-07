@@ -506,13 +506,13 @@ export default function Avaliation({
           <View style={styles.section}>
             <View style={styles.nomeLinha}>
               <View style={[styles.nomeLinhaConteudo, { top: 1 }]}>
-                {/* <Text style={styles.fieldLabel}>Nome do local</Text> */}
+                <Text style={[styles.sectionTitle, {marginBottom: 16}]}>Nome do local</Text>
                 {podeAlterar ? (
                   <TextInput
                     style={[styles.input, styles.inputNomeLinha]}
                     value={nome}
                     onChangeText={setNome}
-                    placeholder="Nome do local"
+                    placeholder="Nome do local..."
                     placeholderTextColor="#999"
                     editable={!salvando}
                   />
@@ -535,15 +535,16 @@ export default function Avaliation({
             </View>
           </View>
 
+          {/* Coordenadas */}
           {/* <View style={styles.section}>
             <Text style={styles.fieldLabel}>Coordenadas</Text>
             <Text style={styles.coordsText}>{textoCoordenadas}</Text>
           </View> */}
 
-          {/* <View style={styles.hr} /> */}
+          <View style={styles.hr} />
 
           <View style={[styles.section]}>
-            {/* <Text style={styles.fieldLabel}>Foto</Text> */}
+            <Text style={styles.sectionTitle}>Foto</Text>
             <View style={styles.imageRow}>
               {fotoSource ? (
                 <Image source={fotoSource} style={styles.image} />
@@ -567,7 +568,9 @@ export default function Avaliation({
             </View>
           </View>
 
-          {/* <Text style={styles.sectionTitle}>Anotações</Text> */}
+          <View style={[styles.hr,]} />
+
+          <Text style={styles.sectionTitle}>Anotações</Text>
 
           <View style={styles.anotacoesLista}>
             {annotations.map((item, index) => (
@@ -615,9 +618,11 @@ export default function Avaliation({
             ) : null}
           </View>
 
+          <View style={styles.hr} />
+
           {/* Comentários */}
           <View style={styles.section}>
-            {/* <Text style={styles.sectionTitle}>Comentários</Text> */}
+            <Text style={styles.sectionTitle}>Comentários</Text>
             {comentarios.map((comentario) => (
               <View key={comentario.id} style={styles.commentCard}>
                 <Text style={styles.commentAuthor}>
@@ -646,24 +651,24 @@ export default function Avaliation({
                 placeholderTextColor="#999"
                 editable={!salvando}
               />
-                  {novoComentario.trim() ?
-              <TouchableOpacity
-                style={{
-                  marginLeft: 10,
-                  backgroundColor: !novoComentario.trim() ? '#E5E5EA' : '#35C759',
-                  padding: 14,
-                  borderRadius: 100,
-                }}
-                onPress={() => void handleAddComentario()}
-                disabled={salvando || !novoComentario.trim()}
-              >
+              {novoComentario.trim() ?
+                <TouchableOpacity
+                  style={{
+                    marginLeft: 10,
+                    backgroundColor: !novoComentario.trim() ? '#E5E5EA' : '#35C759',
+                    padding: 14,
+                    borderRadius: 100,
+                  }}
+                  onPress={() => void handleAddComentario()}
+                  disabled={salvando || !novoComentario.trim()}
+                >
                   <Ionicons
                     name="send"
                     size={20}
                     color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
                   />
-              </TouchableOpacity>
-                  : null}
+                </TouchableOpacity>
+                : null}
             </View>
           ) : null}
 
