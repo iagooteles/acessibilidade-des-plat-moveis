@@ -8,6 +8,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useTheme } from '../../components/ThemeProvider';
+import { Footer, FooterButton } from '../../components/Footer/Footer';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -23,13 +25,20 @@ import { styles } from './styles';
 
 type Props = {
   onVoltar: () => void;
+  onHome: () => void;
+  onLocais: () => void;
+  onProfile: () => void;
   onEditarLocal: (local: LocalFirebase) => void;
 };
 
 export default function MeusLocais({
   onVoltar,
+  onHome,
+  onLocais,
+  onProfile,
   onEditarLocal,
 }: Readonly<Props>) {
+  const { theme } = useTheme();
   const { user } = useAuth();
 
   const [locais, setLocais] = useState<LocalFirebase[]>([]);
@@ -142,15 +151,15 @@ export default function MeusLocais({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}> 
       <View style={styles.header}>
         <Pressable onPress={onVoltar}>
-          <Text style={styles.backText}>
+          <Text style={[styles.backText, { color: theme.primary }]}> 
             Voltar
           </Text>
         </Pressable>
 
-        <Text style={styles.title}>
+        <Text style={[styles.title, { color: theme.text }]}> 
           Meus Locais
         </Text>
 
@@ -160,7 +169,7 @@ export default function MeusLocais({
             setSelecionados([]);
           }}
         >
-          <Text style={styles.selectText}>
+          <Text style={[styles.selectText, { color: theme.primary }]}> 
             {modoSelecao
               ? 'Cancelar'
               : 'Selecionar'}
@@ -168,33 +177,34 @@ export default function MeusLocais({
         </Pressable>
       </View>
 
-      <View style={styles.searchContainer}>
+      <View style={[styles.searchContainer, { backgroundColor: theme.card }]}> 
         <Ionicons
           name='search'
           size={18}
-          color='#777'
+          color={theme.muted}
         />
 
         <TextInput
           value={busca}
           onChangeText={setBusca}
           placeholder='Buscar local pelo nome'
-          style={styles.searchInput}
+          placeholderTextColor={theme.muted}
+          style={[styles.searchInput, { color: theme.text }]}
         />
       </View>
 
       {modoSelecao && (
         <Pressable
-          style={styles.deleteBtn}
+          style={[styles.deleteBtn, { backgroundColor: theme.primary }]}
           onPress={excluirSelecionados}
         >
           <Ionicons
             name='trash'
             size={18}
-            color='#fff'
+            color={theme.background}
           />
 
-          <Text style={styles.deleteText}>
+          <Text style={[styles.deleteText, { color: theme.background }]}> 
             Excluir selecionados
           </Text>
         </Pressable>
@@ -202,11 +212,11 @@ export default function MeusLocais({
 
       {loading ? (
         <View style={styles.center}>
-          <Text>Carregando...</Text>
+          <Text style={{ color: theme.muted }}>Carregando...</Text>
         </View>
       ) : locaisFiltrados.length === 0 ? (
         <View style={styles.center}>
-          <Text style={styles.emptyText}>
+          <Text style={[styles.emptyText, { color: theme.muted }]}> 
             Nenhum local encontrado.
           </Text>
         </View>
@@ -228,17 +238,20 @@ export default function MeusLocais({
                 }}
                 style={[
                   styles.card,
-                  selecionado &&
-                    styles.cardSelecionado,
+                  { backgroundColor: theme.card },
+                  selecionado && {
+                    borderWidth: 2,
+                    borderColor: theme.primary,
+                  },
                 ]}
               >
-                <Text style={styles.nome}>
+                <Text style={[styles.nome, { color: theme.text }]}> 
                   {item.nome}
                 </Text>
 
                 {!modoSelecao && (
                   <Pressable
-                    style={styles.editBtn}
+                    style={[styles.editBtn, { backgroundColor: theme.background }]}
                     onPress={() =>
                       onEditarLocal(item)
                     }
@@ -246,7 +259,7 @@ export default function MeusLocais({
                     <Ionicons
                       name='pencil'
                       size={18}
-                      color='#2E7D32'
+                      color={theme.primary}
                     />
                   </Pressable>
                 )}
@@ -255,6 +268,26 @@ export default function MeusLocais({
           }}
         />
       )}
+
+      <Footer>
+        <FooterButton type='1' onPress={onHome} />
+
+        <FooterButton active type='2' />
+
+        <FooterButton
+          type='4'
+          onPress={onLocais}
+          accessibilityRole='button'
+          accessibilityLabel='Gerenciar locais'
+        />
+
+        <FooterButton
+          type='3'
+          onPress={onProfile}
+          accessibilityRole='button'
+          accessibilityLabel='Abrir perfil'
+        />
+      </Footer>
     </View>
   );
 }

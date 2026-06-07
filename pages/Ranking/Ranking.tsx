@@ -13,6 +13,7 @@ import {
   listarLocaisRanking,
   type LocalRanking,
 } from '../../services/locaisFirebase';
+import { useTheme } from '../../components/ThemeProvider';
 import { styles } from './styles';
 
 type Props = {
@@ -38,6 +39,7 @@ export default function Ranking({
   onVoltar,
   onAbrirLocal,
 }: Readonly<Props>) {
+  const { theme, isDark } = useTheme();
   const [locais, setLocais] = useState<LocalRanking[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
@@ -73,7 +75,17 @@ export default function Ranking({
 
     return (
       <Pressable
-        style={[styles.card, top3 && styles.cardTop3]}
+        style={[
+          styles.card,
+          { backgroundColor: theme.card },
+          top3 && [
+            styles.cardTop3,
+            {
+              backgroundColor: isDark ? '#15202b' : '#F0F8F2',
+              borderColor: isDark ? '#334155' : '#C8E6C9',
+            },
+          ],
+        ]}
         onPress={() => onAbrirLocal(item.id)}
         accessibilityRole="button"
         accessibilityLabel={`${item.posicao}º lugar, ${item.nome}, ${item.totalUpvotes} upvotes`}
@@ -99,12 +111,12 @@ export default function Ranking({
         )}
 
         <View style={styles.cardConteudo}>
-          <Text style={styles.nomeLocal} numberOfLines={2}>
+          <Text style={[styles.nomeLocal, { color: theme.text }]} numberOfLines={2}>
             {item.nome}
           </Text>
           <View style={styles.upvotesLinha}>
-            <Icon name="thumb-up" size={16} color="#2E7D32" />
-            <Text style={styles.upvotesTexto}>
+            <Icon name="thumb-up" size={16} color={theme.primary} />
+            <Text style={[styles.upvotesTexto, { color: theme.primary }]}> 
               {item.totalUpvotes}{' '}
               {item.totalUpvotes === 1 ? 'upvote' : 'upvotes'}
             </Text>
@@ -115,7 +127,7 @@ export default function Ranking({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}> 
       <View style={styles.header}>
         <Pressable
           style={styles.voltarButton}
@@ -123,24 +135,24 @@ export default function Ranking({
           accessibilityRole="button"
           accessibilityLabel="Voltar"
         >
-          <Text style={styles.voltar}>Voltar</Text>
+          <Text style={[styles.voltar, { color: theme.primary }]}>Voltar</Text>
         </Pressable>
-        <Text style={styles.title}>Ranking</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Ranking</Text>
       </View>
 
-      <Text style={styles.subtitulo}>
+      <Text style={[styles.subtitulo, { color: theme.muted }]}> 
         Locais mais confirmados pela comunidade
       </Text>
 
       {carregando ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#5db075" />
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       ) : erro ? (
         <View style={styles.center}>
-          <Text style={styles.erro}>{erro}</Text>
-          <Pressable style={styles.retryBtn} onPress={() => void carregar()}>
-            <Text style={styles.retryText}>Tentar novamente</Text>
+          <Text style={[styles.erro, { color: theme.muted }]}>{erro}</Text>
+          <Pressable style={[styles.retryBtn, { backgroundColor: theme.primary }]} onPress={() => void carregar()}>
+            <Text style={[styles.retryText, { color: theme.textOnPrimary }]}>Tentar novamente</Text>
           </Pressable>
         </View>
       ) : (
@@ -153,11 +165,11 @@ export default function Ranking({
             <RefreshControl
               refreshing={atualizando}
               onRefresh={() => void carregar(true)}
-              colors={['#5db075']}
+              colors={[theme.primary]}
             />
           }
           ListEmptyComponent={
-            <Text style={styles.erro}>
+            <Text style={[styles.erro, { color: theme.muted }]}> 
               Nenhum local cadastrado ainda.
             </Text>
           }
