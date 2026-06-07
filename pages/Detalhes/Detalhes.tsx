@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Pressable,
   ScrollView,
   Image,
@@ -18,6 +17,7 @@ import {
 } from 'react-native';
 import { styles } from './styles';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   collection,
@@ -33,6 +33,7 @@ import { useAuth } from '../../components/AuthProvider';
 
 import { db } from '../../config/firebase';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
+import { Header, HeaderElement } from '../../components/Header/Header';
 import { Profile } from '../Profile/Profile';
 import Locais from '../Locais/Locais';
 import { ComentarioLocal, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
@@ -360,29 +361,24 @@ export function Detalhes({
   return (
     <View style={styles.container}>
 
-      <View style={styles.header}>
-
-        <Pressable
-          style={styles.voltarButton}
+      <Header>
+        <HeaderElement
+          type='1'
+          text='Voltar'
           onPress={onVoltar}
-        >
-          <Text style={styles.voltar}>
-            Voltar
-          </Text>
-        </Pressable>
-
-        <Text style={styles.title}>
-          Local
-        </Text>
-
-      </View>
+        />
+        <HeaderElement
+          type='2'
+          text='Local'
+        />
+      </Header>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
 
-        <View style={styles.section}>
+        <View style={[styles.section, { marginTop: 16 }]}>
           <View style={styles.nomeLinha}>
             <View style={styles.nomeLinhaConteudo}>
               <Text style={styles.nome}>
@@ -414,6 +410,8 @@ export function Detalhes({
           ) : null}
         </View>
 
+        {/* Coordenadas */}
+        {/* 
         {local.lat != null && local.long != null ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
@@ -427,7 +425,9 @@ export function Detalhes({
 
         {local.lat != null && local.long != null ? (
           <View style={styles.hr} />
-        ) : null}
+        ) : null} */}
+
+        <View style={styles.hr} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
@@ -462,7 +462,9 @@ export function Detalhes({
           />
         </View>
 
-        <View style={[styles.section, styles.anotacoesSection]}>
+        <View style={styles.hr} />
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Anotações por usuários
           </Text>
@@ -541,20 +543,20 @@ export function Detalhes({
             ))}
           </View>
 
+          {/* Botão de adicionar Anotação */}
           <Pressable style={styles.addButton}>
-
-            <Icon
-              name="plus-circle"
-              size={22}
-              color="#B0B0B0"
+            <Ionicons
+              name="add-circle-outline"
+              size={24}
+              color="#BDBDBD"
             />
-
             <Text style={styles.addText}>
               Adicionar...
             </Text>
-
           </Pressable>
         </View>
+
+        <View style={styles.hr} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
@@ -788,7 +790,7 @@ export function Detalhes({
         />
       </Footer>
 
-    </View>
+    </View >
   );
 
 }

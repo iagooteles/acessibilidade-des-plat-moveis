@@ -140,8 +140,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingVertical: 10,
-    marginBottom: 4,
+    marginTop: 8,
   },
 
   anotacaoAcoes: {
@@ -172,7 +171,7 @@ export const styles = StyleSheet.create({
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 12,
   },
 
   addText: {

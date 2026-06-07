@@ -128,6 +128,7 @@ export const styles = StyleSheet.create({
     width: IMAGE_BOX_SIDE,
     height: IMAGE_BOX_SIDE,
     borderRadius: 28,
+    marginTop: 8,
   },
 
   semFoto: {
