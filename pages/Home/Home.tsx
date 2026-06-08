@@ -5,6 +5,7 @@ import {
   Keyboard,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -53,7 +54,8 @@ type HomeProps = {
 
 export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const { user } = useAuth();
-  const { theme, isDark } = useTheme();
+
+  const { theme, toggleTheme, isDark, highContrast, toggleHighContrast } = useTheme();
 
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
@@ -388,7 +390,11 @@ if (verMeusLocais) {
                 Filtros de acessibilidade
               </Text>
 
-              <View style={styles.filtrosContainer}>
+              <ScrollView
+                style={styles.filtrosScroll}
+                contentContainerStyle={styles.filtrosContainer}
+                showsVerticalScrollIndicator
+              >
                 {filtrosDisponiveis.map((filtro) => {
                   const ativo =
                     filtrosSelecionados.includes(filtro);
@@ -400,18 +406,23 @@ if (verMeusLocais) {
                       style={[
                         styles.filtroChip,
                         ativo && styles.filtroChipAtivo,
+                        { backgroundColor: ativo ? theme.primary :theme.textOnPrimary },
                       ]}
                     >
                       <Text
                         style={[
                           styles.filtroChipTexto,
-                          ativo && styles.filtroChipTextoAtivo,]}>
+                          ativo && styles.filtroChipTextoAtivo,
+                          { color: ativo ? '#000000' : '#000000' },
+                          { color: ativo ?  '#000000':(highContrast ?  theme.text:'#000000'  ) },
+                        ]}
+                      >
                         {`${ativo ? '✓ ' : ''}${String(filtro)}`}
                       </Text>
                     </Pressable>
                   );
                 })}
-              </View>
+              </ScrollView>
             </Animated.View>
           </>
         )}
@@ -508,16 +519,16 @@ if (verMeusLocais) {
         ) : null}
 
         <Pressable
-          style={styles.fabRanking}
+          style={[styles.fabRanking, { backgroundColor: theme.primary }]}
           onPress={() => setVerRanking(true)}
           accessibilityRole="button"
           accessibilityLabel="Ranking de locais"
         >
-          <Icon name="crown" size={36} color="white" />
+          <Icon name="crown" size={36} color={theme.textOnPrimary} />
         </Pressable>
 
         <Pressable
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: theme.primary }]}
           onPress={() => {
             if (!user) {
               setAvisarLoginParaMapa(true);
@@ -529,7 +540,7 @@ if (verMeusLocais) {
           accessibilityRole="button"
           accessibilityLabel="Adicionar local no mapa"
         >
-          <Icon name="plus" size={48} color="white" />
+          <Icon name="plus" size={48} color={theme.textOnPrimary} />
         </Pressable>
       </View>
 

@@ -241,8 +241,14 @@ export const styles = StyleSheet.create({
   color: '#222',
 },
 
+filtrosScroll: {
+  maxHeight: 260,
+  width: '100%',
+},
+
 filtrosContainer: {
   gap: 10,
+  paddingBottom: 8,
 },
 
 filtroChip: {
@@ -267,13 +273,13 @@ filtroChipConteudo: {
 },
 
 filtroChipTexto: {
-  color: '#444',
+  color: '#FFD600',
   fontWeight: '600',
   fontSize: 14,
 },
 
 filtroChipTextoAtivo: {
-  color: '#fff',
+  color: '#FFD600',
 },
 overlayFiltro: {
   position: 'absolute',

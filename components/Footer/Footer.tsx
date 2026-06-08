@@ -21,7 +21,7 @@ export function FooterButton({
   style,
   ...rest
 }: Props) {
-  const { theme, isDark } = useTheme();
+  const { theme, isDark, highContrast } = useTheme();
   const activeStyle = active ? { backgroundColor: theme.primary } : undefined;
   const inactiveStyle = !active
     ? {
@@ -38,6 +38,8 @@ export function FooterButton({
   };
   const iconColor = active
     ? theme.textOnPrimary
+    : highContrast
+    ? theme.text
     : isDark
     ? theme.primary
     : '#000000';
