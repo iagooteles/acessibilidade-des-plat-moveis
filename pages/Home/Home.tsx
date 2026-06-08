@@ -295,37 +295,37 @@ export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   }
 
   if (localEditando) {
-  return (
-    <Avaliation
-      local={localEditando}
-      iniciarEditando={true}
-      coordenadas={{
-        lat: localEditando.lat,
-        long: localEditando.long,
-      }}
-      onVoltar={() => setLocalEditando(null)}
-      onSalvo={() => {
-        setLocalEditando(null);
-        void refetchLocais();
-      }}
-      onExcluido={() => {
-        setLocalEditando(null);
-        void refetchLocais();
-      }}
-    />
-  );
-}
+    return (
+      <Avaliation
+        local={localEditando}
+        iniciarEditando={true}
+        coordenadas={{
+          lat: localEditando.lat,
+          long: localEditando.long,
+        }}
+        onVoltar={() => setLocalEditando(null)}
+        onSalvo={() => {
+          setLocalEditando(null);
+          void refetchLocais();
+        }}
+        onExcluido={() => {
+          setLocalEditando(null);
+          void refetchLocais();
+        }}
+      />
+    );
+  }
 
-if (verMeusLocais) {
-  return (
-    <MeusLocais
-      onVoltar={() => setVerMeusLocais(false)}
-      onEditarLocal={(local) => {
-        setLocalEditando(local);
-      }}
-    />
-  );
-}
+  if (verMeusLocais) {
+    return (
+      <MeusLocais
+        onVoltar={() => setVerMeusLocais(false)}
+        onEditarLocal={(local) => {
+          setLocalEditando(local);
+        }}
+      />
+    );
+  }
 
   return (
     <Animated.View
@@ -337,13 +337,15 @@ if (verMeusLocais) {
         },
       ]}
     >
-      <Header>
+      <Header themed>
         <HeaderElement
+          themed
           type="2"
           text="Mapa"
         />
 
         <HeaderElement
+          themed
           type="3"
           text="Filtrar"
           onPress={() => setMostrarFiltro(!mostrarFiltro)}
