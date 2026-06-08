@@ -10,6 +10,7 @@ import {
 import { Button } from '../../components/Button/Button';
 import { Input } from '../../components/Input/Input';
 import { useAuth } from '../../components/AuthProvider';
+import { useTheme } from '../../components/ThemeProvider';
 import { styles } from './styles';
 
 type Props = {
@@ -18,7 +19,8 @@ type Props = {
 };
 
 export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
-  const { login, resetPassword } = useAuth();     
+  const { login, resetPassword } = useAuth();
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -62,11 +64,19 @@ export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {onVoltar ? (
-        <View style={styles.topBar}>
+        <View
+          style={[
+            styles.topBar,
+            {
+              backgroundColor: theme.background,
+              borderBottomColor: theme.card,
+            },
+          ]}
+        >
           <View style={styles.topBarInner}>
             <Pressable
               accessibilityRole="button"
@@ -75,7 +85,7 @@ export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
               style={styles.voltarPressable}
               hitSlop={12}
             >
-              <Text style={styles.voltarText}>← Voltar ao mapa</Text>
+              <Text style={[styles.voltarText, { color: theme.text }]}>← Voltar ao mapa</Text>
             </Pressable>
           </View>
         </View>
@@ -86,11 +96,11 @@ export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.card}>
-          <Text accessibilityRole="header" style={styles.titulo}>
+        <View style={[styles.card, { backgroundColor: theme.card }]}> 
+          <Text accessibilityRole="header" style={[styles.titulo, { color: theme.text }]}> 
             Entrar
           </Text>
-          <Text style={styles.subtitulo}>
+          <Text style={[styles.subtitulo, { color: theme.muted }]}> 
             Use seu e-mail e senha para acessar.
           </Text>
 
@@ -135,14 +145,14 @@ export function Login({ onIrParaRegister, onVoltar }: Readonly<Props>) {
             onPress={onIrParaRegister}
             style={styles.linkWrap}
           >
-            <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
+            <Text style={[styles.link, { color: theme.primary }]}>Não tem conta? Cadastre-se</Text>
           </Pressable>
 
           <Pressable
             onPress={handleResetPassword}
             style={styles.linkWrapPassword}
           >
-            <Text style={styles.password}>
+            <Text style={[styles.password, { color: theme.muted }]}> 
               Esqueci minha senha
             </Text>
           </Pressable>
