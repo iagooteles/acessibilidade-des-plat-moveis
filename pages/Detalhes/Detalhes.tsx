@@ -284,6 +284,11 @@ export function Detalhes({
           : {}),
       });
 
+      if (dados.fotoBase64 || dados.fotoUrl) {
+        setFotoUri(dados.fotoBase64 ?? dados.fotoUrl ?? null);
+        setFotoBase64(dados.fotoBase64 ?? null);
+      }
+
       const mapaDenuncias: Record<string, number> = {};
 
       const anotacoes = (snap.data() as Local).anotacoes ?? [];

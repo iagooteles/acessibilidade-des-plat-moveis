@@ -236,12 +236,21 @@ export default function Avaliation({
       return;
     }
 
+    const texto = novoComentario.trim();
+
     if (!local?.id) {
-      Alert.alert('Comentário', 'Salve o local antes de adicionar comentários.');
+      const novoComentarioObj: ComentarioLocal = {
+        id: `temp-${Date.now()}`,
+        createdAt: Timestamp.now(),
+        texto,
+        nomeAutor: nomeUsuarioAtual,
+        uidAutor: user.uid,
+      };
+
+      setComentarios((prev) => [...prev, novoComentarioObj]);
+      setNovoComentario('');
       return;
     }
-
-    const texto = novoComentario.trim();
 
     try {
       const comentarioId = await criarComentarioNoLocal({
@@ -414,6 +423,26 @@ export default function Avaliation({
           criadoPor: user.uid,
         });
 
+        const comentariosPendentes = [...comentarios];
+        if (novoComentario.trim()) {
+          comentariosPendentes.push({
+            id: `temp-${Date.now()}`,
+            createdAt: Timestamp.now(),
+            texto: novoComentario.trim(),
+            nomeAutor: nomeUsuarioAtual,
+            uidAutor: user.uid,
+          });
+        }
+
+        for (const comentario of comentariosPendentes) {
+          await criarComentarioNoLocal({
+            localId,
+            texto: comentario.texto,
+            nomeAutor: comentario.nomeAutor,
+            uidAutor: comentario.uidAutor,
+          });
+        }
+        
         if (novoComentario.trim()) {
           await criarComentarioNoLocal({
             localId,
