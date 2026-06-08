@@ -4,8 +4,7 @@ import { StyleSheet } from "react-native";
 export const PAGE_PADDING_HORIZONTAL = 24;
 
 /** Espaço vertical entre blocos (nome, coordenadas, foto, etc.) */
-export const SECTION_SPACING = 32;
-export const IMAGE_BOX_SIDE = 128;
+export const SECTION_SPACING = 28;
 
 export const styles = StyleSheet.create({
   container: {
@@ -17,7 +16,6 @@ export const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
-    top: 24,
   },
   scrollContent: {
     paddingHorizontal: PAGE_PADDING_HORIZONTAL,
@@ -42,11 +40,10 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   fieldLabel: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: "#333",
     marginBottom: 8,
-    left: 8,
   },
   coordsText: {
     fontSize: 15,
@@ -125,10 +122,9 @@ export const styles = StyleSheet.create({
   },
 
   image: {
-    width: IMAGE_BOX_SIDE,
-    height: IMAGE_BOX_SIDE,
+    width: 110,
+    height: 110,
     borderRadius: 28,
-    marginTop: 8,
   },
 
   semFoto: {
@@ -138,11 +134,9 @@ export const styles = StyleSheet.create({
   },
 
   addImageBox: {
-    marginLeft: 12,
-    marginTop: 8,
-    width: IMAGE_BOX_SIDE,
-    height: IMAGE_BOX_SIDE,
-    borderRadius: 32,
+    width: 110,
+    height: 110,
+    borderRadius: 28,
     borderWidth: 2,
     borderColor: "#D9D9D9",
     justifyContent: "center",
@@ -157,17 +151,16 @@ export const styles = StyleSheet.create({
   },
 
   anotacoesLista: {
-    marginLeft: 12,
     gap: 4,
   },
 
   noteRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
-    marginBottom: 20,
+    justifyContent: "space-between",
+    marginBottom: 12,
     paddingVertical: 8,
-    gap: 12,
+    gap: 8,
   },
 
   noteRowConteudo: {
@@ -204,6 +197,7 @@ export const styles = StyleSheet.create({
   commentInputRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 8,
   },
 
   noteText: {
@@ -289,7 +283,7 @@ export const styles = StyleSheet.create({
     padding: 22,
   },
 
-
+  
   search: {
     backgroundColor: "#F3F3F3",
     height: 50,

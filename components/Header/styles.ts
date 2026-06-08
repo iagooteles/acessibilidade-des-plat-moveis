@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   header: {
     height: 100,
+    backgroundColor: '#5db075',
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingBottom: 18,
@@ -39,20 +40,14 @@ export const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#5db075',
-  },
-  
-  pressableTheme: {
     color: 'white',
   },
 
   title: {
     fontSize: 30,
     fontWeight: '700',
-    color: 'black',
-  },
-
-  titleTheme: {
     color: 'white',
   },
+
+
 });
