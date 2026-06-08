@@ -1,6 +1,5 @@
 import { useId } from 'react';
 import { Text, TextInput, View, type TextInputProps } from 'react-native';
-import { useTheme } from '../ThemeProvider';
 import { styles } from './styles';
 
 type Props = TextInputProps & {
@@ -12,14 +11,13 @@ export function Input({ label, error, id, accessibilityLabel, ...rest }: Props) 
   const genId = useId();
   const inputId = id ?? `input-${genId}`;
   const errorId = error ? `${inputId}-error` : undefined;
-  const { theme, isDark } = useTheme();
 
   return (
     <View style={styles.wrapper}>
       <Text
         accessibilityRole="header"
         nativeID={`${inputId}-label`}
-        style={[styles.label, { color: theme.text }]}
+        style={styles.label}
       >
         {label}
       </Text>
@@ -29,16 +27,8 @@ export function Input({ label, error, id, accessibilityLabel, ...rest }: Props) 
         accessibilityHint={rest.placeholder}
         accessibilityInvalid={!!error}
         accessibilityDescribedBy={errorId}
-        style={[
-          styles.input,
-          {
-            backgroundColor: theme.card,
-            color: theme.text,
-            borderColor: isDark ? '#334155' : '#d1d5db',
-          },
-          error && styles.inputError,
-        ]}
-        placeholderTextColor={theme.muted}
+        style={[styles.input, error && styles.inputError]}
+        placeholderTextColor="#9ca3af"
         {...rest}
       />
       {error ? (

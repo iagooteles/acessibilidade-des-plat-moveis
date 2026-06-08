@@ -10,7 +10,6 @@ import {
 import { Button } from '../../components/Button/Button';
 import { Input } from '../../components/Input/Input';
 import { useAuth } from '../../components/AuthProvider';
-import { useTheme } from '../../components/ThemeProvider';
 import { styles } from './styles';
 
 type Props = {
@@ -20,7 +19,6 @@ type Props = {
 
 export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
   const { register } = useAuth();
-  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmar, setConfirmar] = useState('');
@@ -53,19 +51,11 @@ export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.flex, { backgroundColor: theme.background }]}
+      style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {onVoltar ? (
-        <View
-          style={[
-            styles.topBar,
-            {
-              backgroundColor: theme.background,
-              borderBottomColor: theme.card,
-            },
-          ]}
-        >
+        <View style={styles.topBar}>
           <View style={styles.topBarInner}>
             <Pressable
               accessibilityRole="button"
@@ -74,7 +64,7 @@ export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
               style={styles.voltarPressable}
               hitSlop={12}
             >
-              <Text style={[styles.voltarText, { color: theme.text }]}>← Voltar ao mapa</Text>
+              <Text style={styles.voltarText}>← Voltar ao mapa</Text>
             </Pressable>
           </View>
         </View>
@@ -85,11 +75,11 @@ export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={[styles.card, { backgroundColor: theme.card }]}> 
-          <Text accessibilityRole="header" style={[styles.titulo, { color: theme.text }]}> 
+        <View style={styles.card}>
+          <Text accessibilityRole="header" style={styles.titulo}>
             Criar conta
           </Text>
-          <Text style={[styles.subtitulo, { color: theme.muted }]}> 
+          <Text style={styles.subtitulo}>
             Cadastre-se com e-mail e senha.
           </Text>
 
@@ -143,7 +133,7 @@ export function Register({ onVoltarLogin, onVoltar }: Readonly<Props>) {
             onPress={onVoltarLogin}
             style={styles.linkWrap}
           >
-            <Text style={[styles.link, { color: theme.primary }]}>Já tem conta? Entrar</Text>
+            <Text style={styles.link}>Já tem conta? Entrar</Text>
           </Pressable>
         </View>
       </ScrollView>

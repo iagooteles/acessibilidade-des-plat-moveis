@@ -158,18 +158,5 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  themeToggle: {
-    marginTop: 18,
-    width: '100%',
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  themeToggleText: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
   
 });

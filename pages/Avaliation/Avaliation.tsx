@@ -15,7 +15,6 @@ import {
   View,
   Animated,
 } from 'react-native';
-import { useTheme } from '../../components/ThemeProvider';
 import {
   screenSlideUpAnimation,
   fadeInAnimation,
@@ -75,7 +74,6 @@ export default function Avaliation({
   onSalvo,
   onExcluido,
 }: Readonly<AvaliationProps>) {
-  const { theme, isDark } = useTheme();
   const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [nome, setNome] = useState(local?.nome ?? '');
@@ -478,17 +476,8 @@ export default function Avaliation({
   const textoBotaoSalvar = getTextoBotaoSalvar(ehDetalhe);
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          flex: 1,
-          opacity,
-          transform: [{ translateY }],
-          backgroundColor: theme.background,
-        },
-      ]}
-    >
+    <Animated.View style={[styles.container,
+    { flex: 1, opacity, transform: [{ translateY }], },]}>
       <KeyboardAvoidingView
         style={styles.keyboardWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -500,9 +489,9 @@ export default function Avaliation({
             accessibilityRole="button"
             accessibilityLabel="Voltar"
           >
-            <Text style={[styles.back, { color: theme.primary }]}>Voltar</Text>
+            <Text style={styles.back}>Voltar</Text>
           </TouchableOpacity>
-          <Text style={[styles.title, { color: theme.text }]}>{titulo}</Text>
+          <Text style={styles.title}>{titulo}</Text>
         </View>
 
         <ScrollView
@@ -514,18 +503,14 @@ export default function Avaliation({
           <View style={styles.section}>
             <View style={styles.nomeLinha}>
               <View style={styles.nomeLinhaConteudo}>
-                <Text style={[styles.fieldLabel, { color: theme.text }]}>Nome do local</Text>
+                <Text style={styles.fieldLabel}>Nome do local</Text>
                 {podeAlterar ? (
                   <TextInput
-                    style={[
-                      styles.input,
-                      styles.inputNomeLinha,
-                      { backgroundColor: theme.card, color: theme.text, borderColor: theme.card },
-                    ]}
+                    style={[styles.input, styles.inputNomeLinha]}
                     value={nome}
                     onChangeText={setNome}
                     placeholder="Ex.: Entrada principal da biblioteca"
-                    placeholderTextColor={theme.muted}
+                    placeholderTextColor="#999"
                     editable={!salvando}
                   />
                 ) : (
@@ -548,21 +533,21 @@ export default function Avaliation({
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.fieldLabel, { color: theme.text }]}>Coordenadas</Text>
-            <Text style={[styles.coordsText, { color: theme.muted }]}>{textoCoordenadas}</Text>
+            <Text style={styles.fieldLabel}>Coordenadas</Text>
+            <Text style={styles.coordsText}>{textoCoordenadas}</Text>
           </View>
 
           <View style={styles.hr} />
 
           <View style={styles.section}>
-            <Text style={[styles.fieldLabel, { color: theme.text }]}>Foto</Text>
+            <Text style={styles.fieldLabel}>Foto</Text>
             <View style={styles.imageRow}>
               {fotoSource ? (
                 <Image source={fotoSource} style={styles.image} />
               ) : null}
 
               {mostrarSemFoto ? (
-                <Text style={[styles.semFoto, { color: theme.muted }]}>Sem foto cadastrada.</Text>
+                <Text style={styles.semFoto}>Sem foto cadastrada.</Text>
               ) : null}
 
               {podeAlterar ? (
@@ -579,8 +564,8 @@ export default function Avaliation({
             </View>
           </View>
 
-          <View style={[styles.anotacoesSection, { backgroundColor: theme.card }]}> 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Anotações</Text>
+          <View style={styles.anotacoesSection}>
+            <Text style={styles.sectionTitle}>Anotações</Text>
 
             <View style={styles.anotacoesLista}>
               {annotations.map((item, index) => (
@@ -593,7 +578,7 @@ export default function Avaliation({
                       size={24}
                       color={item.type === 'positive' ? '#35C759' : '#FF3B30'}
                     />
-                    <Text style={[styles.noteText, { color: theme.text }]}>{item.text}</Text>
+                    <Text style={styles.noteText}>{item.text}</Text>
                   </View>
 
                   {local?.id ? (
@@ -620,8 +605,8 @@ export default function Avaliation({
                   onPress={() => setModalVisible(true)}
                   disabled={salvando}
                 >
-                  <Ionicons name="add-circle-outline" size={24} color={theme.muted} />
-                  <Text style={[styles.noteText, { color: theme.muted }]}>
+                  <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                  <Text style={[styles.noteText, { color: '#BDBDBD' }]}>
                     Adicionar…
                   </Text>
                 </TouchableOpacity>
@@ -630,21 +615,21 @@ export default function Avaliation({
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Comentários</Text>
+            <Text style={styles.sectionTitle}>Comentários</Text>
 
             {comentarios.map((comentario) => (
               <View key={comentario.id} style={styles.commentCard}>
-                <Text style={[styles.commentAuthor, { color: theme.text }]}> 
+                <Text style={styles.commentAuthor}>
                   {comentario.nomeAutor}
                 </Text>
-                <Text style={[styles.commentBody, { color: theme.muted }]}> 
+                <Text style={styles.commentBody}>
                   {comentario.texto}
                 </Text>
               </View>
             ))}
 
             {comentarios.length === 0 && !podeAlterar && (
-              <Text style={[styles.semComentarios, { color: theme.muted }]}> 
+              <Text style={styles.semComentarios}>
                 Não há comentários.
               </Text>
             )}
@@ -653,20 +638,17 @@ export default function Avaliation({
           {podeAlterar ? (
             <View style={styles.commentInputRow}>
               <TextInput
-                style={[
-                  styles.input,
-                  { flex: 1, marginBottom: 0, backgroundColor: theme.card, color: theme.text, borderColor: theme.card },
-                ]}
+                style={[styles.input, { flex: 1, marginBottom: 0 }]}
                 value={novoComentario}
                 onChangeText={setNovoComentario}
                 placeholder="Adicionar um comentário"
-                placeholderTextColor={theme.muted}
+                placeholderTextColor="#999"
                 editable={!salvando}
               />
               <TouchableOpacity
                 style={{
                   marginLeft: 10,
-                  backgroundColor: !novoComentario.trim() ? theme.muted : theme.primary,
+                  backgroundColor: !novoComentario.trim() ? '#E5E5EA' : '#35C759',
                   padding: 14,
                   borderRadius: 100,
                 }}
@@ -676,7 +658,7 @@ export default function Avaliation({
                 <Ionicons
                   name="send"
                   size={20}
-                  color={!novoComentario.trim() ? theme.background : theme.textOnPrimary}
+                  color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
                 />
               </TouchableOpacity>
             </View>
@@ -687,14 +669,14 @@ export default function Avaliation({
 
         {podeAlterar && (
           <TouchableOpacity
-            style={[styles.button, salvando && styles.buttonDisabled, { backgroundColor: theme.primary }]}
+            style={[styles.button, salvando && styles.buttonDisabled]}
             onPress={() => void salvarLocal()}
             disabled={salvando}
           >
             {salvando ? (
-              <ActivityIndicator color={theme.textOnPrimary} />
+              <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{textoBotaoSalvar}</Text>
+              <Text style={styles.buttonText}>{textoBotaoSalvar}</Text>
             )}
           </TouchableOpacity>
         )}
@@ -725,19 +707,18 @@ export default function Avaliation({
 
       <Modal transparent visible={modalVisible} animationType="fade">
         <View style={styles.overlay}>
-          <View style={[styles.modal, { backgroundColor: theme.card }]}> 
+          <View style={styles.modal}>
             <TextInput
               placeholder="Buscar"
-              style={[styles.search, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
+              style={styles.search}
               value={search}
-              placeholderTextColor={theme.muted}
               onChangeText={setSearch}
             />
 
             <ScrollView showsVerticalScrollIndicator={false}>
               {filteredOptions.map((item, index) => (
                 <View key={index} style={styles.optionRow}>
-                  <Text style={[styles.optionText, { color: theme.text }]}>{item}</Text>
+                  <Text style={styles.optionText}>{item}</Text>
 
                   <View style={styles.iconRow}>
                     <TouchableOpacity onPress={() => addAnnotation(item, true)}>
@@ -765,8 +746,8 @@ export default function Avaliation({
                   }, 200);
                 }}
               >
-                <Ionicons name="add-circle-outline" size={24} color={theme.muted} />
-                <Text style={[styles.other, { color: theme.text }]}>Adicionar anotação</Text>
+                <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                <Text style={styles.other}>Adicionar anotação</Text>
               </TouchableOpacity>
             </ScrollView>
 
@@ -785,14 +766,13 @@ export default function Avaliation({
         animationType="fade"
       >
         <View style={styles.overlay}>
-          <View style={[styles.modal2, { backgroundColor: theme.card }]}> 
+          <View style={styles.modal2}>
 
             <Text
               style={{
                 fontSize: 18,
                 fontWeight: '600',
                 marginBottom: 16,
-                color: theme.text,
               }}
             >
               Adicionar anotação
@@ -800,8 +780,7 @@ export default function Avaliation({
 
             <TextInput
               placeholder="Digite a anotação..."
-              style={[styles.search, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
-              placeholderTextColor={theme.muted}
+              style={styles.search}
               value={customAnnotation}
               onChangeText={setCustomAnnotation}
               autoFocus
@@ -840,7 +819,7 @@ export default function Avaliation({
                   }
                 }}
               >
-                <Text style={{ color: theme.primary, fontSize: 16 }}>
+                <Text style={{ color: '#35C759', fontSize: 16 }}>
                   Adicionar
                 </Text>
               </TouchableOpacity>

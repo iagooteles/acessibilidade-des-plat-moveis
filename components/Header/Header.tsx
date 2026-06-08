@@ -3,11 +3,9 @@ import {
   Pressable,
   Text,
   type PressableProps,
-  type TextStyle,
 } from 'react-native';
 
 import { styles } from './styles';
-import { useTheme } from '../ThemeProvider';
 import { PropsWithChildren } from 'react';
 
 type HeaderProps = PropsWithChildren &
@@ -15,31 +13,17 @@ type HeaderProps = PropsWithChildren &
     type?: '1' | '2' | '3';
     themed?: boolean;
     text?: string;
-    textStyle?: TextStyle;
   };
 
 export function Header({
   themed,
   children,
 }: HeaderProps) {
-  const { theme, isDark } = useTheme();
-  const backgroundColor = themed
-    ? isDark
-      ? theme.card
-      : theme.primary
-    : theme.background;
-
   return (
     <View
       style={[
         styles.header,
-        themed && {
-          backgroundColor,
-          borderBottomWidth: 1,
-          borderBottomColor: isDark
-            ? '#1f2937'
-            : '#4d9266',
-        },
+        themed && styles.headerTheme,
       ]}
     >
       {children}
@@ -51,15 +35,8 @@ export function HeaderElement({
   themed,
   type,
   text,
-  textStyle,
   ...pressableProps
 }: HeaderProps) {
-  const { theme, isDark } = useTheme();
-  const textColor = themed
-    ? isDark
-      ? theme.text
-      : theme.textOnPrimary
-    : theme.text;
 
   // TÍTULO
   if (type === '2') {
@@ -68,8 +45,7 @@ export function HeaderElement({
         <Text
           style={[
             styles.title,
-            themed && { color: textColor },
-            textStyle,
+            themed && styles.titleTheme,
           ]}
         >
           {text}
@@ -89,8 +65,7 @@ export function HeaderElement({
           <Text
             style={[
               styles.buttonText,
-              themed && { color: textColor },
-              textStyle,
+              themed && styles.pressableTheme,
             ]}
           >
             {text}
@@ -110,8 +85,7 @@ export function HeaderElement({
         <Text
           style={[
             styles.buttonText,
-            themed && { color: textColor },
-            textStyle,
+            themed && styles.pressableTheme,
           ]}
         >
           {text}

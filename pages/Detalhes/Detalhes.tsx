@@ -30,7 +30,6 @@ import {
 } from 'firebase/firestore';
 
 import { useAuth } from '../../components/AuthProvider';
-import { useTheme } from '../../components/ThemeProvider';
 
 import { db } from '../../config/firebase';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
@@ -343,7 +342,7 @@ export function Detalhes({
 
     return (
       <View style={styles.loading}>
-        <Text style={{ color: theme.muted }}>Carregando...</Text>
+        <Text>Carregando...</Text>
       </View>
     );
 
@@ -359,7 +358,7 @@ export function Detalhes({
 
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}> 
+    <View style={styles.container}>
 
       <View style={styles.header}>
 
@@ -367,12 +366,12 @@ export function Detalhes({
           style={styles.voltarButton}
           onPress={onVoltar}
         >
-          <Text style={[styles.voltar, { color: theme.primary }]}> 
+          <Text style={styles.voltar}>
             Voltar
           </Text>
         </Pressable>
 
-        <Text style={[styles.title, { color: theme.text }]}> 
+        <Text style={styles.title}>
           Local
         </Text>
 
@@ -386,7 +385,7 @@ export function Detalhes({
         <View style={styles.section}>
           <View style={styles.nomeLinha}>
             <View style={styles.nomeLinhaConteudo}>
-              <Text style={[styles.nome, { color: theme.text }]}> 
+              <Text style={styles.nome}>
                 {local.nome}
               </Text>
             </View>
@@ -403,13 +402,13 @@ export function Detalhes({
           </View>
 
           {local.numero ? (
-            <Text style={[styles.numero, { color: theme.muted }]}> 
+            <Text style={styles.numero}>
               {local.numero}
             </Text>
           ) : null}
 
           {local.descricao ? (
-            <Text style={[styles.descricao, { color: theme.muted }]}> 
+            <Text style={styles.descricao}>
               {local.descricao}
             </Text>
           ) : null}
@@ -417,10 +416,10 @@ export function Detalhes({
 
         {local.lat != null && local.long != null ? (
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}> 
+            <Text style={styles.sectionTitle}>
               Coordenadas
             </Text>
-            <Text style={[styles.coordenadas, { color: theme.muted }]}> 
+            <Text style={styles.coordenadas}>
               {local.lat.toFixed(5)}, {local.long.toFixed(5)}
             </Text>
           </View>
@@ -431,7 +430,7 @@ export function Detalhes({
         ) : null}
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}> 
+          <Text style={styles.sectionTitle}>
             Fotos
           </Text>
 
@@ -450,7 +449,7 @@ export function Detalhes({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.imagesList}
             ListEmptyComponent={
-              <Text style={[styles.semFoto, { color: theme.muted }]}> 
+              <Text style={styles.semFoto}>
                 Sem foto cadastrada.
               </Text>
             }
@@ -463,8 +462,8 @@ export function Detalhes({
           />
         </View>
 
-        <View style={[styles.section, styles.anotacoesSection, { backgroundColor: theme.card }]}> 
-          <Text style={[styles.sectionTitle, { color: theme.text }]}> 
+        <View style={[styles.section, styles.anotacoesSection]}>
+          <Text style={styles.sectionTitle}>
             Anotações por usuários
           </Text>
 
@@ -493,7 +492,7 @@ export function Detalhes({
                   />
 
                   <View style={styles.anotacaoConteudo}>
-                    <Text style={[styles.anotacaoTexto, { color: theme.text }]}> 
+                    <Text style={styles.anotacaoTexto}>
                       {item.text}
                     </Text>
 
@@ -532,7 +531,7 @@ export function Detalhes({
                     <Icon
                       name="pencil"
                       size={18}
-                      color={theme.muted}
+                      color="#B0B0B0"
                     />
                   </Pressable>
                 </View>
@@ -558,7 +557,7 @@ export function Detalhes({
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}> 
+          <Text style={styles.sectionTitle}>
             Comentários
           </Text>
 
@@ -577,11 +576,11 @@ export function Detalhes({
 
                   <View style={styles.commentTop}>
 
-                    <Text style={[styles.commentUser, { color: theme.text }]}> 
+                    <Text style={styles.commentUser}>
                       {item.nomeAutor}
                     </Text>
 
-                    <Text style={[styles.commentDate, { color: theme.muted }]}> 
+                    <Text style={styles.commentDate}>
                       {item.createdAt
                         ?.toDate()
                         .toLocaleDateString('pt-BR')
@@ -590,7 +589,7 @@ export function Detalhes({
 
                   </View>
 
-                  <Text style={[styles.commentText, { color: theme.text }]}> 
+                  <Text style={styles.commentText}>
                     {item.texto}
                   </Text>
 
@@ -603,7 +602,7 @@ export function Detalhes({
           ))}
 
           {(local.comentarios ?? []).length === 0 && (
-            <Text style={[styles.semComentarios, { color: theme.muted }]}> 
+            <Text style={styles.semComentarios}>
               Não há comentários.
             </Text>
           )}
@@ -639,29 +638,28 @@ export function Detalhes({
             style={styles.modalOverlay}
             onPress={() => setMostrarModalComentario(false)}
           >
-            <View style={[styles.modalContainer, { backgroundColor: theme.card }]}> 
+            <View style={styles.modalContainer}>
 
-              <Text style={[styles.modalTitulo, { color: theme.text }]}> 
+              <Text style={styles.modalTitulo}>
                 Novo comentário
               </Text>
 
               <TextInput
-                style={[styles.modalInput, { backgroundColor: theme.background, color: theme.text, borderColor: theme.card }]}
+                style={styles.modalInput}
                 value={novoComentario}
                 onChangeText={setNovoComentario}
                 placeholder="Digite seu comentário"
-                placeholderTextColor={theme.muted}
                 multiline
               />
 
               <Pressable
-                style={[styles.modalBotao, { backgroundColor: theme.primary }]}
+                style={styles.modalBotao}
                 onPress={() => {
                   void handleAddComentario();
                   setMostrarModalComentario(false);
                 }}
               >
-                <Text style={[styles.modalBotaoTexto, { color: theme.textOnPrimary }]}> 
+                <Text style={styles.modalBotaoTexto}>
                   Enviar
                 </Text>
               </Pressable>
@@ -678,13 +676,13 @@ export function Detalhes({
         animationType="fade"
       >
         <View style={styles.overlay}>
-          <View style={[styles.modalReport, { backgroundColor: theme.card }]}> 
+          <View style={styles.modalReport}>
 
-            <Text style={[styles.modalTituloReport, { color: theme.text }]}> 
+            <Text style={styles.modalTituloReport}>
               Há algum problema com esta anotação?
             </Text>
 
-            <Text style={[styles.modalDescricao, { color: theme.muted }]}> 
+            <Text style={styles.modalDescricao}>
               "{AnotacaoSelecionada?.text}"
             </Text>
 
@@ -693,7 +691,7 @@ export function Detalhes({
               denunciaPorAnotacao[
               AnotacaoSelecionada.text
               ] > 0 && (
-                <Text style={[styles.modalDescricao, { color: theme.muted }]}> 
+                <Text style={styles.modalDescricao}>
                   {
                     denunciaPorAnotacao[
                     AnotacaoSelecionada.text
@@ -706,7 +704,7 @@ export function Detalhes({
             <View style={styles.botoes}>
 
               <Pressable
-                style={[styles.botaoConfirmar, { backgroundColor: theme.primary }]}
+                style={styles.botaoConfirmar}
                 onPress={async () => {
                   if (!user) return;
                   if (!AnotacaoSelecionada) return;
@@ -748,12 +746,12 @@ export function Detalhes({
               </Pressable>
 
               <Pressable
-                style={[styles.botaoCancelar, { backgroundColor: isDark ? '#334155' : '#D1D1D6' }]}
+                style={styles.botaoCancelar}
                 onPress={() =>
                   setModalReportarAnotacao(false)
                 }
               >
-                <Text style={[styles.textoBotaoCancelar, { color: theme.text }]}> 
+                <Text style={styles.textoBotaoCancelar}>
                   Cancelar
                 </Text>
               </Pressable>

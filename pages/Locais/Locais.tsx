@@ -14,7 +14,6 @@ import {
   type AnotacaoLocal,
   type LocalFirebase,
 } from '../../services/locaisFirebase';
-import { useTheme } from '../../components/ThemeProvider';
 import Avaliation from '../Avaliation/Avaliation';
 import { styles } from './styles';
 
@@ -23,7 +22,6 @@ type LocaisProps = {
 };
 
 export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
-  const { theme } = useTheme();
   const [locais, setLocais] = useState<LocalFirebase[]>([]);
   const [localSelecionado, setLocalSelecionado] = useState<LocalFirebase | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -75,7 +73,7 @@ export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
 
     return (
       <TouchableOpacity
-        style={[styles.card, { backgroundColor: theme.card }]}
+        style={styles.card}
         onPress={() => setLocalSelecionado(local)}
         accessibilityRole="button"
         accessibilityLabel={`Ver detalhes de ${local.nome}`}
@@ -83,14 +81,14 @@ export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
         {foto ? (
           <Image source={{ uri: foto }} style={styles.foto} />
         ) : (
-          <View style={[styles.fotoPlaceholder, { backgroundColor: theme.card }]}> 
+          <View style={styles.fotoPlaceholder}>
             <Ionicons name="image-outline" size={34} color="#9D9D9D" />
           </View>
         )}
 
         <View style={styles.cardConteudo}>
-          <Text style={[styles.nomeLocal, { color: theme.text }]}>{local.nome}</Text>
-          <Text style={[styles.coordenadas, { color: theme.muted }]}>{coordenadas}</Text>
+          <Text style={styles.nomeLocal}>{local.nome}</Text>
+          <Text style={styles.coordenadas}>{coordenadas}</Text>
 
           {local.anotacoes.length > 0 ? (
             <View style={styles.anotacoesContainer}>
@@ -99,7 +97,7 @@ export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
               )}
             </View>
           ) : (
-            <Text style={[styles.semAnotacoes, { color: theme.muted }]}>Sem anotações cadastradas.</Text>
+            <Text style={styles.semAnotacoes}>Sem anotações cadastradas.</Text>
           )}
         </View>
       </TouchableOpacity>
@@ -128,7 +126,7 @@ export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}> 
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.voltarButton}
@@ -136,15 +134,15 @@ export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
         >
-          <Text style={[styles.voltar, { color: theme.primary }]}>Voltar</Text>
+          <Text style={styles.voltar}>Voltar</Text>
         </TouchableOpacity>
-        <Text style={[styles.titulo, { color: theme.text }]}>Locais</Text>
+        <Text style={styles.titulo}>Locais</Text>
       </View>
 
       {carregando ? (
         <View style={styles.feedbackContainer}>
-          <ActivityIndicator color={theme.primary} size="large" />
-          <Text style={[styles.feedbackText, { color: theme.muted }]}>Carregando locais...</Text>
+          <ActivityIndicator color="#59B36B" size="large" />
+          <Text style={styles.feedbackText}>Carregando locais...</Text>
         </View>
       ) : (
         <FlatList
@@ -159,16 +157,16 @@ export default function Locais({ onVoltar }: Readonly<LocaisProps>) {
             <RefreshControl
               refreshing={atualizando}
               onRefresh={() => void carregarLocais(true)}
-              tintColor={theme.primary}
-              colors={[theme.primary]}
+              tintColor="#59B36B"
+              colors={['#59B36B']}
             />
           }
           ListEmptyComponent={
             <View style={styles.feedbackContainer}>
-              <Text style={[styles.feedbackTitle, { color: theme.text }]}> 
+              <Text style={styles.feedbackTitle}>
                 {erro ? 'Algo deu errado' : 'Nenhum local cadastrado'}
               </Text>
-              <Text style={[styles.feedbackText, { color: theme.muted }]}> 
+              <Text style={styles.feedbackText}>
                 {erro ?? 'Os locais salvos no Firebase aparecerão aqui.'}
               </Text>
               {erro ? (

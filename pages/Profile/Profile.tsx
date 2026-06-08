@@ -45,7 +45,6 @@ import {
 } from '../../services/locaisFirebase';
 
 import { styles } from './styles';
-import { useTheme } from '../../components/ThemeProvider';
 
 type ProfileProps = {
   onVoltar: () => void;
@@ -79,7 +78,6 @@ export function Profile({
   onVoltar,
 }: Readonly<ProfileProps>) {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme, isDark } = useTheme();
 
   const [editing, setEditing] =
     useState(false);
@@ -282,17 +280,6 @@ export function Profile({
         onVoltar={() =>
           setVerMeusLocais(false)
         }
-        onHome={() => {
-          setVerMeusLocais(false);
-          onVoltar();
-        }}
-        onLocais={() => {
-          setVerMeusLocais(false);
-          setVerLocais(true);
-        }}
-        onProfile={() => {
-          setVerMeusLocais(false);
-        }}
         onEditarLocal={(
           local: LocalFirebase
         ) => {
@@ -303,14 +290,13 @@ export function Profile({
   }
 
   return (
-    <Animated.View style={[styles.container, { opacity, transform: [{ translateX }], backgroundColor: theme.background },]}>
+    <Animated.View style={[styles.container, { opacity, transform: [{ translateX }], },]}>
       {/* HEADER */}
       <Header themed>
         <HeaderElement
           themed
           type='1'
           text='Voltar'
-          textStyle={isDark ? { color: theme.primary } : undefined}
           onPress={onVoltar}
         />
 
@@ -332,7 +318,6 @@ export function Profile({
             themed
             type='3'
             text='Editar'
-            textStyle={isDark ? { color: theme.primary } : undefined}
             onPress={handleEdit}
           />
         )}
@@ -360,7 +345,9 @@ export function Profile({
 
           {editing && (
             <Pressable
-              style={styles.cameraButton}
+              style={
+                styles.cameraButton
+              }
               onPress={pickImage}
             >
               <Ionicons
@@ -376,20 +363,19 @@ export function Profile({
           <TextInput
             value={name}
             onChangeText={setName}
-            style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
-            placeholderTextColor={theme.text}
+            style={styles.input}
           />
         ) : (
-          <Text style={[styles.name, { color: theme.text }]}>
+          <Text style={styles.name}>
             {name}
           </Text>
         )}
 
-        <View style={isDark ? [styles.levelCard, { backgroundColor: theme.card }] : styles.levelCard}>
+        <View style={styles.levelCard}>
           {perfilCompleto ? (
             <Text
               style={
-                [styles.completeText, { color: theme.primary }]
+                styles.completeText
               }
             >
               Usuário pronto para
@@ -402,22 +388,26 @@ export function Profile({
                   styles.levelHeader
                 }
               >
-                  <Text
-                    style={isDark ? [styles.levelTitle, { color: theme.primary, fontWeight: '700' }] : styles.levelTitle}
-                  >
-                    Nível {nivel}
-                  </Text>
+                <Text
+                  style={
+                    styles.levelTitle
+                  }
+                >
+                  Nível {nivel}
+                </Text>
 
-                  <Text
-                    style={isDark ? [styles.levelXp, { color: theme.muted }] : styles.levelXp}
-                  >
-                    {nivel}/4
-                  </Text>
+                <Text
+                  style={
+                    styles.levelXp
+                  }
+                >
+                  {nivel}/4
+                </Text>
               </View>
 
               <View
                 style={
-                  [styles.progressBarBackground, { backgroundColor: theme.card }]
+                  styles.progressBarBackground
                 }
               >
                 <View
@@ -425,7 +415,6 @@ export function Profile({
                     styles.progressBarFill,
                     {
                       width: `${porcentagemXp}%`,
-                      backgroundColor: theme.primary,
                     },
                   ]}
                 />
@@ -434,7 +423,7 @@ export function Profile({
           )}
         </View>
 
-        <Text style={isDark ? [styles.label, { color: theme.muted }] : styles.label}> 
+        <Text style={styles.label}>
           Bio
         </Text>
 
@@ -447,17 +436,16 @@ export function Profile({
               styles.bioInput,
             ]}
             multiline
-            placeholderTextColor={theme.text}
           />
         ) : (
           <Text
-            style={[styles.infoText, { color: theme.text }]}
+            style={styles.infoText}
           >
             {bio || '-'}
           </Text>
         )}
 
-        <Text style={isDark ? [styles.label, { color: theme.muted }] : styles.label}> 
+        <Text style={styles.label}>
           Email
         </Text>
 
@@ -466,8 +454,7 @@ export function Profile({
             <TextInput
               value={email}
               onChangeText={setEmail}
-              style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
-              placeholderTextColor={theme.text}
+              style={styles.input}
               keyboardType='email-address'
               autoCapitalize='none'
             />
@@ -481,66 +468,50 @@ export function Profile({
                 styles.input,
                 {
                   marginTop: 10,
-                  backgroundColor: theme.card,
-                  color: theme.text,
-                  borderColor: theme.card,
                 },
               ]}
               placeholder='Confirme sua senha'
-              placeholderTextColor={theme.text}
               secureTextEntry
             />
           </>
         ) : (
           <Text
-            style={isDark ? [styles.infoText, { color: theme.primary, fontWeight: '700', opacity: 1 }] : styles.infoText}
+            style={styles.infoText}
           >
             {email || '-'}
           </Text>
         )}
 
-        <Text style={isDark ? [styles.label, { color: theme.muted }] : styles.label}> 
+        <Text style={styles.label}>
           Data de Nascimento
         </Text>
 
         {editing ? (
-            <TextInput
-              value={birth}
-              onChangeText={(text) =>
-                setBirth(
-                  formatBirth(text)
-                )
-              }
-              style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
-              placeholderTextColor={theme.text}
-              keyboardType='numeric'
-              maxLength={10}
-            />
+          <TextInput
+            value={birth}
+            onChangeText={(text) =>
+              setBirth(
+                formatBirth(text)
+              )
+            }
+            style={styles.input}
+            keyboardType='numeric'
+            maxLength={10}
+          />
         ) : (
           <Text
-            style={[styles.infoText, { color: theme.text }]}
+            style={styles.infoText}
           >
             {birth || '-'}
           </Text>
         )}
 
         <Pressable
-          style={[styles.themeToggle, { backgroundColor: theme.card }]}
-          onPress={() => {
-            void toggleTheme();
-          }}
-        >
-          <Text style={[styles.themeToggleText, { color: theme.text }]}> 
-            {isDark ? 'Modo Claro' : 'Modo Noturno'}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.logoutBtn, { backgroundColor: theme.card }]}
+          style={styles.logoutBtn}
           onPress={handleLogout}
         >
           <Text
-            style={[styles.logoutText, { color: '#E53935' }]}
+            style={styles.logoutText}
           >
             Sair
           </Text>

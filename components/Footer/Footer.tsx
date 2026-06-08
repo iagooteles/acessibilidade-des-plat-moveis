@@ -6,7 +6,6 @@ import {
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import type { ComponentProps, PropsWithChildren } from 'react';
 import { styles } from './styles';
-import { useTheme } from '../ThemeProvider';
 
 type Props = PressableProps & {
   active?: boolean;
@@ -16,48 +15,34 @@ type Props = PressableProps & {
 type IconName = ComponentProps<typeof Icon>['name'];
 
 export function FooterButton({
+  // style,
   active,
   type,
-  style,
   ...rest
 }: Props) {
-  const { theme, isDark } = useTheme();
-  const activeStyle = active ? { backgroundColor: theme.primary } : undefined;
-  const inactiveStyle = !active
-    ? {
-        backgroundColor: theme.card,
-        borderWidth: 1,
-        borderColor: theme.muted,
-      }
-    : undefined;
+  const isActive = active ? styles.active : undefined;
   const icon: Record<Props['type'], IconName> = {
     1: 'map-outline',
     2: 'pencil',
     3: 'account',
     4: 'map-marker-multiple',
   };
-  const iconColor = active
-    ? theme.textOnPrimary
-    : isDark
-    ? theme.primary
-    : '#000000';
+  const iconColor = active ? 'white' : 'black';
 
   return (
     <Pressable
       accessibilityRole="button"
-      style={[styles.button, activeStyle, inactiveStyle, style]}
+      style={[styles.button, isActive]}
       {...rest}
     >
-      <Icon name={icon[type]} size={28} color={iconColor} />
+      <Icon name={icon[type]} size={32} color={iconColor} />
     </Pressable>
   );
 }
 
 export function Footer({ children }: Readonly<PropsWithChildren>) {
-  const { theme } = useTheme();
-
   return (
-    <View style={[styles.footer, { backgroundColor: theme.background }]}> 
+    <View style={styles.footer}>
       {children}
     </View>
   );
