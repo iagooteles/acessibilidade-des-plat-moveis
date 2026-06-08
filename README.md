@@ -36,4 +36,4 @@ The platform is built around key functional requirements to ensure a seamless an
 * João Guimarães 
 * Raylson Soares de Oliveira 
 
-**Professor:** Lyndainês Santos
+**Professora:** Lyndainês Santos
