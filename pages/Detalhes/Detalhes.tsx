@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Pressable,
   ScrollView,
   Image,
@@ -15,9 +14,11 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { styles } from './styles';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   collection,
@@ -34,9 +35,10 @@ import { useTheme } from '../../components/ThemeProvider';
 
 import { db } from '../../config/firebase';
 import { Footer, FooterButton } from '../../components/Footer/Footer';
+import { Header, HeaderElement } from '../../components/Header/Header';
 import { Profile } from '../Profile/Profile';
 import Locais from '../Locais/Locais';
-import { ComentarioLocal, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
+import { ComentarioLocal, editarLocalNoFirebase, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
 import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
 import {
   reportarAnotacao,
@@ -48,7 +50,11 @@ import {
   mensagemErroFirebase,
   type UpvoteResumo,
 } from '../../services/locaisFirebase';
+import { } from '../../services/locaisFirebase';
+import * as ImagePicker from 'expo-image-picker';
 import { AnotacaoUpvote } from '../../components/AnotacaoUpvote/AnotacaoUpvote';
+
+const MAX_FOTO_BASE64_CHARS = 900000;
 
 type Props = {
   localId: string;
@@ -96,6 +102,22 @@ export function Detalhes({
   const { user } = useAuth();
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
+  // anotações
+  const [modalVisible, setModalVisible] = useState(false);
+  const [search, setSearch] = useState('');
+  const [otherModalVisible, setOtherModalVisible] = useState(false);
+  const [customAnnotation, setCustomAnnotation] = useState('');
+  const [options, setOptions] = useState<string[]>([
+    'Rampa de acesso',
+    'Piso tátil',
+    'Estacionamento prioritário',
+    'Sinalização correta',
+    'Trajetória adequada',
+  ]);
+  const filteredOptions = options.filter((item) =>
+    item.toLowerCase().includes(search.toLowerCase())
+  );
+
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
   const [comentarios, setComentarios] = useState<ComentarioLocal[]>(
@@ -120,6 +142,70 @@ export function Detalhes({
     >(null);
 
   const [local, setLocal] = useState<Local | null>(null);
+
+  // Foto
+  const [fotoUri, setFotoUri] = useState<string | null>(
+    local?.fotoBase64 ?? local?.fotoUrl ?? null
+  );
+  const [fotoBase64, setFotoBase64] = useState<string | null>(
+    local?.fotoBase64 ?? null
+  );
+  const fotoSource = fotoUri ? { uri: fotoUri } : undefined;
+  const mostrarSemFoto = !fotoUri
+
+  const escolherFoto = async () => {
+    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissao.granted) {
+      Alert.alert(
+        'Permissão',
+        'Precisamos de acesso às fotos para anexar uma imagem ao local.'
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.45,
+      base64: true,
+    });
+
+    const asset = result.assets?.[0];
+    if (result.canceled || !asset?.uri || !asset.base64) {
+      return;
+    }
+
+    if (asset.base64.length > MAX_FOTO_BASE64_CHARS) {
+      Alert.alert(
+        'Imagem muito grande',
+        'Escolha uma imagem menor para salvar no Firebase.'
+      );
+      return;
+    }
+
+    if (!local) return;
+
+    const mimeType = asset.mimeType ?? 'image/jpeg';
+    const newFotoBase64 = `data:${mimeType};base64,${asset.base64}`;
+
+    setFotoUri(asset.uri);
+    setFotoBase64(newFotoBase64);
+
+    setSalvando(true);
+    try {
+      await editarLocalNoFirebase({
+        id: localId,
+        nome: local.nome,
+        anotacoes: local.anotacoes ?? [],
+        fotoBase64: newFotoBase64,
+      });
+      await carregarLocal();
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a imagem no Firebase.');
+    } finally {
+      setSalvando(false);
+    }
+  };
 
   useEffect(() => {
     void carregarLocal();
@@ -198,6 +284,11 @@ export function Detalhes({
           ? { lat, long }
           : {}),
       });
+
+      if (dados.fotoBase64 || dados.fotoUrl) {
+        setFotoUri(dados.fotoBase64 ?? dados.fotoUrl ?? null);
+        setFotoBase64(dados.fotoBase64 ?? null);
+      }
 
       const mapaDenuncias: Record<string, number> = {};
 
@@ -339,6 +430,44 @@ export function Detalhes({
     }
   };
 
+  const addAnnotation = async (text: string, positive: boolean) => {
+    if (!user) {
+      Alert.alert('Sessão', 'Você precisa estar logado para adicionar anotações.');
+      return;
+    }
+
+    if (!local) return;
+
+    // Filtra anotações existentes para evitar duplicidade (ex: ter "Possui" e "Não possui" ao mesmo tempo)
+    const novasAnotacoes = (local.anotacoes ?? []).filter(
+      (item) =>
+        item.text !== `Possui ${text}` &&
+        item.text !== `Não possui ${text}`
+    );
+
+    novasAnotacoes.push({
+      text: positive ? `Possui ${text}` : `Não possui ${text}`,
+      type: positive ? 'positive' : 'negative',
+    });
+
+    setLocal({ ...local, anotacoes: novasAnotacoes });
+    setModalVisible(false);
+
+    // salvar no firebase
+    try {
+      await editarLocalNoFirebase({
+        id: localId,
+        nome: local.nome,
+        anotacoes: novasAnotacoes,
+        fotoBase64: local.fotoBase64 ?? null,
+      });
+      await carregarLocal();
+    } catch (error) {
+      console.error('Erro ao salvar anotação:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a anotação no banco de dados.');
+    }
+  };
+
   if (!local) {
 
     return (
@@ -361,29 +490,24 @@ export function Detalhes({
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}> 
 
-      <View style={styles.header}>
-
-        <Pressable
-          style={styles.voltarButton}
+      <Header>
+        <HeaderElement
+          type='1'
+          text='Voltar'
           onPress={onVoltar}
-        >
-          <Text style={[styles.voltar, { color: theme.primary }]}> 
-            Voltar
-          </Text>
-        </Pressable>
-
-        <Text style={[styles.title, { color: theme.text }]}> 
-          Local
-        </Text>
-
-      </View>
+        />
+        <HeaderElement
+          type='2'
+          text='Local'
+        />
+      </Header>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
 
-        <View style={styles.section}>
+        <View style={[styles.section, { marginTop: 16 }]}>
           <View style={styles.nomeLinha}>
             <View style={styles.nomeLinhaConteudo}>
               <Text style={[styles.nome, { color: theme.text }]}> 
@@ -415,7 +539,8 @@ export function Detalhes({
           ) : null}
         </View>
 
-        {local.lat != null && local.long != null ? (
+        {/* Coordenadas */}
+        {/* {local.lat != null && local.long != null ? (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}> 
               Coordenadas
@@ -428,96 +553,77 @@ export function Detalhes({
 
         {local.lat != null && local.long != null ? (
           <View style={styles.hr} />
-        ) : null}
+        ) : null} */}
+
+        <View style={styles.hr} />
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}> 
             Fotos
           </Text>
 
-          <FlatList
-            horizontal
-            data={
-              local.fotoBase64 || local.fotoUrl
-                ? [
-                  local.fotoBase64 ??
-                  local.fotoUrl ??
-                  ''
-                ]
-                : []
+          <View style={styles.imageRow}>
+            {fotoSource ? (<Image source={fotoSource} style={styles.image} />)
+              : null}
+
+            {mostrarSemFoto ?
+              (<TouchableOpacity
+                style={styles.addImageBox}
+                onPress={() => void escolherFoto()}
+                disabled={salvando}
+                accessibilityRole="button"
+                accessibilityLabel="Adicionar foto"
+              >
+                <Icon name="plus" size={36} color="#AFAFAF" />
+              </TouchableOpacity>
+              ) :
+              <TouchableOpacity
+                style={[styles.addImageBox, { marginLeft: 0, marginTop: 0, width: 170, height: 170 }]}
+                onPress={() => void escolherFoto()}
+                disabled={salvando}
+                accessibilityRole="button"
+                accessibilityLabel="Adicionar foto"
+              >
+                <Icon name="plus" size={36} color="#AFAFAF" />
+              </TouchableOpacity>
             }
-            keyExtractor={(item, index) => String(index)}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.imagesList}
-            ListEmptyComponent={
-              <Text style={[styles.semFoto, { color: theme.muted }]}> 
-                Sem foto cadastrada.
-              </Text>
-            }
-            renderItem={({ item }) => (
-              <Image
-                source={{ uri: item }}
-                style={styles.image}
-              />
-            )}
-          />
+
+          </View>
         </View>
 
-        <View style={[styles.section, styles.anotacoesSection, { backgroundColor: theme.card }]}> 
-          <Text style={[styles.sectionTitle, { color: theme.text }]}> 
+        <View style={styles.hr} />
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
             Anotações por usuários
           </Text>
 
           <View style={styles.anotacoesLista}>
             {(local.anotacoes ?? []).map((item, index) => (
-
-              <View
-                key={index}
-                style={styles.anotacaoItem}
-              >
-
+              <View key={index} style={styles.anotacaoItem}>
                 <View style={styles.anotacaoLeft}>
-
                   <Icon
-                    name={
-                      item.type === 'positive'
-                        ? 'check-circle'
-                        : 'close-circle'
-                    }
+                    name={item.type === 'positive' ? 'check-circle' : 'close-circle'}
                     size={22}
-                    color={
-                      item.type === 'positive'
-                        ? '#31C451'
-                        : '#FF3B30'
-                    }
+                    color={item.type === 'positive' ? '#31C451' : '#FF3B30'}
                   />
-
                   <View style={styles.anotacaoConteudo}>
                     <Text style={[styles.anotacaoTexto, { color: theme.text }]}> 
                       {item.text}
                     </Text>
-
-                    {
-                      denunciaPorAnotacao[item.text] >= 3 && (
-                        <Text style={styles.alertaAnotacao}>
-                          ⚠ Possível informação incorreta
-                        </Text>
-                      )
-                    }
+                    {denunciaPorAnotacao[item.text] >= 3 && (
+                      <Text style={styles.alertaAnotacao}>
+                        ⚠ Possível informação incorreta
+                      </Text>
+                    )}
                   </View>
                 </View>
 
                 <View style={styles.anotacaoAcoes}>
                   <AnotacaoUpvote
-                    total={
-                      upvotePorAnotacao[item.text]?.total ?? 0
-                    }
-                    votouUsuario={
-                      upvotePorAnotacao[item.text]?.votouUsuario ?? false
-                    }
-                    onPress={() => {
-                      void handleAlternarUpvote(item.text);
-                    }}
+                    total={upvotePorAnotacao[item.text]?.total ?? 0}
+                    votouUsuario={upvotePorAnotacao[item.text]?.votouUsuario ?? false}
+                    onPress={() => { void handleAlternarUpvote(item.text) }}
                     disabled={!user}
                   />
 
@@ -542,20 +648,25 @@ export function Detalhes({
             ))}
           </View>
 
-          <Pressable style={styles.addButton}>
-
-            <Icon
-              name="plus-circle"
-              size={22}
-              color="#B0B0B0"
+          {/* Botão de adicionar Anotação */}
+          <TouchableOpacity
+            style={[styles.anotacaoLeft, { marginTop: 8 }]}
+            activeOpacity={0.7}
+            onPress={() => setModalVisible(true)}
+            disabled={salvando}
+          >
+            <Ionicons
+              name="add-circle-outline"
+              size={24}
+              color="#BDBDBD"
             />
-
             <Text style={styles.addText}>
               Adicionar...
             </Text>
-
-          </Pressable>
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.hr} />
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}> 
@@ -790,6 +901,116 @@ export function Detalhes({
         />
       </Footer>
 
+      {/* Modal normal */}
+      <Modal transparent visible={modalVisible} animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modal}>
+            <TextInput
+              placeholder="Buscar"
+              style={styles.search}
+              value={search}
+              onChangeText={setSearch}
+            />
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {filteredOptions.map((item, index) => (
+                <View key={index} style={styles.optionRow}>
+                  <Text style={styles.optionText}>{item}</Text>
+
+                  <View style={styles.iconRow}>
+                    <TouchableOpacity onPress={() => void addAnnotation(item, true)}>
+                      <Ionicons
+                        name="checkmark-circle-outline"
+                        size={28}
+                        color="#35C759"
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => void addAnnotation(item, false)}>
+                      <Ionicons name="close-circle" size={26} color="#FF3B30" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+
+              <TouchableOpacity
+                style={{ marginTop: 12, flexDirection: 'row' }}
+                onPress={() => {
+                  setModalVisible(false);
+                  setTimeout(() => {
+                    setOtherModalVisible(true);
+                  }, 200);
+                }}
+              >
+                <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                <Text style={styles.other}>Adicionar anotação</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal da opção custom */}
+      <Modal transparent visible={otherModalVisible} animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modal2}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                marginBottom: 16,
+              }}
+            >
+              Adicionar anotação
+            </Text>
+
+            <TextInput
+              placeholder="Digite a anotação..."
+              style={styles.search}
+              value={customAnnotation}
+              onChangeText={setCustomAnnotation}
+              autoFocus
+            />
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 20,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setOtherModalVisible(false);
+                  setCustomAnnotation('');
+                }}
+              >
+                <Text style={{ color: '#FF3B30', fontSize: 16 }}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  if (customAnnotation.trim().length > 0) {
+                    setOptions((prev) => [...prev, customAnnotation]);
+                    void addAnnotation(customAnnotation, true);
+                    setCustomAnnotation('');
+                    setOtherModalVisible(false);
+                  }
+                }}
+              >
+                <Text style={{ color: '#35C759', fontSize: 16 }}>Adicionar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 

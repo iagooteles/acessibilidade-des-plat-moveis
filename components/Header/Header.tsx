@@ -82,8 +82,7 @@ export function HeaderElement({
   if (type === '1') {
     return (
       <View style={styles.leftContainer}>
-        <Pressable
-          {...pressableProps}
+        <Pressable {...pressableProps}
           style={styles.button}
         >
           <Text
@@ -110,10 +109,7 @@ export function HeaderElement({
         <Text
           style={[
             styles.buttonText,
-            themed && { color: textColor },
-            textStyle,
-          ]}
-        >
+            themed ? styles.pressableTheme : '',]}>
           {text}
         </Text>
       </Pressable>
