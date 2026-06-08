@@ -5,12 +5,14 @@ import {
   Keyboard,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
   Animated,
 } from 'react-native';
+import { useTheme } from '../../components/ThemeProvider';
 
 import {
   screenSlideAnimation,
@@ -52,6 +54,8 @@ type HomeProps = {
 
 export function Home({ onPrecisaLogin }: Readonly<HomeProps>) {
   const { user } = useAuth();
+
+  const { theme, toggleTheme, isDark, highContrast, toggleHighContrast } = useTheme();
 
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
@@ -320,6 +324,15 @@ if (verMeusLocais) {
   return (
     <MeusLocais
       onVoltar={() => setVerMeusLocais(false)}
+      onHome={() => setVerMeusLocais(false)}
+      onLocais={() => {
+        setVerMeusLocais(false);
+        setVerLocais(true);
+      }}
+      onProfile={() => {
+        setVerMeusLocais(false);
+        setVerProfile(true);
+      }}
       onEditarLocal={(local) => {
         setLocalEditando(local);
       }}
@@ -332,20 +345,24 @@ if (verMeusLocais) {
       style={[
         styles.container,
         {
+          backgroundColor: theme.background,
           opacity,
           transform: [{ translateX }],
         },
       ]}
     >
-      <Header>
+      <Header themed>
         <HeaderElement
+          themed
           type="2"
           text="Mapa"
         />
 
         <HeaderElement
+          themed
           type="3"
           text="Filtrar"
+          textStyle={isDark ? { color: theme.primary } : undefined}
           onPress={() => setMostrarFiltro(!mostrarFiltro)}
           accessibilityRole="button"
           accessibilityLabel="Filtrar mapa"
@@ -359,16 +376,25 @@ if (verMeusLocais) {
               style={styles.overlayFiltro}
               onPress={() => setMostrarFiltro(false)}
             />
-            <Animated.View style={[styles.filtroCard, {
-              opacity: filtroOpacity,
-              transform: [{ translateX: filtroTranslateX, },],
-            },]}>
-
-              <Text style={styles.filtroTitulo}>
+<Animated.View
+              style={[
+                styles.filtroCard,
+                {
+                  backgroundColor: theme.card,
+                  opacity: filtroOpacity,
+                  transform: [{ translateX: filtroTranslateX }],
+                },
+              ]}
+            >
+              <Text style={[styles.filtroTitulo, { color: theme.text }]}> 
                 Filtros de acessibilidade
               </Text>
 
-              <View style={styles.filtrosContainer}>
+              <ScrollView
+                style={styles.filtrosScroll}
+                contentContainerStyle={styles.filtrosContainer}
+                showsVerticalScrollIndicator
+              >
                 {filtrosDisponiveis.map((filtro) => {
                   const ativo =
                     filtrosSelecionados.includes(filtro);
@@ -380,18 +406,23 @@ if (verMeusLocais) {
                       style={[
                         styles.filtroChip,
                         ativo && styles.filtroChipAtivo,
+                        { backgroundColor: ativo ? theme.primary :theme.textOnPrimary },
                       ]}
                     >
                       <Text
                         style={[
                           styles.filtroChipTexto,
-                          ativo && styles.filtroChipTextoAtivo,]}>
+                          ativo && styles.filtroChipTextoAtivo,
+                          { color: ativo ? '#000000' : '#000000' },
+                          { color: ativo ?  '#000000':(highContrast ?  theme.text:'#000000'  ) },
+                        ]}
+                      >
                         {`${ativo ? '✓ ' : ''}${String(filtro)}`}
                       </Text>
                     </Pressable>
                   );
                 })}
-              </View>
+              </ScrollView>
             </Animated.View>
           </>
         )}
@@ -401,7 +432,15 @@ if (verMeusLocais) {
             value={busca}
             onChangeText={setBusca}
             placeholder="Rua, bairro ou cidade"
-            style={styles.searchInput}
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: theme.card,
+                color: theme.text,
+                borderColor: theme.background,
+              },
+            ]}
+            placeholderTextColor={theme.muted}
             returnKeyType="search"
             onSubmitEditing={() => void executarBuscaNoMapa()}
             editable={!buscando}
@@ -410,19 +449,19 @@ if (verMeusLocais) {
 
           {buscando ? (
             <View
-              style={styles.searchSpinner}
+              style={[styles.searchSpinner, { backgroundColor: theme.card }]}
               accessibilityLabel="Buscando"
             >
-              <ActivityIndicator color="#5db075" />
+              <ActivityIndicator color={theme.primary} />
             </View>
           ) : (
             <Pressable
-              style={styles.searchButton}
+              style={[styles.searchButton, { backgroundColor: theme.primary }]}
               onPress={() => void executarBuscaNoMapa()}
               accessibilityRole="button"
               accessibilityLabel="Buscar no mapa"
             >
-              <Text style={styles.searchButtonText}>
+              <Text style={[styles.searchButtonText, { color: theme.textOnPrimary }]}> 
                 Buscar
               </Text>
             </Pressable>
@@ -462,8 +501,8 @@ if (verMeusLocais) {
 
 
         {marcandoLocal ? (
-          <View style={styles.marcacaoBanner}>
-            <Text style={styles.marcacaoBannerText}>
+          <View style={[styles.marcacaoBanner, { backgroundColor: theme.card }]}> 
+            <Text style={[styles.marcacaoBannerText, { color: theme.text }]}> 
               Toque no mapa para marcar o ponto do novo local.
             </Text>
 
@@ -472,7 +511,7 @@ if (verMeusLocais) {
               accessibilityRole="button"
               accessibilityLabel="Cancelar marcação no mapa"
             >
-              <Text style={styles.marcacaoCancelText}>
+              <Text style={[styles.marcacaoCancelText, { color: theme.primary }]}> 
                 Cancelar
               </Text>
             </Pressable>
@@ -480,16 +519,16 @@ if (verMeusLocais) {
         ) : null}
 
         <Pressable
-          style={styles.fabRanking}
+          style={[styles.fabRanking, { backgroundColor: theme.primary }]}
           onPress={() => setVerRanking(true)}
           accessibilityRole="button"
           accessibilityLabel="Ranking de locais"
         >
-          <Icon name="crown" size={36} color="white" />
+          <Icon name="crown" size={36} color={theme.textOnPrimary} />
         </Pressable>
 
         <Pressable
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: theme.primary }]}
           onPress={() => {
             if (!user) {
               setAvisarLoginParaMapa(true);
@@ -501,7 +540,7 @@ if (verMeusLocais) {
           accessibilityRole="button"
           accessibilityLabel="Adicionar local no mapa"
         >
-          <Icon name="plus" size={48} color="white" />
+          <Icon name="plus" size={48} color={theme.textOnPrimary} />
         </Pressable>
       </View>
 

@@ -6,11 +6,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingBottom: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
 
-  headerTheme: {
-    backgroundColor: '#5db075',
-  },
 
   leftContainer: {
     position: 'absolute',

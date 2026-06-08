@@ -45,6 +45,7 @@ import {
 } from '../../services/locaisFirebase';
 
 import { styles } from './styles';
+import { useTheme } from '../../components/ThemeProvider';
 
 type ProfileProps = {
   onVoltar: () => void;
@@ -78,6 +79,7 @@ export function Profile({
   onVoltar,
 }: Readonly<ProfileProps>) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme, isDark, highContrast, toggleHighContrast } = useTheme();
 
   const [editing, setEditing] =
     useState(false);
@@ -280,6 +282,17 @@ export function Profile({
         onVoltar={() =>
           setVerMeusLocais(false)
         }
+        onHome={() => {
+          setVerMeusLocais(false);
+          onVoltar();
+        }}
+        onLocais={() => {
+          setVerMeusLocais(false);
+          setVerLocais(true);
+        }}
+        onProfile={() => {
+          setVerMeusLocais(false);
+        }}
         onEditarLocal={(
           local: LocalFirebase
         ) => {
@@ -290,13 +303,14 @@ export function Profile({
   }
 
   return (
-    <Animated.View style={[styles.container, { opacity, transform: [{ translateX }], },]}>
+    <Animated.View style={[styles.container, { opacity, transform: [{ translateX }], backgroundColor: theme.background },]}>
       {/* HEADER */}
       <Header themed>
         <HeaderElement
           themed
           type='1'
           text='Voltar'
+          textStyle={isDark ? { color: theme.primary } : undefined}
           onPress={onVoltar}
         />
 
@@ -318,6 +332,7 @@ export function Profile({
             themed
             type='3'
             text='Editar'
+            textStyle={isDark ? { color: theme.primary } : undefined}
             onPress={handleEdit}
           />
         )}
@@ -345,9 +360,7 @@ export function Profile({
 
           {editing && (
             <Pressable
-              style={
-                styles.cameraButton
-              }
+              style={styles.cameraButton}
               onPress={pickImage}
             >
               <Ionicons
@@ -363,58 +376,41 @@ export function Profile({
           <TextInput
             value={name}
             onChangeText={setName}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
+            placeholderTextColor={theme.text}
           />
         ) : (
-          <Text style={styles.name}>
+          <Text style={[styles.name, { color: highContrast ? '#FFD600' : theme.text }]}> 
             {name}
           </Text>
         )}
 
-        <View style={styles.levelCard}>
+        <View style={highContrast ? [styles.levelCard, { backgroundColor: '#000000',borderWidth: 1, borderColor: '#FFD600' }] : isDark ? [styles.levelCard, { backgroundColor: theme.card }] : styles.levelCard}>
           {perfilCompleto ? (
-            <Text
-              style={
-                styles.completeText
-              }
-            >
-              Usuário pronto para
-              explorar 🚀
-            </Text>
+            <Text style={[styles.completeText, { color: highContrast ? '#FFD600' : theme.primary }]}>Usuário pronto para explorar 🚀</Text>
           ) : (
             <>
-              <View
-                style={
-                  styles.levelHeader
-                }
-              >
+              <View style={styles.levelHeader}>
                 <Text
-                  style={
-                    styles.levelTitle
-                  }
+                  style={highContrast ? [styles.levelTitle, { color: '#FFD600', fontWeight: '700' }] : isDark ? [styles.levelTitle, { color: theme.primary, fontWeight: '700' }] : styles.levelTitle}
                 >
                   Nível {nivel}
                 </Text>
 
                 <Text
-                  style={
-                    styles.levelXp
-                  }
+                  style={highContrast ? [styles.levelXp, { color: '#FFD600' }] : isDark ? [styles.levelXp, { color: theme.muted }] : styles.levelXp}
                 >
                   {nivel}/4
                 </Text>
               </View>
 
-              <View
-                style={
-                  styles.progressBarBackground
-                }
-              >
+              <View style={[styles.progressBarBackground, { backgroundColor: highContrast ? '#333333' : theme.card }]}> 
                 <View
                   style={[
                     styles.progressBarFill,
                     {
                       width: `${porcentagemXp}%`,
+                      backgroundColor: highContrast ? '#FFD600' : theme.primary,
                     },
                   ]}
                 />
@@ -423,7 +419,7 @@ export function Profile({
           )}
         </View>
 
-        <Text style={styles.label}>
+        <Text style={isDark ? [styles.label, { color: theme.titulo }] : [styles.label, { color: theme.titulo }] }> 
           Bio
         </Text>
 
@@ -436,16 +432,17 @@ export function Profile({
               styles.bioInput,
             ]}
             multiline
+            placeholderTextColor={theme.text}
           />
         ) : (
           <Text
-            style={styles.infoText}
+            style={[styles.infoText, { color: highContrast ? theme.campo : theme.primary }]}
           >
             {bio || '-'}
           </Text>
         )}
 
-        <Text style={styles.label}>
+        <Text style={isDark ? [styles.label, { color: theme.titulo }] : [styles.label, { color: theme.titulo }] }> 
           Email
         </Text>
 
@@ -454,7 +451,8 @@ export function Profile({
             <TextInput
               value={email}
               onChangeText={setEmail}
-              style={styles.input}
+              style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
+              placeholderTextColor={theme.text}
               keyboardType='email-address'
               autoCapitalize='none'
             />
@@ -468,50 +466,85 @@ export function Profile({
                 styles.input,
                 {
                   marginTop: 10,
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.card,
                 },
               ]}
               placeholder='Confirme sua senha'
+              placeholderTextColor={theme.text}
               secureTextEntry
             />
           </>
         ) : (
           <Text
-            style={styles.infoText}
+            style={[styles.infoText, { color: highContrast ? theme.campo  : theme.campo, fontWeight: '700', opacity: 1 }]}
           >
             {email || '-'}
           </Text>
         )}
 
-        <Text style={styles.label}>
+        <Text style={isDark ? [styles.label, { color: theme.titulo }] : [styles.label, { color: theme.titulo }] }> 
           Data de Nascimento
         </Text>
 
         {editing ? (
-          <TextInput
-            value={birth}
-            onChangeText={(text) =>
-              setBirth(
-                formatBirth(text)
-              )
-            }
-            style={styles.input}
-            keyboardType='numeric'
-            maxLength={10}
-          />
+            <TextInput
+              value={birth}
+              onChangeText={(text) =>
+                setBirth(
+                  formatBirth(text)
+                )
+              }
+              style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.card }]}
+              placeholderTextColor={theme.text}
+              keyboardType='numeric'
+              maxLength={10}
+            />
         ) : (
           <Text
-            style={styles.infoText}
+            style={[styles.infoText, { color: highContrast ? '#FFD600' : theme.campo }]}
           >
             {birth || '-'}
           </Text>
         )}
 
         <Pressable
-          style={styles.logoutBtn}
+          style={[
+            styles.themeToggle,
+            { backgroundColor: theme.card, borderColor: isDark ? theme.primary : '#c4c4c4' },
+          ]}
+          onPress={() => {
+            void toggleTheme();
+          }}
+        >
+          <Text style={[styles.themeToggleText, { color:isDark ? theme.primary : theme.titulo }]}> 
+            {isDark ? 'Modo Claro' : 'Modo Noturno'}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.contrastBtn,
+            { backgroundColor: theme.card, borderColor: highContrast ? theme.primary : '#c4c4c4' },
+          ]}
+          onPress={async () => {
+            try {
+              await toggleHighContrast();
+            } catch (e) {
+              console.log('Erro ao alternar highContrast:', e);
+            }
+          }}
+        >
+          <Text style={[styles.contrastText, { color: highContrast ? '#FFD600' : theme.text }]}>Alto contraste</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.logoutBtn, { backgroundColor: theme.card, borderWidth: 1, borderColor: '#E53935' }]}
           onPress={handleLogout}
         >
           <Text
-            style={styles.logoutText}
+            style={[styles.logoutText, { color: '#E53935' }]}
           >
             Sair
           </Text>

@@ -5,6 +5,7 @@ import {
   Text,
   type PressableProps,
 } from 'react-native';
+import { useTheme } from '../ThemeProvider';
 import { styles } from './styles';
 
 type Props = PressableProps & {
@@ -21,6 +22,7 @@ export function Button({
   style,
   ...rest
 }: Props) {
+  const { theme } = useTheme();
   const isDisabled = disabled || loading;
 
   return (
@@ -36,11 +38,15 @@ export function Button({
         return [
           styles.base,
           Platform.OS === 'web' && styles.webPointer,
-          variant === 'primary' ? styles.primary : styles.secondary,
+          variant === 'primary'
+            ? [styles.primary, { backgroundColor: theme.primary }]
+            : [styles.secondary, { borderColor: theme.primary }],
           styleFromProps,
           hovered &&
             !isDisabled &&
-            (variant === 'primary' ? styles.primaryHovered : styles.secondaryHovered),
+            (variant === 'primary'
+              ? styles.primaryHovered
+              : styles.secondaryHovered),
           pressed && !isDisabled && styles.pressed,
           isDisabled && styles.disabled,
         ];
@@ -48,12 +54,16 @@ export function Button({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : '#2563eb'} />
+        <ActivityIndicator
+          color={variant === 'primary' ? theme.textOnPrimary : theme.primary}
+        />
       ) : (
         <Text
           style={[
             styles.label,
-            variant === 'primary' ? styles.labelPrimary : styles.labelSecondary,
+            variant === 'primary'
+              ? [styles.labelPrimary, { color: theme.textOnPrimary }]
+              : [styles.labelSecondary, { color: theme.primary }],
           ]}
         >
           {title}

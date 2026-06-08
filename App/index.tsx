@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from '../components/AuthProvider';
+import { ThemeProvider, useTheme } from '../components/ThemeProvider';
 import { Home } from '../pages/Home/Home';
 import { Login } from '../pages/Login/Login';
 import { Register } from '../pages/Register/Register';
@@ -55,12 +56,22 @@ function AppContent() {
 }
 
 export default function App() {
+  function AppInner() {
+    const { theme } = useTheme();
+
+    return (
+      <AuthProvider>
+        <View style={[styles.root, { backgroundColor: theme.background }]}> 
+          <AppContent />
+          <StatusBar style="auto" />
+        </View>
+      </AuthProvider>
+    );
+  }
+
   return (
-    <AuthProvider>
-      <View style={styles.root}>
-        <AppContent />
-        <StatusBar style="auto" />
-      </View>
-    </AuthProvider>
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   );
 }
