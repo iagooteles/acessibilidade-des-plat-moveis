@@ -101,6 +101,22 @@ export function Detalhes({
   const { user } = useAuth();
   const [verProfile, setVerProfile] = useState(false);
   const [verAvaliation, setVerAvaliation] = useState(false);
+  // anotações
+  const [modalVisible, setModalVisible] = useState(false);
+  const [search, setSearch] = useState('');
+  const [otherModalVisible, setOtherModalVisible] = useState(false);
+  const [customAnnotation, setCustomAnnotation] = useState('');
+  const [options, setOptions] = useState<string[]>([
+    'Rampa de acesso',
+    'Piso tátil',
+    'Estacionamento prioritário',
+    'Sinalização correta',
+    'Trajetória adequada',
+  ]);
+  const filteredOptions = options.filter((item) =>
+    item.toLowerCase().includes(search.toLowerCase())
+  );
+
   const [verDetalhes, setVerDetalhes] = useState(false);
   const [verLocais, setVerLocais] = useState(false);
   const [comentarios, setComentarios] = useState<ComentarioLocal[]>(
@@ -165,9 +181,29 @@ export function Detalhes({
       return;
     }
 
+    if (!local) return;
+
     const mimeType = asset.mimeType ?? 'image/jpeg';
+    const newFotoBase64 = `data:${mimeType};base64,${asset.base64}`;
+
     setFotoUri(asset.uri);
-    setFotoBase64(`data:${mimeType};base64,${asset.base64}`);
+    setFotoBase64(newFotoBase64);
+
+    setSalvando(true);
+    try {
+      await editarLocalNoFirebase({
+        id: localId,
+        nome: local.nome,
+        anotacoes: local.anotacoes ?? [],
+        fotoBase64: newFotoBase64,
+      });
+      await carregarLocal();
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a imagem no Firebase.');
+    } finally {
+      setSalvando(false);
+    }
   };
 
   useEffect(() => {
@@ -388,6 +424,44 @@ export function Detalhes({
     }
   };
 
+  const addAnnotation = async (text: string, positive: boolean) => {
+    if (!user) {
+      Alert.alert('Sessão', 'Você precisa estar logado para adicionar anotações.');
+      return;
+    }
+
+    if (!local) return;
+
+    // Filtra anotações existentes para evitar duplicidade (ex: ter "Possui" e "Não possui" ao mesmo tempo)
+    const novasAnotacoes = (local.anotacoes ?? []).filter(
+      (item) =>
+        item.text !== `Possui ${text}` &&
+        item.text !== `Não possui ${text}`
+    );
+
+    novasAnotacoes.push({
+      text: positive ? `Possui ${text}` : `Não possui ${text}`,
+      type: positive ? 'positive' : 'negative',
+    });
+
+    setLocal({ ...local, anotacoes: novasAnotacoes });
+    setModalVisible(false);
+
+    // salvar no firebase
+    try {
+      await editarLocalNoFirebase({
+        id: localId,
+        nome: local.nome,
+        anotacoes: novasAnotacoes,
+        fotoBase64: local.fotoBase64 ?? null,
+      });
+      await carregarLocal();
+    } catch (error) {
+      console.error('Erro ao salvar anotação:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a anotação no banco de dados.');
+    }
+  };
+
   if (!local) {
 
     return (
@@ -520,54 +594,30 @@ export function Detalhes({
 
           <View style={styles.anotacoesLista}>
             {(local.anotacoes ?? []).map((item, index) => (
-
-              <View
-                key={index}
-                style={styles.anotacaoItem}
-              >
-
+              <View key={index} style={styles.anotacaoItem}>
                 <View style={styles.anotacaoLeft}>
-
                   <Icon
-                    name={
-                      item.type === 'positive'
-                        ? 'check-circle'
-                        : 'close-circle'
-                    }
+                    name={item.type === 'positive' ? 'check-circle' : 'close-circle'}
                     size={22}
-                    color={
-                      item.type === 'positive'
-                        ? '#31C451'
-                        : '#FF3B30'
-                    }
+                    color={item.type === 'positive' ? '#31C451' : '#FF3B30'}
                   />
-
                   <View style={styles.anotacaoConteudo}>
                     <Text style={styles.anotacaoTexto}>
                       {item.text}
                     </Text>
-
-                    {
-                      denunciaPorAnotacao[item.text] >= 3 && (
-                        <Text style={styles.alertaAnotacao}>
-                          ⚠ Possível informação incorreta
-                        </Text>
-                      )
-                    }
+                    {denunciaPorAnotacao[item.text] >= 3 && (
+                      <Text style={styles.alertaAnotacao}>
+                        ⚠ Possível informação incorreta
+                      </Text>
+                    )}
                   </View>
                 </View>
 
                 <View style={styles.anotacaoAcoes}>
                   <AnotacaoUpvote
-                    total={
-                      upvotePorAnotacao[item.text]?.total ?? 0
-                    }
-                    votouUsuario={
-                      upvotePorAnotacao[item.text]?.votouUsuario ?? false
-                    }
-                    onPress={() => {
-                      void handleAlternarUpvote(item.text);
-                    }}
+                    total={upvotePorAnotacao[item.text]?.total ?? 0}
+                    votouUsuario={upvotePorAnotacao[item.text]?.votouUsuario ?? false}
+                    onPress={() => { void handleAlternarUpvote(item.text) }}
                     disabled={!user}
                   />
 
@@ -593,7 +643,12 @@ export function Detalhes({
           </View>
 
           {/* Botão de adicionar Anotação */}
-          <Pressable style={styles.addButton}>
+          <TouchableOpacity
+            style={[styles.anotacaoLeft, { marginTop: 8 }]}
+            activeOpacity={0.7}
+            onPress={() => setModalVisible(true)}
+            disabled={salvando}
+          >
             <Ionicons
               name="add-circle-outline"
               size={24}
@@ -602,7 +657,7 @@ export function Detalhes({
             <Text style={styles.addText}>
               Adicionar...
             </Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.hr} />
@@ -839,7 +894,117 @@ export function Detalhes({
         />
       </Footer>
 
-    </View >
+      {/* Modal normal */}
+      <Modal transparent visible={modalVisible} animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modal}>
+            <TextInput
+              placeholder="Buscar"
+              style={styles.search}
+              value={search}
+              onChangeText={setSearch}
+            />
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {filteredOptions.map((item, index) => (
+                <View key={index} style={styles.optionRow}>
+                  <Text style={styles.optionText}>{item}</Text>
+
+                  <View style={styles.iconRow}>
+                    <TouchableOpacity onPress={() => void addAnnotation(item, true)}>
+                      <Ionicons
+                        name="checkmark-circle-outline"
+                        size={28}
+                        color="#35C759"
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => void addAnnotation(item, false)}>
+                      <Ionicons name="close-circle" size={26} color="#FF3B30" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+
+              <TouchableOpacity
+                style={{ marginTop: 12, flexDirection: 'row' }}
+                onPress={() => {
+                  setModalVisible(false);
+                  setTimeout(() => {
+                    setOtherModalVisible(true);
+                  }, 200);
+                }}
+              >
+                <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                <Text style={styles.other}>Adicionar anotação</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal da opção custom */}
+      <Modal transparent visible={otherModalVisible} animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modal2}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '600',
+                marginBottom: 16,
+              }}
+            >
+              Adicionar anotação
+            </Text>
+
+            <TextInput
+              placeholder="Digite a anotação..."
+              style={styles.search}
+              value={customAnnotation}
+              onChangeText={setCustomAnnotation}
+              autoFocus
+            />
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 20,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setOtherModalVisible(false);
+                  setCustomAnnotation('');
+                }}
+              >
+                <Text style={{ color: '#FF3B30', fontSize: 16 }}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  if (customAnnotation.trim().length > 0) {
+                    setOptions((prev) => [...prev, customAnnotation]);
+                    void addAnnotation(customAnnotation, true);
+                    setCustomAnnotation('');
+                    setOtherModalVisible(false);
+                  }
+                }}
+              >
+                <Text style={{ color: '#35C759', fontSize: 16 }}>Adicionar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 
 }

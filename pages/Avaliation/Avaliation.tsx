@@ -610,9 +610,12 @@ export default function Avaliation({
                 onPress={() => setModalVisible(true)}
                 disabled={salvando}
               >
-                <Ionicons name="add-circle-outline" size={24} color="#BDBDBD" />
+                <Ionicons
+                  name="add-circle-outline"
+                  size={24}
+                  color="#BDBDBD" />
                 <Text style={[styles.noteText, { color: '#BDBDBD' }]}>
-                  Adicionar…
+                  Adicionar...
                 </Text>
               </TouchableOpacity>
             ) : null}
