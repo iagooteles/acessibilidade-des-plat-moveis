@@ -79,7 +79,7 @@ export function Profile({
   onVoltar,
 }: Readonly<ProfileProps>) {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme, isDark, highContrast, toggleHighContrast } = useTheme();
+  const { theme, toggleTheme, isDark } = useTheme();
 
   const [editing, setEditing] =
     useState(false);
@@ -380,37 +380,52 @@ export function Profile({
             placeholderTextColor={theme.text}
           />
         ) : (
-          <Text style={[styles.name, { color: highContrast ? '#FFD600' : theme.text }]}> 
+          <Text style={[styles.name, { color: theme.text }]}>
             {name}
           </Text>
         )}
 
-        <View style={highContrast ? [styles.levelCard, { backgroundColor: '#000000',borderWidth: 1, borderColor: '#FFD600' }] : isDark ? [styles.levelCard, { backgroundColor: theme.card }] : styles.levelCard}>
+        <View style={isDark ? [styles.levelCard, { backgroundColor: theme.card }] : styles.levelCard}>
           {perfilCompleto ? (
-            <Text style={[styles.completeText, { color: highContrast ? '#FFD600' : theme.primary }]}>Usuário pronto para explorar 🚀</Text>
+            <Text
+              style={
+                [styles.completeText, { color: theme.primary }]
+              }
+            >
+              Usuário pronto para
+              explorar 🚀
+            </Text>
           ) : (
             <>
-              <View style={styles.levelHeader}>
-                <Text
-                  style={highContrast ? [styles.levelTitle, { color: '#FFD600', fontWeight: '700' }] : isDark ? [styles.levelTitle, { color: theme.primary, fontWeight: '700' }] : styles.levelTitle}
-                >
-                  Nível {nivel}
-                </Text>
+              <View
+                style={
+                  styles.levelHeader
+                }
+              >
+                  <Text
+                    style={isDark ? [styles.levelTitle, { color: theme.primary, fontWeight: '700' }] : styles.levelTitle}
+                  >
+                    Nível {nivel}
+                  </Text>
 
-                <Text
-                  style={highContrast ? [styles.levelXp, { color: '#FFD600' }] : isDark ? [styles.levelXp, { color: theme.muted }] : styles.levelXp}
-                >
-                  {nivel}/4
-                </Text>
+                  <Text
+                    style={isDark ? [styles.levelXp, { color: theme.muted }] : styles.levelXp}
+                  >
+                    {nivel}/4
+                  </Text>
               </View>
 
-              <View style={[styles.progressBarBackground, { backgroundColor: highContrast ? '#333333' : theme.card }]}> 
+              <View
+                style={
+                  [styles.progressBarBackground, { backgroundColor: theme.card }]
+                }
+              >
                 <View
                   style={[
                     styles.progressBarFill,
                     {
                       width: `${porcentagemXp}%`,
-                      backgroundColor: highContrast ? '#FFD600' : theme.primary,
+                      backgroundColor: theme.primary,
                     },
                   ]}
                 />
@@ -419,7 +434,7 @@ export function Profile({
           )}
         </View>
 
-        <Text style={isDark ? [styles.label, { color: theme.titulo }] : [styles.label, { color: theme.titulo }] }> 
+        <Text style={isDark ? [styles.label, { color: theme.muted }] : styles.label}> 
           Bio
         </Text>
 
@@ -436,13 +451,13 @@ export function Profile({
           />
         ) : (
           <Text
-            style={[styles.infoText, { color: highContrast ? theme.campo : theme.primary }]}
+            style={[styles.infoText, { color: theme.text }]}
           >
             {bio || '-'}
           </Text>
         )}
 
-        <Text style={isDark ? [styles.label, { color: theme.titulo }] : [styles.label, { color: theme.titulo }] }> 
+        <Text style={isDark ? [styles.label, { color: theme.muted }] : styles.label}> 
           Email
         </Text>
 
@@ -478,13 +493,13 @@ export function Profile({
           </>
         ) : (
           <Text
-            style={[styles.infoText, { color: highContrast ? theme.campo  : theme.campo, fontWeight: '700', opacity: 1 }]}
+            style={isDark ? [styles.infoText, { color: theme.primary, fontWeight: '700', opacity: 1 }] : styles.infoText}
           >
             {email || '-'}
           </Text>
         )}
 
-        <Text style={isDark ? [styles.label, { color: theme.titulo }] : [styles.label, { color: theme.titulo }] }> 
+        <Text style={isDark ? [styles.label, { color: theme.muted }] : styles.label}> 
           Data de Nascimento
         </Text>
 
@@ -503,44 +518,25 @@ export function Profile({
             />
         ) : (
           <Text
-            style={[styles.infoText, { color: highContrast ? '#FFD600' : theme.campo }]}
+            style={[styles.infoText, { color: theme.text }]}
           >
             {birth || '-'}
           </Text>
         )}
 
         <Pressable
-          style={[
-            styles.themeToggle,
-            { backgroundColor: theme.card, borderColor: isDark ? theme.primary : '#c4c4c4' },
-          ]}
+          style={[styles.themeToggle, { backgroundColor: theme.card }]}
           onPress={() => {
             void toggleTheme();
           }}
         >
-          <Text style={[styles.themeToggleText, { color:isDark ? theme.primary : theme.titulo }]}> 
+          <Text style={[styles.themeToggleText, { color: theme.text }]}> 
             {isDark ? 'Modo Claro' : 'Modo Noturno'}
           </Text>
         </Pressable>
 
         <Pressable
-          style={[
-            styles.contrastBtn,
-            { backgroundColor: theme.card, borderColor: highContrast ? theme.primary : '#c4c4c4' },
-          ]}
-          onPress={async () => {
-            try {
-              await toggleHighContrast();
-            } catch (e) {
-              console.log('Erro ao alternar highContrast:', e);
-            }
-          }}
-        >
-          <Text style={[styles.contrastText, { color: highContrast ? '#FFD600' : theme.text }]}>Alto contraste</Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.logoutBtn, { backgroundColor: theme.card, borderWidth: 1, borderColor: '#E53935' }]}
+          style={[styles.logoutBtn, { backgroundColor: theme.card }]}
           onPress={handleLogout}
         >
           <Text

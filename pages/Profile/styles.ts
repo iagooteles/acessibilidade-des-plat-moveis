@@ -165,24 +165,9 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 
   themeToggleText: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  contrastBtn: {
-    marginTop: 12,
-    width: '100%',
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-
-  contrastText: {
     fontSize: 16,
     fontWeight: '700',
   },

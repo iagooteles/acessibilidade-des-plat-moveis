@@ -9,8 +9,6 @@ type Theme = {
   headerText: string;
   card: string;
   textOnPrimary: string;
-  campo: string;
-  titulo: string;
 };
 
 const light: Theme = {
@@ -21,8 +19,6 @@ const light: Theme = {
   headerText: '#ffffff',
   card: '#f7f7f7',
   textOnPrimary: '#ffffff',
-  campo: '#6b7280',
-  titulo:'#111111'
 };
 
 const dark: Theme = {
@@ -33,34 +29,24 @@ const dark: Theme = {
   headerText: '#ffffff',
   card: '#101827',
   textOnPrimary: '#ffffff',
-  campo: '#4ade80',
-  titulo:'#9aa6b2'
 };
 
 type ThemeContextValue = {
   theme: Theme;
   toggleTheme: () => Promise<void>;
   isDark: boolean;
-  highContrast: boolean;
-  toggleHighContrast: () => Promise<void>;
 };
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const rawDark = await AsyncStorage.getItem('@app:theme_dark');
-        const rawContrast = await AsyncStorage.getItem('@app:high_contrast');
-        const loadedContrast = rawContrast === '1';
-        const loadedDark = rawDark === '1' && !loadedContrast;
-
-        setHighContrast(loadedContrast);
-        setIsDark(loadedDark);
+        const raw = await AsyncStorage.getItem('@app:theme_dark');
+        if (raw === '1') setIsDark(true);
       } catch (e) {
         // ignore
       }
@@ -72,55 +58,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const next = !isDark;
       setIsDark(next);
       await AsyncStorage.setItem('@app:theme_dark', next ? '1' : '0');
-
-      if (next && highContrast) {
-        setHighContrast(false);
-        await AsyncStorage.setItem('@app:high_contrast', '0');
-      }
     } catch (e) {
       // ignore
     }
   };
-
-  const toggleHighContrast = async () => {
-    try {
-      const next = !highContrast;
-      setHighContrast(next);
-      await AsyncStorage.setItem('@app:high_contrast', next ? '1' : '0');
-
-      if (next && isDark) {
-        setIsDark(false);
-        await AsyncStorage.setItem('@app:theme_dark', '0');
-      }
-    } catch (e) {
-      // ignore
-    }
-  };
-
-  const effectiveTheme = (() => {
-    if (highContrast) {
-      return {
-        background: '#000000',
-        text: '#FFFF00',
-        muted: '#FFFF00',
-        primary: '#FFFF00',
-        headerText: '#FFFF00',
-        card: '#000000',
-        textOnPrimary: '#000000',
-        campo: '#FFFF00',
-        titulo: '#ffffff',
-      };
-    }
-
-    return isDark ? dark : light;
-  })();
 
   const value: ThemeContextValue = {
-    theme: effectiveTheme,
+    theme: isDark ? dark : light,
     toggleTheme,
     isDark,
-    highContrast,
-    toggleHighContrast,
   };
 
   return (
