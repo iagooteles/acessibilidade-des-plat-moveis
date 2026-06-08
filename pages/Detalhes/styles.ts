@@ -111,10 +111,18 @@ export const styles = StyleSheet.create({
   },
 
   image: {
-    width: 165,
-    height: 165,
+    width: 170,
+    height: 170,
     borderRadius: 22,
     marginRight: 18,
+  },
+
+  imageRow: {
+    flexDirection: "row",
+    gap: 18,
+    marginBottom: 0,
+    marginTop: 8,
+    paddingHorizontal: 0,
   },
 
   sectionTitle: {
@@ -123,6 +131,18 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#000',
+  },
+
+  addImageBox: {
+    marginLeft: 12,
+    marginTop: 8,
+    width: 128,
+    height: 128,
+    borderRadius: 32,
+    borderWidth: 2,
+    borderColor: "#D9D9D9",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   anotacoesSection: {
@@ -291,84 +311,84 @@ export const styles = StyleSheet.create({
   },
 
   overlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.35)',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-
-modalReport: {
-  width: '82%',
-  backgroundColor: '#FFF',
-  borderRadius: 24,
-  paddingHorizontal: 24,
-  paddingVertical: 28,
-  elevation: 10,
-  shadowColor: '#000',
-  shadowOffset: {
-    width: 0,
-    height: 4,
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  shadowOpacity: 0.15,
-  shadowRadius: 10,
-},
 
-modalTituloReport: {
-  fontSize: 20,
-  fontWeight: '700',
-  color: '#111',
-  textAlign: 'center',
-  marginBottom: 18,
-},
+  modalReport: {
+    width: '82%',
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+  },
 
-modalDescricao: {
-  fontSize: 16,
-  color: '#555',
-  textAlign: 'center',
-  marginBottom: 28,
-},
+  modalTituloReport: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111',
+    textAlign: 'center',
+    marginBottom: 18,
+  },
 
-botoes: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-},
+  modalDescricao: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 28,
+  },
 
-botaoConfirmar: {
-  flex: 1,
-  backgroundColor: '#FF5A5F',
-  height: 48,
-  borderRadius: 24,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 10,
-},
+  botoes: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 
-botaoCancelar: {
-  flex: 1,
-  backgroundColor: '#D1D1D6',
-  height: 48,
-  borderRadius: 24,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
+  botaoConfirmar: {
+    flex: 1,
+    backgroundColor: '#FF5A5F',
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
 
-textoBotaoConfirmar: {
-  color: '#FFF',
-  fontSize: 16,
-  fontWeight: '600',
-},
+  botaoCancelar: {
+    flex: 1,
+    backgroundColor: '#D1D1D6',
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-textoBotaoCancelar: {
-  color: '#FFF',
-  fontSize: 16,
-  fontWeight: '600',
-},
+  textoBotaoConfirmar: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 
-alertaAnotacao: {
-  color: '#FF9500',
-  fontSize: 12,
-  fontWeight: '600',
-  marginTop: 2,
-},
+  textoBotaoCancelar: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  alertaAnotacao: {
+    color: '#FF9500',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
+  },
 
 });

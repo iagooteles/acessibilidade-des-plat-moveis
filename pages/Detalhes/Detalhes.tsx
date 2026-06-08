@@ -14,6 +14,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { styles } from './styles';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
@@ -36,7 +37,7 @@ import { Footer, FooterButton } from '../../components/Footer/Footer';
 import { Header, HeaderElement } from '../../components/Header/Header';
 import { Profile } from '../Profile/Profile';
 import Locais from '../Locais/Locais';
-import { ComentarioLocal, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
+import { ComentarioLocal, editarLocalNoFirebase, criarComentarioNoLocal, type LocalFirebase } from '../../services/locaisFirebase';
 import { buscarPerfilFirestore } from '../../services/usuariosFirebase';
 import {
   reportarAnotacao,
@@ -48,7 +49,11 @@ import {
   mensagemErroFirebase,
   type UpvoteResumo,
 } from '../../services/locaisFirebase';
+import { } from '../../services/locaisFirebase';
+import * as ImagePicker from 'expo-image-picker';
 import { AnotacaoUpvote } from '../../components/AnotacaoUpvote/AnotacaoUpvote';
+
+const MAX_FOTO_BASE64_CHARS = 900000;
 
 type Props = {
   localId: string;
@@ -120,6 +125,50 @@ export function Detalhes({
     >(null);
 
   const [local, setLocal] = useState<Local | null>(null);
+
+  // Foto
+  const [fotoUri, setFotoUri] = useState<string | null>(
+    local?.fotoBase64 ?? local?.fotoUrl ?? null
+  );
+  const [fotoBase64, setFotoBase64] = useState<string | null>(
+    local?.fotoBase64 ?? null
+  );
+  const fotoSource = fotoUri ? { uri: fotoUri } : undefined;
+  const mostrarSemFoto = !fotoUri
+
+  const escolherFoto = async () => {
+    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissao.granted) {
+      Alert.alert(
+        'Permissão',
+        'Precisamos de acesso às fotos para anexar uma imagem ao local.'
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.45,
+      base64: true,
+    });
+
+    const asset = result.assets?.[0];
+    if (result.canceled || !asset?.uri || !asset.base64) {
+      return;
+    }
+
+    if (asset.base64.length > MAX_FOTO_BASE64_CHARS) {
+      Alert.alert(
+        'Imagem muito grande',
+        'Escolha uma imagem menor para salvar no Firebase.'
+      );
+      return;
+    }
+
+    const mimeType = asset.mimeType ?? 'image/jpeg';
+    setFotoUri(asset.uri);
+    setFotoBase64(`data:${mimeType};base64,${asset.base64}`);
+  };
 
   useEffect(() => {
     void carregarLocal();
@@ -411,8 +460,7 @@ export function Detalhes({
         </View>
 
         {/* Coordenadas */}
-        {/* 
-        {local.lat != null && local.long != null ? (
+        {/* {local.lat != null && local.long != null ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
               Coordenadas
@@ -434,32 +482,33 @@ export function Detalhes({
             Fotos
           </Text>
 
-          <FlatList
-            horizontal
-            data={
-              local.fotoBase64 || local.fotoUrl
-                ? [
-                  local.fotoBase64 ??
-                  local.fotoUrl ??
-                  ''
-                ]
-                : []
+          <View style={styles.imageRow}>
+            {fotoSource ? (<Image source={fotoSource} style={styles.image} />)
+              : null}
+
+            {mostrarSemFoto ?
+              (<TouchableOpacity
+                style={styles.addImageBox}
+                onPress={() => void escolherFoto()}
+                disabled={salvando}
+                accessibilityRole="button"
+                accessibilityLabel="Adicionar foto"
+              >
+                <Icon name="plus" size={36} color="#AFAFAF" />
+              </TouchableOpacity>
+              ) :
+              <TouchableOpacity
+                style={[styles.addImageBox, { marginLeft: 0, marginTop: 0, width: 170, height: 170 }]}
+                onPress={() => void escolherFoto()}
+                disabled={salvando}
+                accessibilityRole="button"
+                accessibilityLabel="Adicionar foto"
+              >
+                <Icon name="plus" size={36} color="#AFAFAF" />
+              </TouchableOpacity>
             }
-            keyExtractor={(item, index) => String(index)}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.imagesList}
-            ListEmptyComponent={
-              <Text style={styles.semFoto}>
-                Sem foto cadastrada.
-              </Text>
-            }
-            renderItem={({ item }) => (
-              <Image
-                source={{ uri: item }}
-                style={styles.image}
-              />
-            )}
-          />
+
+          </View>
         </View>
 
         <View style={styles.hr} />

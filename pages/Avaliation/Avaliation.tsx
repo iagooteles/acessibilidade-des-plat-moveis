@@ -506,7 +506,7 @@ export default function Avaliation({
           <View style={styles.section}>
             <View style={styles.nomeLinha}>
               <View style={[styles.nomeLinhaConteudo, { top: 1 }]}>
-                <Text style={[styles.sectionTitle, {marginBottom: 16}]}>Nome do local</Text>
+                <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Nome do local</Text>
                 {podeAlterar ? (
                   <TextInput
                     style={[styles.input, styles.inputNomeLinha]}
@@ -543,7 +543,7 @@ export default function Avaliation({
 
           <View style={styles.hr} />
 
-          <View style={[styles.section]}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Foto</Text>
             <View style={styles.imageRow}>
               {fotoSource ? (
@@ -655,7 +655,7 @@ export default function Avaliation({
                 <TouchableOpacity
                   style={{
                     marginLeft: 10,
-                    backgroundColor: !novoComentario.trim() ? '#E5E5EA' : '#35C759',
+                    backgroundColor: '#35C759',
                     padding: 14,
                     borderRadius: 100,
                   }}
@@ -665,7 +665,7 @@ export default function Avaliation({
                   <Ionicons
                     name="send"
                     size={20}
-                    color={!novoComentario.trim() ? '#AFAFAF' : '#fff'}
+                    color='#fff'
                   />
                 </TouchableOpacity>
                 : null}
